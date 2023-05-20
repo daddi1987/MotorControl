@@ -276,7 +276,12 @@ uint8_t rot_get_state() {
                 | (HAL_GPIO_ReadPin(GPIOA, Encoder1_Count_Pin)));
 }
 
-// External interrupts from rotary encoder
+// ---------------------------------EXTERNAL INTERRUPT FOR ENCODER MOTOR--------------------------------------
+/* Use Interrupt callback for determinate the count encoder and direction
+ * The Encoder Have a 2048 pulse/rot, in this implementation do it increment counter POSITION four time at impulse
+ * Example 1rev/8192 pulse
+ * PIN ENCODER A0 COUNT AND A1 DIRECTION
+ */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	if (GPIO_Pin == Encoder1_Count_Pin || GPIO_Pin == Encoder1_Direct_Pin) {
 
@@ -306,8 +311,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		rot_old_state = rot_new_state;
 	}
 }
-
-
+// ---------------------------------END EXTERNAL INTERRUPT FOR ENCODER MOTOR--------------------------------------
+/*
+ *
+ *
+ *
+ */
 /* USER CODE END 4 */
 
 /**
