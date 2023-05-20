@@ -19,7 +19,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 
-
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -42,6 +41,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
+uint32_t EncoderCount = 0;
 
 /* USER CODE BEGIN PV */
 
@@ -64,13 +64,6 @@ static void MX_USART2_UART_Init(void);
   * @brief  The application entry point.
   * @retval int
   */
-
-
-// Define variables
-uint8_t MSG[35] = {'\0'};
-uint32_t EncoderCount = 0;
-
-
 int main(void)
 {
   /* USER CODE BEGIN 1 */
@@ -105,9 +98,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	     sprintf(MSG, "Position:  %d\r\n", EncoderCount);
-	     HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
-	     HAL_Delay(1);
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -227,7 +218,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : Encoder1_Count_Pin Encoder1_Direct_Pin */
   GPIO_InitStruct.Pin = Encoder1_Count_Pin|Encoder1_Direct_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
@@ -275,16 +266,40 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-	if(GPIO_Pin == Encoder1_Count_Pin)
-	{
-		//printf("EncodeOn");
-		HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
-	    EncoderCount++;
-	}
-	else
-	{
-		printf("EncoderOff");
-	}
+
+   int EncoderStateMachine = 0;
+
+   switch(EncoderStateMachine)
+   {
+
+   case 0:
+		if(GPIO_Pin == Encoder1_Count_Pin)
+		{
+			EncoderStateMachine = 1;
+			//HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
+		}
+		else
+		{
+			EncoderStateMachine = 0;
+		}
+   break;
+
+   case 1:
+		if((GPIO_Pin == Encoder1_Direct_Pin) && (GPIO_Pin == Encoder1_Count_Pin))
+		{
+		  HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
+		  EncoderCount++;
+		  EncoderStateMachine = 0;
+		}
+		else if((GPIO_Pin != Encoder1_Direct_Pin) && (GPIO_Pin == Encoder1_Count_Pin))
+		{
+		  HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
+		  EncoderCount--;
+		  EncoderStateMachine = 0;
+		}
+	break;
+
+   }
 }
 /* USER CODE END 4 */
 
