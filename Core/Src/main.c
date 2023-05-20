@@ -42,6 +42,10 @@
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
 uint32_t EncoderCount = 0;
+uint8_t MSG[35] = {'\0'};
+
+uint8_t rot_new_state = 0;
+uint8_t rot_old_state = 0;
 
 /* USER CODE BEGIN PV */
 
@@ -98,7 +102,9 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	 sprintf(MSG, "Position:  %d\r\n", EncoderCount);
+	 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
+	 HAL_Delay(1);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -264,43 +270,44 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
-{
 
-   int EncoderStateMachine = 0;
-
-   switch(EncoderStateMachine)
-   {
-
-   case 0:
-		if(GPIO_Pin == Encoder1_Count_Pin)
-		{
-			EncoderStateMachine = 1;
-			//HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
-		}
-		else
-		{
-			EncoderStateMachine = 0;
-		}
-   break;
-
-   case 1:
-		if((GPIO_Pin == Encoder1_Direct_Pin) && (GPIO_Pin == Encoder1_Count_Pin))
-		{
-		  HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
-		  EncoderCount++;
-		  EncoderStateMachine = 0;
-		}
-		else if((GPIO_Pin != Encoder1_Direct_Pin) && (GPIO_Pin == Encoder1_Count_Pin))
-		{
-		  HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
-		  EncoderCount--;
-		  EncoderStateMachine = 0;
-		}
-	break;
-
-   }
+uint8_t rot_get_state() {
+	return (uint8_t)((HAL_GPIO_ReadPin(GPIOA, Encoder1_Direct_Pin) << 1)
+                | (HAL_GPIO_ReadPin(GPIOA, Encoder1_Count_Pin)));
 }
+
+// External interrupts from rotary encoder
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+	if (GPIO_Pin == Encoder1_Count_Pin || GPIO_Pin == Encoder1_Direct_Pin) {
+
+		rot_new_state = rot_get_state();
+
+		//DBG("%d:%d", rot_old_state, rot_new_state);
+
+		// Check transition
+		if (rot_old_state == 3 && rot_new_state == 2) {        // 3 -> 2 transition
+			EncoderCount++;
+		} else if (rot_old_state == 2 && rot_new_state == 0) { // 2 -> 0 transition
+			EncoderCount++;
+		} else if (rot_old_state == 0 && rot_new_state == 1) { // 0 -> 1 transition
+			EncoderCount++;
+		} else if (rot_old_state == 1 && rot_new_state == 3) { // 1 -> 3 transition
+			EncoderCount++;
+		} else if (rot_old_state == 3 && rot_new_state == 1) { // 3 -> 1 transition
+			EncoderCount--;
+		} else if (rot_old_state == 1 && rot_new_state == 0) { // 1 -> 0 transition
+			EncoderCount--;
+		} else if (rot_old_state == 0 && rot_new_state == 2) { // 0 -> 2 transition
+			EncoderCount--;
+		} else if (rot_old_state == 2 && rot_new_state == 3) { // 2 -> 3 transition
+			EncoderCount--;
+		}
+
+		rot_old_state = rot_new_state;
+	}
+}
+
+
 /* USER CODE END 4 */
 
 /**
