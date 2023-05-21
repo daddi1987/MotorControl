@@ -61,6 +61,10 @@ uint16_t EncoderPulse = 2048;
 uint16_t RevoluctionFactor = 1;
 float KinematicPositionUnit = 0.0;
 
+char uart_buf[50];
+int uart_buf_len;
+uint16_t TM6_Currentvalue;
+
 
 /* USER CODE BEGIN PV */
 
@@ -129,6 +133,8 @@ int main(void)
 		 HAL_UART_Transmit(&huart2, PositionSend, sizeof(PositionSend), 100);
 		 sprintf((char*)KinematicPositionSend, "KinematicPositionUnit:  %f\r\n", KinematicPositionUnit);
 		 HAL_UART_Transmit(&huart2, KinematicPositionSend, sizeof(KinematicPositionSend), 100);
+		 uart_buf_len = sprintf(uart_buf, "KinematicSpeed:	%u\r\n", TM6_Currentvalue);
+		 HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, uart_buf_len, 100);
 		 HAL_Delay(100);
     /* USER CODE BEGIN 3 */
   }
@@ -200,7 +206,7 @@ static void MX_TIM6_Init(void)
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 0;
+  htim6.Init.Prescaler = 41999;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim6.Init.Period = 65535;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -215,7 +221,7 @@ static void MX_TIM6_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM6_Init 2 */
-
+  HAL_TIM_Base_Start(&htim6); // Start Timer
   /* USER CODE END TIM6_Init 2 */
 
 }
@@ -392,14 +398,18 @@ EncoderPositionFloat = EncoderPosition;
 PositionMotor = EncoderPositionFloat/EncoderPulseSet;
 KinematicPositionUnit = RevoluctionFactorSet * PositionMotor;
 
-	if(EncoderPosition >= EncoderPulseSet)
+//TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6); // Get current time (microseconds)
+
+	if(__HAL_TIM_GET_COUNTER(&htim6) == (TM6_Currentvalue + 1000))
 		{
 		//EncoderPosition = 0;
 		HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
+		TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6); //- TM6_Currentvalue;
 		}
 		else
 		{
 		//PositionMotor = PositionMotor + EncoderPosition;
+		 // Get time elapsed
 		}
 }
 // -------------------------------------END CALCULATE REV TO FACTOR --------------------------------------
