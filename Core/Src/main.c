@@ -42,7 +42,7 @@
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
 int32_t EncoderCount = 0;
-uint8_t MSG[35] = {'\0'};
+uint8_t MSG[6];
 uint8_t PositionSend[64];
 uint8_t KinematicPositionSend[64];
 
@@ -55,7 +55,7 @@ float PositionMotor;
 int16_t EncoderPosition = 0;
 float EncoderPositionFloat = 0.0;
 uint16_t EncoderPulse = 2048;
-uint16_t RevoluctionFactor = 360;
+uint16_t RevoluctionFactor = 1;
 float KinematicPositionUnit = 0.0;
 
 
@@ -114,9 +114,9 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	 sprintf(MSG, "Pulse Encoder:  %d\r\n", EncoderCount);
+	 sprintf((char*)MSG, "Pulse Encoder:  %d\r\n", EncoderCount);
 	 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
-	 sprintf(MSG, "Position Motor:  %d\r\n", EncoderPosition);
+	 sprintf((char*)MSG, "Position Motor:  %d\r\n", EncoderPosition);
 	 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
 	 //sprintf(MSG, "RevolutionMotor:  %f\r\n", PositionMotor);
 	 //HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
