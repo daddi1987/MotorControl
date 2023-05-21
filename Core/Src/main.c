@@ -40,8 +40,8 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-UART_HandleTypeDef huart2;
 TIM_HandleTypeDef htim6;
+UART_HandleTypeDef huart2;
 
 int32_t EncoderCount = 0;
 
@@ -64,7 +64,6 @@ float KinematicPositionUnit = 0.0;
 char uart_buf[50];
 int uart_buf_len;
 uint16_t TM6_Currentvalue;
-
 
 /* USER CODE BEGIN PV */
 
@@ -122,7 +121,11 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    /* USER CODE END WHILE */
 	    /* USER CODE END WHILE */
+
+	     //TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6);
+
 		 sprintf(MSG, "Pulse Encoder:  %d\r\n", EncoderCount);
 		 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
 		 sprintf(MSG, "Position Motor:  %d\r\n", EncoderPosition);
@@ -179,7 +182,7 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
@@ -208,7 +211,7 @@ static void MX_TIM6_Init(void)
   htim6.Instance = TIM6;
   htim6.Init.Prescaler = 41999;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 65535;
+  htim6.Init.Period = 65525;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
@@ -398,13 +401,13 @@ EncoderPositionFloat = EncoderPosition;
 PositionMotor = EncoderPositionFloat/EncoderPulseSet;
 KinematicPositionUnit = RevoluctionFactorSet * PositionMotor;
 
-//TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6); // Get current time (microseconds)
+TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6); // Get current time (microseconds)
 
-	if(__HAL_TIM_GET_COUNTER(&htim6) == (TM6_Currentvalue + 1000))
+	if(TM6_Currentvalue == (TM6_Currentvalue + 1000))
 		{
 		//EncoderPosition = 0;
 		HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
-		TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6); //- TM6_Currentvalue;
+		TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6) - TM6_Currentvalue;
 		}
 		else
 		{
