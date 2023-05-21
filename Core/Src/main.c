@@ -41,7 +41,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 UART_HandleTypeDef huart2;
-uint32_t EncoderCount = 0;
+int32_t EncoderCount = 0;
 uint8_t MSG[35] = {'\0'};
 uint8_t PositionSend[64];
 
@@ -50,8 +50,9 @@ uint8_t rot_new_state = 0;
 uint8_t rot_old_state = 0;
 
 //Declare variables for Calculate Position Encoder
-float PositionMotor = 0.0;
-uint16_t EncoderPosition = 0;
+float PositionMotor;
+int16_t EncoderPosition = 0;
+float EncoderPositionFloat = 0.0;
 uint16_t EncoderPulse = 2048;
 
 
@@ -114,6 +115,8 @@ int main(void)
 	 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
 	 sprintf(MSG, "Position Motor:  %d\r\n", EncoderPosition);
 	 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
+	 //sprintf(MSG, "RevolutionMotor:  %f\r\n", PositionMotor);
+	 //HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
 	 sprintf((char*)PositionSend, "RevolutionMotor:  %f\r\n", PositionMotor);
 	 HAL_UART_Transmit(&huart2, PositionSend, sizeof(PositionSend), 100);
 	 HAL_Delay(100);
@@ -321,7 +324,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		}
 
 		rot_old_state = rot_new_state;
-		Calculate_Rotation();
+		Calculate_Rotation(EncoderPulse);
 	}
 }
 // ---------------------------------END EXTERNAL INTERRUPT FOR ENCODER MOTOR--------------------------------------
@@ -334,11 +337,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 /* Calculate Revolution to Factor
  *
  */
-void Calculate_Rotation()
+void Calculate_Rotation(uint16_t EncoderPulseSet)
 {
-EncoderPosition = EncoderCount/4;
-PositionMotor = PositionMotor/EncoderPosition;
-	if(EncoderPosition >= EncoderPulse)
+EncoderPosition = EncoderCount/4.0;
+EncoderPositionFloat = EncoderPosition;
+PositionMotor = EncoderPositionFloat/EncoderPulseSet;
+
+	if(EncoderPosition >= EncoderPulseSet)
 		{
 		//EncoderPosition = 0;
 		HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
