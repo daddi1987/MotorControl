@@ -1243,7 +1243,7 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-	 sprintf((char*)MSG, "Pulse Encoder:  %d\r\n", EncoderCount);
+	 sprintf(MSG, "Pulse Encoder:  %d\r\n", EncoderCount);
  8000f00:	4b20      	ldr	r3, [pc, #128]	; (8000f84 <main+0x98>)
  8000f02:	681b      	ldr	r3, [r3, #0]
  8000f04:	461a      	mov	r2, r3
@@ -1256,7 +1256,7 @@ int main(void)
  8000f12:	491e      	ldr	r1, [pc, #120]	; (8000f8c <main+0xa0>)
  8000f14:	481e      	ldr	r0, [pc, #120]	; (8000f90 <main+0xa4>)
  8000f16:	f002 fa55 	bl	80033c4 <HAL_UART_Transmit>
-	 sprintf((char*)MSG, "Position Motor:  %d\r\n", EncoderPosition);
+	 sprintf(MSG, "Position Motor:  %d\r\n", EncoderPosition);
  8000f1a:	4b1e      	ldr	r3, [pc, #120]	; (8000f94 <main+0xa8>)
  8000f1c:	f9b3 3000 	ldrsh.w	r3, [r3]
  8000f20:	461a      	mov	r2, r3
