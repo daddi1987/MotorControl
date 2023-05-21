@@ -60,6 +60,7 @@ float EncoderPositionFloat = 0.0;
 uint16_t EncoderPulse = 2048;
 uint16_t RevoluctionFactor = 1;
 float KinematicPositionUnit = 0.0;
+uint16_t KinematicSpeed = 0;
 
 char uart_buf[50];
 int uart_buf_len;
@@ -136,7 +137,7 @@ int main(void)
 		 HAL_UART_Transmit(&huart2, PositionSend, sizeof(PositionSend), 100);
 		 sprintf((char*)KinematicPositionSend, "KinematicPositionUnit:  %f\r\n", KinematicPositionUnit);
 		 HAL_UART_Transmit(&huart2, KinematicPositionSend, sizeof(KinematicPositionSend), 100);
-		 uart_buf_len = sprintf(uart_buf, "KinematicSpeed:	%u\r\n", TM6_Currentvalue);
+		 uart_buf_len = sprintf(uart_buf, "KinematicSpeed:	%u\r\n", KinematicSpeed);
 		 HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, uart_buf_len, 100);
 		 HAL_Delay(100);
     /* USER CODE BEGIN 3 */
@@ -211,7 +212,7 @@ static void MX_TIM6_Init(void)
   htim6.Instance = TIM6;
   htim6.Init.Prescaler = 41999;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 65525;
+  htim6.Init.Period = 1000;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
@@ -224,7 +225,7 @@ static void MX_TIM6_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM6_Init 2 */
-  HAL_TIM_Base_Start(&htim6); // Start Timer
+  HAL_TIM_Base_Start_IT(&htim6); // Start Timer
   /* USER CODE END TIM6_Init 2 */
 
 }
@@ -400,20 +401,20 @@ EncoderPosition = EncoderCount/4.0;
 EncoderPositionFloat = EncoderPosition;
 PositionMotor = EncoderPositionFloat/EncoderPulseSet;
 KinematicPositionUnit = RevoluctionFactorSet * PositionMotor;
+KinematicSpeed++;
 
 TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6); // Get current time (microseconds)
-
-	if(TM6_Currentvalue == (TM6_Currentvalue + 1000))
-		{
+    void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+    {
+    if (htim == TIM6)
+    {
 		//EncoderPosition = 0;
 		HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
-		TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6) - TM6_Currentvalue;
-		}
-		else
-		{
-		//PositionMotor = PositionMotor + EncoderPosition;
-		 // Get time elapsed
-		}
+		KinematicSpeed = 0;
+	}
+
+   }
+
 }
 // -------------------------------------END CALCULATE REV TO FACTOR --------------------------------------
 /* Calculate Revolution to Factor
