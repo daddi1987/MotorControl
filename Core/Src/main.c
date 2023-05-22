@@ -60,7 +60,10 @@ float EncoderPositionFloat = 0.0;
 uint16_t EncoderPulse = 2048;
 uint16_t RevoluctionFactor = 1;
 float KinematicPositionUnit = 0.0;
-uint16_t KinematicSpeed = 0;
+float KinematicSpeedRPS = 0;
+float KinematicSpeedRPM = 0;
+uint16_t TM6_DiffCaunter;
+uint16_t TM6_OldValue;
 
 char uart_buf[50];
 int uart_buf_len;
@@ -137,7 +140,7 @@ int main(void)
 		 HAL_UART_Transmit(&huart2, PositionSend, sizeof(PositionSend), 100);
 		 sprintf((char*)KinematicPositionSend, "KinematicPositionUnit:  %f\r\n", KinematicPositionUnit);
 		 HAL_UART_Transmit(&huart2, KinematicPositionSend, sizeof(KinematicPositionSend), 100);
-		 uart_buf_len = sprintf(uart_buf, "KinematicSpeed:	%u\r\n", KinematicSpeed);
+		 uart_buf_len = sprintf(uart_buf, "KinematicSpeed:	%u\r\n", KinematicSpeedRPS);
 		 HAL_UART_Transmit(&huart2, (uint8_t *)uart_buf, uart_buf_len, 100);
 		 HAL_Delay(100);
     /* USER CODE BEGIN 3 */
@@ -401,16 +404,22 @@ EncoderPosition = EncoderCount/4.0;
 EncoderPositionFloat = EncoderPosition;
 PositionMotor = EncoderPositionFloat/EncoderPulseSet;
 KinematicPositionUnit = RevoluctionFactorSet * PositionMotor;
-KinematicSpeed++;
 
 TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6); // Get current time (microseconds)
+
+
+TM6_DiffCaunter = (TM6_Currentvalue - TM6_OldValue); // Calculate time from count to count
+KinematicSpeedRPS = (1000000/(TM6_DiffCaunter * EncoderPulse)); //Calculate RPS speed
+KinematicSpeedRPM = (KinematicSpeedRPS*60); //Calculate RPM Speed
+TM6_OldValue = TM6_Currentvalue; // Save to old value
+
     void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     {
     if (htim == TIM6)
     {
 		//EncoderPosition = 0;
 		HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
-		KinematicSpeed = 0;
+		//KinematicSpeed = 0;
 	}
 
    }
