@@ -45,23 +45,23 @@ UART_HandleTypeDef huart2;
 
 int32_t EncoderCount = 0;
 
-uint8_t MSG[35] = {'\0'};
+uint8_t MSG[100] = {'\0'};;
 uint8_t HEADER1[35] = {'\0'};
 uint8_t HEADER2[35] = {'\0'};
 uint8_t HEADER3[35] = {'\0'};
 uint8_t HEADER4[35] = {'\0'};
 uint8_t HEADER5[35] = {'\0'};
-uint8_t PositionSend[64];
-uint8_t KinematicPositionSend[64];
-uint8_t SpeedSend[64];
-uint8_t SpeedUnitSend[64];
+//uint8_t PositionSend[64];
+//uint8_t KinematicPositionSend[64];
+//uint8_t SpeedSend[64];
+//uint8_t SpeedUnitSend[64];
 
 uint8_t rot_new_state = 0;
 uint8_t rot_old_state = 0;
 
 //Declare variables for Calculate Position Encoder
 float PositionMotor;
-int16_t EncoderPosition = 0;
+uint32_t EncoderPosition = 0;
 float EncoderPositionFloat = 0.0;
 uint16_t EncoderPulse = 2048;
 uint16_t RevoluctionFactor = 1;
@@ -70,8 +70,8 @@ float KinematicSpeedRPS = 0.0;
 float KinematicSpeedRPM = 0.0;
 float KinematicSpeedRPSold = 0.0;
 float KinematicSpeedUnit = 0.0;
-uint16_t TM6_DiffCaunter;
-uint16_t TM6_OldValue;
+uint32_t TM6_DiffCaunter;
+uint32_t TM6_OldValue;
 
 char uart_buf[50];
 int uart_buf_len;
@@ -116,19 +116,6 @@ int main(void)
 
   /* USER CODE BEGIN Init */
 
-  /*sprintf(HEADER1, "PulseEncoder, ","");
-  HAL_UART_Transmit(&huart2, MSG, sizeof(HEADER1), 100);
-  sprintf(HEADER2, "PositionMotor,","");
-  HAL_UART_Transmit(&huart2, MSG, sizeof(HEADER2), 100);
-  sprintf(HEADER3, "RevolutionMotor,","");
-  HAL_UART_Transmit(&huart2, MSG, sizeof(HEADER3), 100);
-  sprintf(HEADER4, "KinematicPositionUnit,","");
-  HAL_UART_Transmit(&huart2, MSG, sizeof(HEADER4), 100);
-  sprintf(HEADER5, "KinematicSpeed[Rpm],\n","");
-  HAL_UART_Transmit(&huart2, MSG, sizeof(HEADER5), 100);
-  HAL_Delay(10000);*/
-
-
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -144,6 +131,18 @@ int main(void)
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 
+  sprintf(HEADER1, "PulseEncoder;");
+  HAL_UART_Transmit(&huart2, HEADER1, sizeof(HEADER1), 100);
+  sprintf(HEADER2, "PositionMotor;");
+  HAL_UART_Transmit(&huart2, HEADER2, sizeof(HEADER2), 100);
+  sprintf(HEADER3, "RevolutionMotor;");
+  HAL_UART_Transmit(&huart2, HEADER3, sizeof(HEADER3), 100);
+  sprintf(HEADER4, "KinematicPositionUnit;");
+  HAL_UART_Transmit(&huart2, HEADER4, sizeof(HEADER4), 100);
+  sprintf(HEADER5, "KinematicSpeed[Rpm];\n");
+  HAL_UART_Transmit(&huart2, HEADER5, sizeof(HEADER5), 100);
+  HAL_Delay(1000);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -155,37 +154,59 @@ int main(void)
 
 	     //TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6);
 
-		 sprintf(MSG, "Pulse Encoder:  %d\r\n", EncoderCount);
+	/*	 sprintf(MSG, "%d;%d;%f;%f;%f;%f;%f\r\n",
+				 EncoderCount,
+				 EncoderPosition,
+				 PositionMotor,
+				 KinematicPositionUnit,
+				 KinematicSpeedRPS,
+				 KinematicSpeedRPM,
+				 KinematicSpeedUnit);
+		 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF); */
+
+	     sprintf(MSG, "%d;%d;%.3f;%.3f;%.3f;%.3f;%.3f\r\n",
+				 EncoderCount,
+				 EncoderPosition,
+				 PositionMotor,
+				 KinematicPositionUnit,
+				 KinematicSpeedRPS,
+				 KinematicSpeedRPM,
+				 KinematicSpeedUnit);
+	 		 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
+
+         /*
+		 sprintf(MSG, "%d;", EncoderCount);
 		 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
-		 sprintf(MSG, "Position Motor:  %d\r\n", EncoderPosition);
+		 sprintf(MSG, "%d;", EncoderPosition);
 		 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
-		 //sprintf(MSG, "RevolutionMotor:  %f\r\n", PositionMotor);
-		 //HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
-		 sprintf((char*)PositionSend, "RevolutionMotor:  %f\r\n", PositionMotor);
+		 sprintf((char*)PositionSend, "%f;", PositionMotor);
 		 HAL_UART_Transmit(&huart2, PositionSend, sizeof(PositionSend), 100);
-		 sprintf((char*)KinematicPositionSend, "KinematicPositionUnit:  %f\r\n", KinematicPositionUnit);
+		 sprintf((char*)KinematicPositionSend, "%f;", KinematicPositionUnit);
 		 HAL_UART_Transmit(&huart2, KinematicPositionSend, sizeof(KinematicPositionSend), 100);
 
 	     if(KinematicSpeedRPSold == KinematicSpeedRPS) //||(KinematicSpeedRPMold == KinematicSpeedRPM))
 			 {
 	    	 //sprintf((char*)SpeedSend, "KinematicSpeed [Rps]:  %f\r\n", 0.0);
 			 //HAL_UART_Transmit(&huart2, SpeedSend, sizeof(SpeedSend), 100);
-			 sprintf((char*)SpeedSend, "KinematicSpeed [Rpm]:  %f\r\n", 0.0);
+
+	    	 /*
+			 sprintf((char*)SpeedSend, "%f;\n", 0.0);
 			 HAL_UART_Transmit(&huart2, SpeedSend, sizeof(SpeedSend), 100);
-			 sprintf((char*)SpeedUnitSend, "KinematicSpeed [Unit]:  %f\r\n", 0.0);
+			 sprintf((char*)SpeedUnitSend, "%f;\n", 0.0);
 			 HAL_UART_Transmit(&huart2, SpeedUnitSend, sizeof(SpeedUnitSend), 100);
 			 }
 	     else
 	     	 {
 	    	 //sprintf((char*)SpeedSend, "KinematicSpeed [Rps]:  %f\r\n", KinematicSpeedRPS);
 	    	 //HAL_UART_Transmit(&huart2, SpeedSend, sizeof(SpeedSend), 100);
-	    	 sprintf((char*)SpeedSend, "KinematicSpeed [Rpm]:  %f\r\n", KinematicSpeedRPM);
+	    	 sprintf((char*)SpeedSend, "%f;\n", KinematicSpeedRPM);
 	    	 HAL_UART_Transmit(&huart2, SpeedSend, sizeof(SpeedSend), 100);
-			 sprintf((char*)SpeedUnitSend, "KinematicSpeed [Unit]:  %f\r\n", KinematicSpeedUnit);
+			 sprintf((char*)SpeedUnitSend, "%f;\n", KinematicSpeedUnit);
 			 HAL_UART_Transmit(&huart2, SpeedUnitSend, sizeof(SpeedUnitSend), 100);
 	    	 KinematicSpeedRPSold = KinematicSpeedRPS;
 	    	 //KinematicSpeedRPMold = KinematicSpeedRPM;
 	     	 }
+	     */
 
 		 HAL_Delay(1);
     /* USER CODE BEGIN 3 */
@@ -445,8 +466,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
  */
 void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet)
 {
-EncoderPosition = EncoderCount/4.0;
-EncoderPositionFloat = EncoderPosition;
+EncoderPosition = EncoderCount/4.0;   // Single Event Encoder 1*4 in Single Counter
+EncoderPositionFloat = EncoderPosition; // Single Counter Encoder
 PositionMotor = EncoderPositionFloat/EncoderPulseSet;
 KinematicPositionUnit = RevoluctionFactorSet * PositionMotor;
 
@@ -456,7 +477,7 @@ TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6); // Get current time (microseco
 if(TM6_Currentvalue >= TM6_OldValue)
 {
 	TM6_DiffCaunter = (TM6_Currentvalue - TM6_OldValue); // Calculate time from count to count
-	KinematicSpeedRPS = (1000000.0/(TM6_DiffCaunter * EncoderPulse)); //Calculate RPS speed
+	KinematicSpeedRPS = (1000000.0/(TM6_DiffCaunter * EncoderPulse)); //Calculate RPS speed From microsecond to second
 	KinematicSpeedRPM = (KinematicSpeedRPS * 60.0); //Calculate RPM Speed
 	KinematicSpeedUnit = (KinematicSpeedRPM * RevoluctionFactorSet);
 	TM6_OldValue = TM6_Currentvalue; // Save to old value
