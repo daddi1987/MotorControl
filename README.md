@@ -18,8 +18,8 @@ Motor Control Firmware for Stepper motor in ClosedLoop, implemented on Microcont
 ## Specification
 - Used Variable uint32 per value position incremental encoder for limiting wrapping for the position. 
   For future inser Wrapping Position Parameter.
-- Max 4/5 Values for to send at serial comunication (To be check tomorrow) BUG
-- Motor Stopped send last value expost to callback Encoder and print value different to 0.0. (To be check tomorrow) BUG
+- Max 4/5 Values for to send at serial comunication (To be check tomorrow) **BUG**
+- Motor Stopped send last value expost to callback Encoder and print value different to 0.0. (To be check tomorrow) **BUG**
 
 ## Features 
 
