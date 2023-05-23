@@ -7,13 +7,19 @@ Motor Control Firmware for Stepper motor in ClosedLoop, implemented on Microcont
 
 [TOC]
 
-##Requirement
+
+## Requirments
+ 
  
 >1. The Motor must move from point A at point B.
 >2. The motor must follow the position and speed detected on the encoder installed on the motor
 >3. Expose the variables available on the serial port at 1000 Hz.
 
-##Specification
+## Specification
+- Used Variable uint32 per value position incremental encoder for limiting wrapping for the position. 
+  For future inser Wrapping Position Parameter.
+- Max 4/5 Values for to send at serial comunication (To be check tomorrow) BUG
+- Motor Stopped send last value expost to callback Encoder and print value different to 0.0. (To be check tomorrow) BUG
 
 ## Features 
 
