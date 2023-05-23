@@ -6,4 +6,9 @@ Motor Control Firmware for Stepper motor in ClosedLoop, implemented on Microcont
 
 [TOC]
 
+##Requirement
+Follow Position And Speed calculate on Encoder CUI installed on motor
+
 ## Features 
+
+## Hardware
