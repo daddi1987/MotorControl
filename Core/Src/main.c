@@ -47,8 +47,8 @@ int32_t EncoderCount = 0;
 
 uint8_t MSG[100] = {'\0'};
 uint8_t CR[2] = {'\0'};
-uint8_t Prefix[35] = {'\0'};
-uint8_t Sufix[35] = {'\0'};
+uint8_t Prefix[3] = {'\0'};
+uint8_t Sufix[3] = {'\0'};
 uint8_t HEADER1[35] = {'\0'};
 uint8_t HEADER2[35] = {'\0'};
 uint8_t HEADER3[35] = {'\0'};
@@ -78,7 +78,7 @@ uint32_t TM6_OldValue;
 
 char uart_buf[50];
 int uart_buf_len;
-uint16_t TM6_Currentvalue;
+int16_t TM6_Currentvalue;
 
 //uint16_t IncrementSpeedCheck;
 //uint16_t IncrementSpeedCheckOld;
@@ -159,18 +159,20 @@ int main(void)
     /* USER CODE END WHILE */
 	    /* USER CODE END WHILE */
 
+	  	 if(KinematicSpeedRPSold == KinematicSpeedRPS)
+	  	 {
+	  		KinematicSpeedRPS = 0.0;
+	  		KinematicSpeedRPM = 0.0;
+	  		KinematicSpeedUnit = 0.0;
+
+	  		KinematicSpeedRPSold = KinematicSpeedRPS;
+	  	 }
+	  	 else
+	  	 {
+	  		KinematicSpeedRPSold = KinematicSpeedRPS;
+	  	 }
+
 	     //TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6);
-
-	/*	 sprintf(MSG, "%d;%d;%f;%f;%f;%f;%f\r\n",
-				 EncoderCount,
-				 EncoderPosition,
-				 PositionMotor,
-				 KinematicPositionUnit,
-				 KinematicSpeedRPS,
-				 KinematicSpeedRPM,
-				 KinematicSpeedUnit);
-		 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF); */
-
 
 	     sprintf(MSG, "Px;%d;%d;%.3f;%.3f;%.3f;%.3f;%.3f;Sx\r",
 				 EncoderCount,
