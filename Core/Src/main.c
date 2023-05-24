@@ -489,7 +489,7 @@ TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6); // Get current time (microseco
 if(TM6_Currentvalue >= TM6_OldValue)
 {
 	TM6_DiffCaunter = (TM6_Currentvalue - TM6_OldValue); // Calculate time from count to count
-	KinematicSpeedRPS = (1000000.0/(TM6_DiffCaunter * EncoderPulse)); //Calculate RPS speed From microsecond to second
+	KinematicSpeedRPS = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
 	KinematicSpeedRPM = (KinematicSpeedRPS * 60.0); //Calculate RPM Speed
 	KinematicSpeedUnit = (KinematicSpeedRPM * RevoluctionFactorSet);
 	TM6_OldValue = TM6_Currentvalue; // Save to old value
