@@ -22,5 +22,5 @@ Motor Control Firmware for Stepper motor in ClosedLoop, implemented on Microcont
 - Motor Stopped send last value expost to callback Encoder and print value different to 0.0. (To be check tomorrow) **BUG**
 
 ## Features 
-
+- Filter Speed in Hz for eliminate noise
 ## Hardware
