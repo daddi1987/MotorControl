@@ -45,23 +45,26 @@ UART_HandleTypeDef huart2;
 
 int32_t EncoderCount = 0;
 
-uint8_t MSG[100] = {'\0'};;
+uint8_t MSG[100] = {'\0'};
+uint8_t CR[2] = {'\0'};
+uint8_t Prefix[35] = {'\0'};
+uint8_t Sufix[35] = {'\0'};
 uint8_t HEADER1[35] = {'\0'};
 uint8_t HEADER2[35] = {'\0'};
 uint8_t HEADER3[35] = {'\0'};
 uint8_t HEADER4[35] = {'\0'};
 uint8_t HEADER5[35] = {'\0'};
-//uint8_t PositionSend[64];
-//uint8_t KinematicPositionSend[64];
-//uint8_t SpeedSend[64];
-//uint8_t SpeedUnitSend[64];
+uint16_t PositionSend[7];
+uint16_t KinematicPositionSend[7];
+uint16_t SpeedSend[7];
+uint16_t SpeedUnitSend[7];
 
 uint8_t rot_new_state = 0;
 uint8_t rot_old_state = 0;
 
 //Declare variables for Calculate Position Encoder
 float PositionMotor;
-uint32_t EncoderPosition = 0;
+int32_t EncoderPosition = 0;
 float EncoderPositionFloat = 0.0;
 uint16_t EncoderPulse = 2048;
 uint16_t RevoluctionFactor = 1;
@@ -131,6 +134,8 @@ int main(void)
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 
+  sprintf(Prefix, "Px;");
+  HAL_UART_Transmit(&huart2, Prefix, sizeof(Prefix), 100);
   sprintf(HEADER1, "PulseEncoder;");
   HAL_UART_Transmit(&huart2, HEADER1, sizeof(HEADER1), 100);
   sprintf(HEADER2, "PositionMotor;");
@@ -139,8 +144,10 @@ int main(void)
   HAL_UART_Transmit(&huart2, HEADER3, sizeof(HEADER3), 100);
   sprintf(HEADER4, "KinematicPositionUnit;");
   HAL_UART_Transmit(&huart2, HEADER4, sizeof(HEADER4), 100);
-  sprintf(HEADER5, "KinematicSpeed[Rpm];\n");
+  sprintf(HEADER5, "KinematicSpeed[Rpm];");
   HAL_UART_Transmit(&huart2, HEADER5, sizeof(HEADER5), 100);
+  sprintf(Sufix, "Sx;\n");
+  HAL_UART_Transmit(&huart2, Sufix, sizeof(Sufix), 100);
   HAL_Delay(1000);
 
   /* USER CODE END 2 */
@@ -164,7 +171,8 @@ int main(void)
 				 KinematicSpeedUnit);
 		 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF); */
 
-	     sprintf(MSG, "%d;%d;%.3f;%.3f;%.3f;%.3f;%.3f\r\n",
+
+	     sprintf(MSG, "Px;%d;%d;%.3f;%.3f;%.3f;%.3f;%.3f;Sx\r",
 				 EncoderCount,
 				 EncoderPosition,
 				 PositionMotor,
@@ -173,6 +181,8 @@ int main(void)
 				 KinematicSpeedRPM,
 				 KinematicSpeedUnit);
 	 		 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
+	 	 sprintf(CR,"\n");   											//Indispensable for Send Value without error to row empty
+	 		 HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);        //Indispensable for Send Value without error to row empty
 
          /*
 		 sprintf(MSG, "%d;", EncoderCount);
@@ -315,7 +325,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
+  huart2.Init.BaudRate = 115200; //115200 Baudrate
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
