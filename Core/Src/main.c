@@ -75,6 +75,7 @@ float KinematicSpeedRPSold = 0.0;
 float KinematicSpeedUnit = 0.0;
 uint32_t TM6_DiffCaunter;
 uint32_t TM6_OldValue;
+uint8_t IncrementSpeedCheckDouble = 0;
 
 char uart_buf[50];
 int uart_buf_len;
@@ -159,7 +160,7 @@ int main(void)
     /* USER CODE END WHILE */
 	    /* USER CODE END WHILE */
 
-	  	 if(KinematicSpeedRPSold == KinematicSpeedRPS)
+	  	 if((KinematicSpeedRPSold == KinematicSpeedRPS) && (IncrementSpeedCheckDouble >1000))
 	  	 {
 	  		KinematicSpeedRPS = 0.0;
 	  		KinematicSpeedRPM = 0.0;
@@ -170,6 +171,7 @@ int main(void)
 	  	 else
 	  	 {
 	  		KinematicSpeedRPSold = KinematicSpeedRPS;
+	  		IncrementSpeedCheckDouble++;
 	  	 }
 
 	     //TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6);
@@ -483,7 +485,6 @@ EncoderPositionFloat = EncoderPosition; // Single Counter Encoder
 PositionMotor = EncoderPositionFloat/EncoderPulseSet;
 KinematicPositionUnit = RevoluctionFactorSet * PositionMotor;
 
-//IncrementSpeedCheck++;
 TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6); // Get current time (microseconds)
 
 if(TM6_Currentvalue >= TM6_OldValue)
