@@ -16,11 +16,15 @@ Motor Control Firmware for Stepper motor in ClosedLoop, implemented on Microcont
 >3. Expose the variables available on the serial port at 1000 Hz.
 
 ## Specification
-- Used Variable uint32 per value position incremental encoder for limiting wrapping for the position. 
-  For future inser Wrapping Position Parameter.
-- Max 4/5 Values for to send at serial comunication (To be check tomorrow) **BUG**
-- Motor Stopped send last value expost to callback Encoder and print value different to 0.0. (To be check tomorrow) **BUG**
 
 ## Features 
 - Filter Speed in Hz for eliminate noise
+
+## Bug
+- [x] Max 4/5 Values for to send at serial comunication (To be check tomorrow)
+- [x] Motor Stopped send last value expost to callback Encoder and print value different to 0.0.
+- [x] Used Variable uint32 per value position incremental encoder for limiting wrapping for the position. 
+- [ ] Remove value 0 in the list get value.
+- [ ] For future inser Wrapping Position Parameter.
+
 ## Hardware
