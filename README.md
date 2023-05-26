@@ -16,9 +16,18 @@ Motor Control Firmware for Stepper motor in ClosedLoop, implemented on Microcont
 >3. Expose the variables available on the serial port at 1000 Hz.
 
 ## Specification
+###Encoder 
+Use the incremental encoder to determine the motor position.
+From the encoder we calculate the speed using the interrupts without exploiting the      Encoder port of the device to understand its operation.
+Encoder Transition:
+Four Interrupts transitions are generated for one Encoder pulse.
+![Alt text](https://github.com/daddi1987/MotorControl/blob/Devel/Image/EncoderState.png?raw=true "**RobotArm With Gripper**")
+
+Below de Chart to RPM calculate
+
 
 ## Features 
-- Filter Speed in Hz for eliminate noise
+- [ ] Filter Speed in Hz for eliminate noise implemented, missing convert from Hz to coefficent.
 
 ## Bug
 - [x] Max 4/5 Values for to send at serial comunication (To be check tomorrow)
@@ -28,3 +37,7 @@ Motor Control Firmware for Stepper motor in ClosedLoop, implemented on Microcont
 - [ ] For future inser Wrapping Position Parameter.
 
 ## Hardware
+The Test Bench includes the Gearbox and two motors with Nucleus 64 and Ln298n for pilot motor.
+
+![Alt text](https://github.com/daddi1987/MotorControl/blob/Devel/Image/Test%20Banch.JPG?raw=true "**RobotArm With Gripper**")
+
