@@ -59,6 +59,12 @@ uint16_t KinematicPositionSend[7];
 uint16_t SpeedSend[7];
 uint16_t SpeedUnitSend[7];
 
+//---------------Decleare variables for filter Speed----------------
+uint8_t FilterSpeedEnable = 1;
+float RPSSpeedFilter = 0;
+float RPSSpeedFilterPrev = 0;
+float KinematicSpeedRPSToFiler = 0.0;
+
 uint8_t rot_new_state = 0;
 uint8_t rot_old_state = 0;
 
@@ -151,6 +157,9 @@ int main(void)
   HAL_UART_Transmit(&huart2, Sufix, sizeof(Sufix), 100);
   HAL_Delay(1000);
 
+  GetConstantFilter();
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -160,12 +169,11 @@ int main(void)
     /* USER CODE END WHILE */
 	    /* USER CODE END WHILE */
 
-	  	 if((KinematicSpeedRPSold == KinematicSpeedRPS) && (IncrementSpeedCheckDouble >1000))
+	  	 if((KinematicSpeedRPSold == KinematicSpeedRPS) && (IncrementSpeedCheckDouble >=10))
 	  	 {
 	  		KinematicSpeedRPS = 0.0;
 	  		KinematicSpeedRPM = 0.0;
 	  		KinematicSpeedUnit = 0.0;
-
 	  		KinematicSpeedRPSold = KinematicSpeedRPS;
 	  	 }
 	  	 else
@@ -490,37 +498,57 @@ TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6); // Get current time (microseco
 if(TM6_Currentvalue >= TM6_OldValue)
 {
 	TM6_DiffCaunter = (TM6_Currentvalue - TM6_OldValue); // Calculate time from count to count
-	KinematicSpeedRPS = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
-	KinematicSpeedRPM = (KinematicSpeedRPS * 60.0); //Calculate RPM Speed
-	KinematicSpeedUnit = (KinematicSpeedRPM * RevoluctionFactorSet);
-	TM6_OldValue = TM6_Currentvalue; // Save to old value
-	//IncrementSpeedCheckOld = IncrementSpeedCheck;
-	//IncrementSpeedCheck++;
-	//TM6_Currentvalue = 0; //Reset Current Value Counter
-	HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
+	if (FilterSpeedEnable == 1)  // 25Hz CutOff Low-Pass Filter
+	{
+		KinematicSpeedRPSToFiler = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
+		KinematicSpeedRPS = ((0.854*RPSSpeedFilter) + (0.0728*KinematicSpeedRPSToFiler) + (0.0728*RPSSpeedFilterPrev));
+		KinematicSpeedRPM = (KinematicSpeedRPS * 60.0); //Calculate RPM Speed
+		KinematicSpeedUnit = (KinematicSpeedRPM * RevoluctionFactorSet);
+		TM6_OldValue = TM6_Currentvalue; // Save to old value
+		HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
+		RPSSpeedFilterPrev = KinematicSpeedRPSToFiler;
+		RPSSpeedFilter = KinematicSpeedRPS;
+		//HAL_Delay(1);
+	}
+	else
+	{
+		KinematicSpeedRPS = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
+		KinematicSpeedRPM = (KinematicSpeedRPS * 60.0); //Calculate RPM Speed
+		KinematicSpeedUnit = (KinematicSpeedRPM * RevoluctionFactorSet);
+		TM6_OldValue = TM6_Currentvalue; // Save to old value
+		//IncrementSpeedCheckOld = IncrementSpeedCheck;
+		//IncrementSpeedCheck++;
+		//TM6_Currentvalue = 0; //Reset Current Value Counter
+		HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
+	}
 }
 else
 {
 	TM6_OldValue = TM6_Currentvalue;
 }
 
-
-    void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-    {
-    if (htim == TIM6)
-    {
-		//EncoderPosition = 0;
-
-		//KinematicSpeed = 0;
-	}
-
-   }
-
 }
 // -------------------------------------END CALCULATE REV TO FACTOR --------------------------------------
 /* Calculate Revolution to Factor
  *
  */
+//----------------------------DA CONTROLLARE NON FUNZIONANTE--------------------------
+void GetConstantFilter()
+{
+	float b0 = 0.0;
+	float b1 = 0.0;
+	float b2 = 0.0;
+	float a1 = 0.0;
+	float a2 = 0.0;
+    const double ita =1.0/ tan(42*0.25);  //Sampling Freq: 10kHz   Cut-off Freq: 1kHz
+    const double q=sqrt(2.0);
+    b0 = 1.0 / (1.0 + q*ita + ita*ita);
+    b1= 2*b0;
+    b2= b0;
+    a1 = 2.0 * (ita*ita - 1.0) * b0;
+    a2 = -(1.0 - q*ita + ita*ita) * b0;
+}
+//----------------------------FINE  CONTROLLARE NON FUNZIONANTE--------------------------
 
 /* USER CODE END 4 */
 
