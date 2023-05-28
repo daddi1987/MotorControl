@@ -57,7 +57,7 @@ It is possible to filter the speed in Hz, this functionality is implemented usin
 
 
 ## Features 
-- [ ] Filter Speed in Hz for eliminate noise implemented, missing convert from Hz to coefficent.
+- [x] Filter Speed in Hz for eliminate noise implemented, missing convert from Hz to coefficent.
 
 ## Bug
 - [x] Max 4/5 Values for to send at serial comunication (To be check tomorrow)
