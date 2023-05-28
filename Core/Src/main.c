@@ -1,4 +1,5 @@
 /* USER CODE BEGIN Header */
+// The Developper for this code is Davide Zuanon contact on d.zuanon87@gmail.com
 /**
   ******************************************************************************
   * @file           : main.c
@@ -60,10 +61,15 @@ uint16_t SpeedSend[7];
 uint16_t SpeedUnitSend[7];
 
 //---------------Decleare variables for filter Speed----------------
-uint8_t FilterSpeedEnable = 1;
+uint8_t FilterSpeedEnable = 0;
 float RPSSpeedFilter = 0;
 float RPSSpeedFilterPrev = 0;
 float KinematicSpeedRPSToFiler = 0.0;
+uint8_t FrequencySpeedFilter = 45;
+uint8_t FrequencyCase = 1;
+float b_i;
+float a_i;
+
 
 uint8_t rot_new_state = 0;
 uint8_t rot_old_state = 0;
@@ -86,10 +92,6 @@ uint8_t IncrementSpeedCheckDouble = 0;
 char uart_buf[50];
 int uart_buf_len;
 int16_t TM6_Currentvalue;
-
-//uint16_t IncrementSpeedCheck;
-//uint16_t IncrementSpeedCheckOld;
-
 
 /* USER CODE BEGIN PV */
 
@@ -195,40 +197,6 @@ int main(void)
 	 		 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
 	 	 sprintf(CR,"\n");   											//Indispensable for Send Value without error to row empty
 	 		 HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);        //Indispensable for Send Value without error to row empty
-
-         /*
-		 sprintf(MSG, "%d;", EncoderCount);
-		 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
-		 sprintf(MSG, "%d;", EncoderPosition);
-		 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 100);
-		 sprintf((char*)PositionSend, "%f;", PositionMotor);
-		 HAL_UART_Transmit(&huart2, PositionSend, sizeof(PositionSend), 100);
-		 sprintf((char*)KinematicPositionSend, "%f;", KinematicPositionUnit);
-		 HAL_UART_Transmit(&huart2, KinematicPositionSend, sizeof(KinematicPositionSend), 100);
-
-	     if(KinematicSpeedRPSold == KinematicSpeedRPS) //||(KinematicSpeedRPMold == KinematicSpeedRPM))
-			 {
-	    	 //sprintf((char*)SpeedSend, "KinematicSpeed [Rps]:  %f\r\n", 0.0);
-			 //HAL_UART_Transmit(&huart2, SpeedSend, sizeof(SpeedSend), 100);
-
-	    	 /*
-			 sprintf((char*)SpeedSend, "%f;\n", 0.0);
-			 HAL_UART_Transmit(&huart2, SpeedSend, sizeof(SpeedSend), 100);
-			 sprintf((char*)SpeedUnitSend, "%f;\n", 0.0);
-			 HAL_UART_Transmit(&huart2, SpeedUnitSend, sizeof(SpeedUnitSend), 100);
-			 }
-	     else
-	     	 {
-	    	 //sprintf((char*)SpeedSend, "KinematicSpeed [Rps]:  %f\r\n", KinematicSpeedRPS);
-	    	 //HAL_UART_Transmit(&huart2, SpeedSend, sizeof(SpeedSend), 100);
-	    	 sprintf((char*)SpeedSend, "%f;\n", KinematicSpeedRPM);
-	    	 HAL_UART_Transmit(&huart2, SpeedSend, sizeof(SpeedSend), 100);
-			 sprintf((char*)SpeedUnitSend, "%f;\n", KinematicSpeedUnit);
-			 HAL_UART_Transmit(&huart2, SpeedUnitSend, sizeof(SpeedUnitSend), 100);
-	    	 KinematicSpeedRPSold = KinematicSpeedRPS;
-	    	 //KinematicSpeedRPMold = KinematicSpeedRPM;
-	     	 }
-	     */
 
 		 HAL_Delay(1);
     /* USER CODE BEGIN 3 */
@@ -500,8 +468,10 @@ if(TM6_Currentvalue >= TM6_OldValue)
 	TM6_DiffCaunter = (TM6_Currentvalue - TM6_OldValue); // Calculate time from count to count
 	if (FilterSpeedEnable == 1)  // 25Hz CutOff Low-Pass Filter
 	{
+		GetConstantFilter();
 		KinematicSpeedRPSToFiler = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
-		KinematicSpeedRPS = ((0.854*RPSSpeedFilter) + (0.0728*KinematicSpeedRPSToFiler) + (0.0728*RPSSpeedFilterPrev));
+		//KinematicSpeedRPS = ((0.854*RPSSpeedFilter) + (0.0728*KinematicSpeedRPSToFiler) + (0.0728*RPSSpeedFilterPrev));
+		KinematicSpeedRPS = ((b_i*RPSSpeedFilter) + (a_i*KinematicSpeedRPSToFiler) + (a_i*RPSSpeedFilterPrev));
 		KinematicSpeedRPM = (KinematicSpeedRPS * 60.0); //Calculate RPM Speed
 		KinematicSpeedUnit = (KinematicSpeedRPM * RevoluctionFactorSet);
 		TM6_OldValue = TM6_Currentvalue; // Save to old value
@@ -535,7 +505,7 @@ else
 //----------------------------DA CONTROLLARE NON FUNZIONANTE--------------------------
 void GetConstantFilter()
 {
-	float b0 = 0.0;
+	/*float b0 = 0.0;
 	float b1 = 0.0;
 	float b2 = 0.0;
 	float a1 = 0.0;
@@ -547,6 +517,178 @@ void GetConstantFilter()
     b2= b0;
     a1 = 2.0 * (ita*ita - 1.0) * b0;
     a2 = -(1.0 - q*ita + ita*ita) * b0;
+    */
+
+	switch (FrequencyCase) {
+
+	  case 1:
+		if(FrequencySpeedFilter <= 5)
+		{
+			b_i = 0.96906992;
+			a_i = 0.01546504;
+			//FrequencySpeedFilter = 1;
+			break;
+		}
+		else
+		{
+			FrequencyCase = 2;
+		}
+
+
+	  case 2:
+		if ((FrequencySpeedFilter >= 6)&&(FrequencySpeedFilter <= 10))
+		{
+		    b_i = 0.93908194;
+		    a_i = 0.03045903;
+		    //FrequencySpeedFilter = 2;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 3;
+		}
+
+
+	  case 3:
+		if ((FrequencySpeedFilter >= 11)&&(FrequencySpeedFilter <= 15))
+		{
+		    b_i = 0.90999367;
+		    a_i = 0.04500317;
+		    //FrequencySpeedFilter = 3;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 4;
+		}
+
+
+	  case 4:
+		if ((FrequencySpeedFilter >= 16)&&(FrequencySpeedFilter <= 25))
+		{
+		    b_i = 0.85435899;
+		    a_i = 0.07282051;
+		    //FrequencySpeedFilter = 4;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 5;
+		}
+
+
+	  case 5:
+		if ((FrequencySpeedFilter >= 26)&&(FrequencySpeedFilter <= 35))
+		{
+		    b_i = 0.80187364;
+		    a_i = 0.09906318;
+		    //FrequencySpeedFilter = 5;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 6;
+		}
+
+
+	  case 6:
+		if ((FrequencySpeedFilter >= 36)&&(FrequencySpeedFilter <= 45))
+		{
+		    b_i = 0.75227759;
+		    a_i = 0.1238612;
+		    //FrequencySpeedFilter = 6;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 7;
+		}
+
+
+	  case 7:
+		if ((FrequencySpeedFilter >= 46)&&(FrequencySpeedFilter <= 55))
+		{
+		    b_i = 0.70533864;
+		    a_i = 0.14733068;
+		    //FrequencySpeedFilter = 7;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 8;
+		}
+
+
+	  case 8:
+		if ((FrequencySpeedFilter >= 56)&&(FrequencySpeedFilter <= 65))
+		{
+		    b_i = 0.66084882;
+		    a_i = 0.16957559;
+		    //FrequencySpeedFilter = 8;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 9;
+		}
+
+
+	  case 9:
+		if ((FrequencySpeedFilter >= 66)&&(FrequencySpeedFilter <= 75))
+		{
+		    b_i = 0.61862133;
+		    a_i = 0.19068933;
+		    //FrequencySpeedFilter = 9;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 10;
+		}
+
+
+	  case 10:
+		if ((FrequencySpeedFilter >= 76)&&(FrequencySpeedFilter <= 85))
+		{
+		    b_i = 0.57848789;
+		    a_i = 0.21075605;
+		    //FrequencySpeedFilter = 10;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 11;
+		}
+
+
+	  case 11:
+		if ((FrequencySpeedFilter >= 86)&&(FrequencySpeedFilter <= 95))
+		{
+		    b_i = 0.5402965;
+		    a_i = 0.22985175;
+		    //FrequencySpeedFilter = 11;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 12;
+		}
+
+
+	  case 12:
+	  		if (FrequencySpeedFilter >= 96)
+	  		{
+	  		    b_i = 0.50390953;
+	  		    a_i = 0.24804523;
+	  		    //FrequencySpeedFilter = 10;
+	  		    break;
+	  		}
+	  		else
+	  		{
+	  			FrequencyCase = 1;
+	  		}
+
+}
 }
 //----------------------------FINE  CONTROLLARE NON FUNZIONANTE--------------------------
 
