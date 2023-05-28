@@ -42,7 +42,18 @@ It is possible to filter the speed in Hz, this functionality is implemented usin
 | 95 | 0,5402965  | 0,22985175 |
 | 105|0,50390953|   0,24804523 |
 
-Below de Chart to RPM calculate
+
+#### Speed Raw
+![Alt text](https://github.com/daddi1987/MotorControl/blob/main/Image/Chart%20Speed%20RPM%20Raw.jpeg?raw=true "**KinematicSpeedRAW**")
+
+#### Speed Filter 85 Hz
+![Alt text](https://github.com/daddi1987/MotorControl/blob/main/Image/Chart%20Speed%20RPM%2085Hz.jpeg?raw=true "**KinematicSpeed85Hz**")
+
+#### Speed Filter 35 Hz
+![Alt text](https://github.com/daddi1987/MotorControl/blob/main/Image/Chart%20Speed%20RPM%2035Hz.jpeg?raw=true "**KinematicSpeed35Hz**")
+
+#### Speed Filter 5 Hz
+![Alt text](https://github.com/daddi1987/MotorControl/blob/main/Image/Chart%20Speed%20RPM%205Hz.jpeg?raw=true "**KinematicSpeed5Hz**")
 
 
 ## Features 
@@ -60,4 +71,3 @@ Below de Chart to RPM calculate
 The Test Bench includes the Gearbox and two motors with Nucleus 64 and Ln298n for pilot motor.
 
 ![Alt text](https://github.com/daddi1987/MotorControl/blob/Devel/Image/Test%20Banch.JPG?raw=true "**RobotArm With Gripper**")
-
