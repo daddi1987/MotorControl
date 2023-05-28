@@ -24,7 +24,7 @@ Encoder Transition:
 Four Interrupts transitions are generated for one Encoder pulse.
 ![Alt text](https://github.com/daddi1987/MotorControl/blob/Devel/Image/EncoderState.png?raw=true "**RobotArm With Gripper**")
 
-###Filter speed
+### Filter speed
 It is possible to filter the speed in Hz, this functionality is implemented using a table and a switch case that selects the previous calculation of the correct coefficient. Non-realtime computation filter maybe.
 
 | Hz  | bi | ai |
