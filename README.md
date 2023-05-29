@@ -55,6 +55,11 @@ It is possible to filter the speed in Hz, this functionality is implemented usin
 #### Speed Filter 5 Hz
 ![Alt text](https://github.com/daddi1987/MotorControl/blob/main/Image/Chart%20Speed%20RPM%205Hz.jpeg?raw=true "**KinematicSpeed5Hz**")
 
+### Driver Motor
+Use the L289n for driver motor, this driver have a 2 Ampere with max current.
+For the pilot motor driver use interface trigger signal modulation. Implementig Enable phase and frequency for motor speed. 
+
+![Alt text](https://content.instructables.com/F7D/J0WE/I36LH0ER/F7DJ0WEI36LH0ER.png?auto=webp?raw=true "**KinematicSpeed5Hz**")
 
 ## Features 
 - [x] Filter Speed in Hz for eliminate noise implemented, missing convert from Hz to coefficent.
