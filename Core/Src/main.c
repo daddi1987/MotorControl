@@ -42,7 +42,10 @@
 
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim6;
+TIM_HandleTypeDef htim7;
 UART_HandleTypeDef huart2;
+
+TIM_HandleTypeDef htim7;
 
 int32_t EncoderCount = 0;
 
@@ -96,6 +99,9 @@ uint32_t DemandMotorStep = 0;
 char uart_buf[50];
 int uart_buf_len;
 int16_t TM6_Currentvalue;
+UART_HandleTypeDef huart2;
+
+UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
@@ -106,6 +112,7 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM6_Init(void);
+static void MX_TIM7_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -124,7 +131,6 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
-
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -146,6 +152,7 @@ int main(void)
   MX_GPIO_Init();
   MX_USART2_UART_Init();
   MX_TIM6_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
 
   sprintf(Prefix, "Px;");
@@ -204,6 +211,8 @@ int main(void)
 	 		 HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);        //Indispensable for Send Value without error to row empty
 
 		 HAL_Delay(1);
+
+		 CW_Direction(1,200,20);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -295,6 +304,44 @@ static void MX_TIM6_Init(void)
 }
 
 /**
+  * @brief TIM7 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM7_Init(void)
+{
+
+  /* USER CODE BEGIN TIM7_Init 0 */
+
+  /* USER CODE END TIM7_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM7_Init 1 */
+
+  /* USER CODE END TIM7_Init 1 */
+  htim7.Instance = TIM7;
+  htim7.Init.Prescaler = 0;
+  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim7.Init.Period = 65535;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM7_Init 2 */
+
+  /* USER CODE END TIM7_Init 2 */
+
+}
+
+/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -310,7 +357,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200; //115200 Baudrate
+  huart2.Init.BaudRate = 115200;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
@@ -348,10 +395,10 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, LD2_Pin|Enable_A_PhaseStepper_Pin|Enable_B_PhaseStepper_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, IN3_PhaseA_Pin|IN1_PhaseA_Pin|IN2_PhaseB_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, IN2_PhaseA_Pin|IN1_PhaseA_Pin|IN2_PhaseB_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(IN2_PhaseB_GPIO_Port, IN2_PhaseB_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(IN1_PhaseB_GPIO_Port, IN1_PhaseB_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
@@ -373,18 +420,18 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : IN2_PhaseA_Pin IN1_PhaseA_Pin IN2_PhaseB_Pin */
-  GPIO_InitStruct.Pin = IN2_PhaseB_Pin|IN1_PhaseA_Pin|IN2_PhaseB_Pin;
+  GPIO_InitStruct.Pin = IN2_PhaseA_Pin|IN1_PhaseA_Pin|IN2_PhaseB_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : IN1_PhaseB_Pin */
-  GPIO_InitStruct.Pin = IN2_PhaseB_Pin;
+  GPIO_InitStruct.Pin = IN1_PhaseB_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(IN2_PhaseB_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(IN1_PhaseB_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : Encoder1_Index_Pin */
   GPIO_InitStruct.Pin = Encoder1_Index_Pin;
@@ -745,9 +792,9 @@ void CW_Direction(uint8_t HalfStepMode,float MotorStep,float DemmandSpeedRPM)
 		EnablePhaseB();
 
 
-		for (uint32_t ActualMotorStep = 0; ActualMotorStep < DemandMotorStep; ++ActualMotorStep)
+		for (uint32_t ActualMotorStep = 0; ActualMotorStep >= DemandMotorStep; ++ActualMotorStep)
 		{
-			if(IncremnentStepping >= 8)
+			if(IncremnentStepping < 8)
 			{
 			HalStepMotorSepper[ActualMotorStep];
 
@@ -766,33 +813,33 @@ void CW_Direction(uint8_t HalfStepMode,float MotorStep,float DemmandSpeedRPM)
 
 			if ((HalfStep1[1]== 1)||(HalfStep2[1]== 1)||(HalfStep3[1]== 1)||(HalfStep4[1]== 1)||(HalfStep5[1]== 1)||(HalfStep6[1]== 1)||(HalfStep7[1]== 1)||(HalfStep8[1]== 1))
 			{
-				HAL_GPIO_WritePin(GPIOA, IN2_PhaseB_Pin, GPIO_PIN_SET);
+				HAL_GPIO_WritePin(GPIOA, IN1_PhaseB_Pin, GPIO_PIN_SET);
 			}
 			else if ((HalfStep1[1]== 0)||(HalfStep2[1]== 0)||(HalfStep3[1]== 0)||(HalfStep4[1]== 0)||(HalfStep5[1]== 0)||(HalfStep6[1]== 0)||(HalfStep7[1]== 0)||(HalfStep8[1]== 0))
 			{
-				HAL_GPIO_WritePin(GPIOA, IN2_PhaseB_Pin, GPIO_PIN_RESET);
+				HAL_GPIO_WritePin(GPIOA, IN1_PhaseB_Pin, GPIO_PIN_RESET);
 			}
 
 			//-------------------------PHASE 3-------------------------------------------------------
 
 			if ((HalfStep1[2]== 1)||(HalfStep2[2]== 1)||(HalfStep3[2]== 1)||(HalfStep4[2]== 1)||(HalfStep5[2]== 1)||(HalfStep6[2]== 1)||(HalfStep7[2]== 1)||(HalfStep8[2]== 1))
 			{
-				HAL_GPIO_WritePin(GPIOB, IN3_PhaseA_Pin, GPIO_PIN_SET);
+				HAL_GPIO_WritePin(GPIOB, IN2_PhaseA_Pin, GPIO_PIN_SET);
 			}
 			else if ((HalfStep1[2]== 0)||(HalfStep2[2]== 0)||(HalfStep3[2]== 0)||(HalfStep4[2]== 0)||(HalfStep5[2]== 0)||(HalfStep6[2]== 0)||(HalfStep7[2]== 0)||(HalfStep8[2]== 0))
 			{
-				HAL_GPIO_WritePin(GPIOB, IN3_PhaseA_Pin, GPIO_PIN_RESET);
+				HAL_GPIO_WritePin(GPIOB, IN2_PhaseA_Pin, GPIO_PIN_RESET);
 			}
 
 			//-------------------------PHASE 4-------------------------------------------------------
 
 			if ((HalfStep1[3]== 1)||(HalfStep2[3]== 1)||(HalfStep3[3]== 1)||(HalfStep4[3]== 1)||(HalfStep5[3]== 1)||(HalfStep6[3]== 1)||(HalfStep7[3]== 1)||(HalfStep8[3]== 1))
 			{
-				HAL_GPIO_WritePin(GPIOC, IN4_PhaseB_Pin, GPIO_PIN_SET);
+				HAL_GPIO_WritePin(GPIOC, IN2_PhaseB_Pin, GPIO_PIN_SET);
 			}
 			else if ((HalfStep1[3]== 0)||(HalfStep2[3]== 0)||(HalfStep3[3]== 0)||(HalfStep4[3]== 0)||(HalfStep5[3]== 0)||(HalfStep6[3]== 0)||(HalfStep7[3]== 0)||(HalfStep8[3]== 0))
 			{
-				HAL_GPIO_WritePin(GPIOC, IN4_PhaseB_Pin, GPIO_PIN_RESET);
+				HAL_GPIO_WritePin(GPIOC, IN2_PhaseB_Pin, GPIO_PIN_RESET);
 			}
 
 			else
