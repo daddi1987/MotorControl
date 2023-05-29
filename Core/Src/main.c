@@ -60,11 +60,12 @@ uint16_t KinematicPositionSend[7];
 uint16_t SpeedSend[7];
 uint16_t SpeedUnitSend[7];
 
+
 //---------------Decleare variables for filter Speed----------------
 uint8_t FilterSpeedEnable = 0;
 float RPSSpeedFilter = 0;
 float RPSSpeedFilterPrev = 0;
-float KinematicSpeedRPSToFiler = 0.0;
+float EncoderSpeedRPSToFiler = 0.0;
 uint8_t FrequencySpeedFilter = 45;
 uint8_t FrequencyCase = 1;
 float b_i;
@@ -81,13 +82,16 @@ float EncoderPositionFloat = 0.0;
 uint16_t EncoderPulse = 2048;
 uint16_t RevoluctionFactor = 1;
 float KinematicPositionUnit = 0.0;
-float KinematicSpeedRPS = 0.0;
-float KinematicSpeedRPM = 0.0;
-float KinematicSpeedRPSold = 0.0;
-float KinematicSpeedUnit = 0.0;
+float EncoderSpeedRPS = 0.0;
+float EncoderSpeedRPM = 0.0;
+float EncoderSpeedRPSold = 0.0;
+float EncoderSpeedUnit = 0.0;
 uint32_t TM6_DiffCaunter;
 uint32_t TM6_OldValue;
 uint8_t IncrementSpeedCheckDouble = 0;
+float DemmandSpeedRPM = 0.0;
+uint8_t HalfStepMode = 1;
+uint32_t DemandMotorStep = 0;
 
 char uart_buf[50];
 int uart_buf_len;
@@ -120,6 +124,7 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
+
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -171,16 +176,16 @@ int main(void)
     /* USER CODE END WHILE */
 	    /* USER CODE END WHILE */
 
-	  	 if((KinematicSpeedRPSold == KinematicSpeedRPS) && (IncrementSpeedCheckDouble >=10))
+	  	 if((EncoderSpeedRPSold == EncoderSpeedRPS) && (IncrementSpeedCheckDouble >=10))
 	  	 {
-	  		KinematicSpeedRPS = 0.0;
-	  		KinematicSpeedRPM = 0.0;
-	  		KinematicSpeedUnit = 0.0;
-	  		KinematicSpeedRPSold = KinematicSpeedRPS;
+	  		EncoderSpeedRPS = 0.0;
+	  		EncoderSpeedRPM = 0.0;
+	  		EncoderSpeedUnit = 0.0;
+	  		EncoderSpeedRPSold = EncoderSpeedRPS;
 	  	 }
 	  	 else
 	  	 {
-	  		KinematicSpeedRPSold = KinematicSpeedRPS;
+	  		EncoderSpeedRPSold = EncoderSpeedRPS;
 	  		IncrementSpeedCheckDouble++;
 	  	 }
 
@@ -191,9 +196,9 @@ int main(void)
 				 EncoderPosition,
 				 PositionMotor,
 				 KinematicPositionUnit,
-				 KinematicSpeedRPS,
-				 KinematicSpeedRPM,
-				 KinematicSpeedUnit);
+				 EncoderSpeedRPS,
+				 EncoderSpeedRPM,
+				 EncoderSpeedUnit);
 	 		 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
 	 	 sprintf(CR,"\n");   											//Indispensable for Send Value without error to row empty
 	 		 HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);        //Indispensable for Send Value without error to row empty
@@ -343,10 +348,10 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, LD2_Pin|Enable_A_PhaseStepper_Pin|Enable_B_PhaseStepper_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, IN2_PhaseA_Pin|IN1_PhaseA_Pin|IN2_PhaseB_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, IN3_PhaseA_Pin|IN1_PhaseA_Pin|IN2_PhaseB_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(IN1_PhaseB_GPIO_Port, IN1_PhaseB_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(IN2_PhaseB_GPIO_Port, IN2_PhaseB_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
@@ -368,18 +373,18 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : IN2_PhaseA_Pin IN1_PhaseA_Pin IN2_PhaseB_Pin */
-  GPIO_InitStruct.Pin = IN2_PhaseA_Pin|IN1_PhaseA_Pin|IN2_PhaseB_Pin;
+  GPIO_InitStruct.Pin = IN2_PhaseB_Pin|IN1_PhaseA_Pin|IN2_PhaseB_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : IN1_PhaseB_Pin */
-  GPIO_InitStruct.Pin = IN1_PhaseB_Pin;
+  GPIO_InitStruct.Pin = IN2_PhaseB_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(IN1_PhaseB_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(IN2_PhaseB_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : Encoder1_Index_Pin */
   GPIO_InitStruct.Pin = Encoder1_Index_Pin;
@@ -469,22 +474,22 @@ if(TM6_Currentvalue >= TM6_OldValue)
 	if (FilterSpeedEnable == 1)  // 25Hz CutOff Low-Pass Filter
 	{
 		GetConstantFilter();
-		KinematicSpeedRPSToFiler = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
-		//KinematicSpeedRPS = ((0.854*RPSSpeedFilter) + (0.0728*KinematicSpeedRPSToFiler) + (0.0728*RPSSpeedFilterPrev));
-		KinematicSpeedRPS = ((b_i*RPSSpeedFilter) + (a_i*KinematicSpeedRPSToFiler) + (a_i*RPSSpeedFilterPrev));
-		KinematicSpeedRPM = (KinematicSpeedRPS * 60.0); //Calculate RPM Speed
-		KinematicSpeedUnit = (KinematicSpeedRPM * RevoluctionFactorSet);
+		EncoderSpeedRPSToFiler = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
+		//EncoderSpeedRPS = ((0.854*RPSSpeedFilter) + (0.0728*EncoderSpeedRPSToFiler) + (0.0728*RPSSpeedFilterPrev));
+		EncoderSpeedRPS = ((b_i*RPSSpeedFilter) + (a_i*EncoderSpeedRPSToFiler) + (a_i*RPSSpeedFilterPrev));
+		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
+		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
 		TM6_OldValue = TM6_Currentvalue; // Save to old value
 		HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
-		RPSSpeedFilterPrev = KinematicSpeedRPSToFiler;
-		RPSSpeedFilter = KinematicSpeedRPS;
+		RPSSpeedFilterPrev = EncoderSpeedRPSToFiler;
+		RPSSpeedFilter = EncoderSpeedRPS;
 		//HAL_Delay(1);
 	}
 	else
 	{
-		KinematicSpeedRPS = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
-		KinematicSpeedRPM = (KinematicSpeedRPS * 60.0); //Calculate RPM Speed
-		KinematicSpeedUnit = (KinematicSpeedRPM * RevoluctionFactorSet);
+		EncoderSpeedRPS = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
+		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
+		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
 		TM6_OldValue = TM6_Currentvalue; // Save to old value
 		//IncrementSpeedCheckOld = IncrementSpeedCheck;
 		//IncrementSpeedCheck++;
@@ -503,7 +508,7 @@ else
  *
  */
 //----------------------------DA CONTROLLARE NON FUNZIONANTE--------------------------
-void GetConstantFilter()
+void GetConstantFilter(void)
 {
 	/*float b0 = 0.0;
 	float b1 = 0.0;
@@ -692,6 +697,123 @@ void GetConstantFilter()
 }
 //----------------------------FINE  CONTROLLARE NON FUNZIONANTE--------------------------
 
+//---------------------------- ENABLE PIN STEPPER MOTOR----------------------------------
+
+void EnablePhaseA(void)  // Phase A
+{
+	HAL_GPIO_WritePin(GPIOA, Enable_A_PhaseStepper_Pin, GPIO_PIN_SET); //Enable PhaseA with PA8 - D7
+
+}
+
+void DisablePhaseA(void)
+{
+	HAL_GPIO_WritePin(GPIOA, Enable_A_PhaseStepper_Pin, GPIO_PIN_RESET); //Enable PhaseA with PA8 - D7
+
+}
+
+void EnablePhaseB(void)  // Phase B
+{
+	HAL_GPIO_WritePin(GPIOA, Enable_B_PhaseStepper_Pin, GPIO_PIN_SET); //Enable PhaseA with PA8 - D7
+
+}
+
+void DisablePhaseB(void)
+{
+	HAL_GPIO_WritePin(GPIOA, Enable_B_PhaseStepper_Pin, GPIO_PIN_RESET); //Enable PhaseA with PA8 - D7
+
+}
+//---------------------------- FINE ENABLE PIN STEPPER MOTOR----------------------------------
+
+//---------------------------- MOVE IN CLOCKWISE DIRECTION STEPPER MOTOR----------------------
+void CW_Direction(uint8_t HalfStepMode,float MotorStep,float DemmandSpeedRPM)
+{
+    uint8_t IncremnentStepping = 0;
+
+	if (HalfStepMode == 1)
+	{
+		uint8_t HalfStep1[4] = {1,0,0,0};
+		uint8_t HalfStep2[4] = {1,1,0,0};
+		uint8_t HalfStep3[4] = {0,1,0,0};
+		uint8_t HalfStep4[4] = {0,1,1,0};
+		uint8_t HalfStep5[4] = {0,0,1,0};
+		uint8_t HalfStep6[4] = {0,0,1,1};
+		uint8_t HalfStep7[4] = {0,0,0,1};
+		uint8_t HalfStep8[4] = {1,0,0,1};
+		uint8_t HalStepMotorSepper[8] = {HalfStep1,HalfStep2,HalfStep3,HalfStep4,HalfStep5,HalfStep6,HalfStep7,HalfStep8};
+
+		EnablePhaseA();
+		EnablePhaseB();
+
+
+		for (uint32_t ActualMotorStep = 0; ActualMotorStep < DemandMotorStep; ++ActualMotorStep)
+		{
+			if(IncremnentStepping >= 8)
+			{
+			HalStepMotorSepper[ActualMotorStep];
+
+			//-------------------------PHASE 1-------------------------------------------------------
+
+			if ((HalfStep1[0]== 1)||(HalfStep2[0]== 1)||(HalfStep3[0]== 1)||(HalfStep4[0]== 1)||(HalfStep5[0]== 1)||(HalfStep6[0]== 1)||(HalfStep7[0]== 1)||(HalfStep8[0]== 1))
+			{
+				HAL_GPIO_WritePin(GPIOA, IN1_PhaseA_Pin, GPIO_PIN_SET);
+			}
+			else if ((HalfStep1[0]== 0)||(HalfStep2[0]== 0)||(HalfStep3[0]== 0)||(HalfStep4[0]== 0)||(HalfStep5[0]== 0)||(HalfStep6[0]== 0)||(HalfStep7[0]== 0)||(HalfStep8[0]== 0))
+		    {
+				HAL_GPIO_WritePin(GPIOA, IN1_PhaseA_Pin, GPIO_PIN_RESET);
+		    }
+
+			//-------------------------PHASE 2-------------------------------------------------------
+
+			if ((HalfStep1[1]== 1)||(HalfStep2[1]== 1)||(HalfStep3[1]== 1)||(HalfStep4[1]== 1)||(HalfStep5[1]== 1)||(HalfStep6[1]== 1)||(HalfStep7[1]== 1)||(HalfStep8[1]== 1))
+			{
+				HAL_GPIO_WritePin(GPIOA, IN2_PhaseB_Pin, GPIO_PIN_SET);
+			}
+			else if ((HalfStep1[1]== 0)||(HalfStep2[1]== 0)||(HalfStep3[1]== 0)||(HalfStep4[1]== 0)||(HalfStep5[1]== 0)||(HalfStep6[1]== 0)||(HalfStep7[1]== 0)||(HalfStep8[1]== 0))
+			{
+				HAL_GPIO_WritePin(GPIOA, IN2_PhaseB_Pin, GPIO_PIN_RESET);
+			}
+
+			//-------------------------PHASE 3-------------------------------------------------------
+
+			if ((HalfStep1[2]== 1)||(HalfStep2[2]== 1)||(HalfStep3[2]== 1)||(HalfStep4[2]== 1)||(HalfStep5[2]== 1)||(HalfStep6[2]== 1)||(HalfStep7[2]== 1)||(HalfStep8[2]== 1))
+			{
+				HAL_GPIO_WritePin(GPIOB, IN3_PhaseA_Pin, GPIO_PIN_SET);
+			}
+			else if ((HalfStep1[2]== 0)||(HalfStep2[2]== 0)||(HalfStep3[2]== 0)||(HalfStep4[2]== 0)||(HalfStep5[2]== 0)||(HalfStep6[2]== 0)||(HalfStep7[2]== 0)||(HalfStep8[2]== 0))
+			{
+				HAL_GPIO_WritePin(GPIOB, IN3_PhaseA_Pin, GPIO_PIN_RESET);
+			}
+
+			//-------------------------PHASE 4-------------------------------------------------------
+
+			if ((HalfStep1[3]== 1)||(HalfStep2[3]== 1)||(HalfStep3[3]== 1)||(HalfStep4[3]== 1)||(HalfStep5[3]== 1)||(HalfStep6[3]== 1)||(HalfStep7[3]== 1)||(HalfStep8[3]== 1))
+			{
+				HAL_GPIO_WritePin(GPIOC, IN4_PhaseB_Pin, GPIO_PIN_SET);
+			}
+			else if ((HalfStep1[3]== 0)||(HalfStep2[3]== 0)||(HalfStep3[3]== 0)||(HalfStep4[3]== 0)||(HalfStep5[3]== 0)||(HalfStep6[3]== 0)||(HalfStep7[3]== 0)||(HalfStep8[3]== 0))
+			{
+				HAL_GPIO_WritePin(GPIOC, IN4_PhaseB_Pin, GPIO_PIN_RESET);
+			}
+
+			else
+				IncremnentStepping++;
+				ActualMotorStep++;
+			}
+			else
+			{
+				IncremnentStepping = 0;
+			}
+
+			HAL_Delay(1);
+		}
+	}
+	else if(HalfStepMode == 0)
+	{
+		EnablePhaseA();
+		EnablePhaseB();
+	}
+
+}
 /* USER CODE END 4 */
 
 /**

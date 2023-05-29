@@ -27,23 +27,23 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000030  00000000  00000000  000201e4  2**0
                   CONTENTS, READONLY
- 12 .debug_info   0000dcb3  00000000  00000000  00020214  2**0
+ 12 .debug_info   0000de60  00000000  00000000  00020214  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00001d3a  00000000  00000000  0002dec7  2**0
+ 13 .debug_abbrev 00001d56  00000000  00000000  0002e074  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00000cd8  00000000  00000000  0002fc08  2**3
+ 14 .debug_aranges 00000d00  00000000  00000000  0002fdd0  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_ranges 00000c20  00000000  00000000  000308e0  2**3
+ 15 .debug_ranges 00000c48  00000000  00000000  00030ad0  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00022723  00000000  00000000  00031500  2**0
+ 16 .debug_macro  00022723  00000000  00000000  00031718  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   00012fe2  00000000  00000000  00053c23  2**0
+ 17 .debug_line   00013421  00000000  00000000  00053e3b  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000d2557  00000000  00000000  00066c05  2**0
+ 18 .debug_str    000d2639  00000000  00000000  0006725c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000050  00000000  00000000  0013915c  2**0
+ 19 .comment      00000050  00000000  00000000  00139895  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  000047d0  00000000  00000000  001391ac  2**2
+ 20 .debug_frame  00004868  00000000  00000000  001398e8  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1265,7 +1265,7 @@ int main(void)
  8000f8c:	e92d 4ff0 	stmdb	sp!, {r4, r5, r6, r7, r8, r9, sl, fp, lr}
  8000f90:	b08f      	sub	sp, #60	; 0x3c
  8000f92:	af0a      	add	r7, sp, #40	; 0x28
-  /* USER CODE END 1 */
+
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -1373,7 +1373,7 @@ int main(void)
     /* USER CODE END WHILE */
 	    /* USER CODE END WHILE */
 
-	  	 if((KinematicSpeedRPSold == KinematicSpeedRPS) && (IncrementSpeedCheckDouble >=10))
+	  	 if((EncoderSpeedRPSold == EncoderSpeedRPS) && (IncrementSpeedCheckDouble >=10))
  8001040:	4b4b      	ldr	r3, [pc, #300]	; (8001170 <main+0x1e4>)
  8001042:	ed93 7a00 	vldr	s14, [r3]
  8001046:	4b4b      	ldr	r3, [pc, #300]	; (8001174 <main+0x1e8>)
@@ -1386,19 +1386,19 @@ int main(void)
  800105a:	2b09      	cmp	r3, #9
  800105c:	d910      	bls.n	8001080 <main+0xf4>
 	  	 {
-	  		KinematicSpeedRPS = 0.0;
+	  		EncoderSpeedRPS = 0.0;
  800105e:	4b45      	ldr	r3, [pc, #276]	; (8001174 <main+0x1e8>)
  8001060:	f04f 0200 	mov.w	r2, #0
  8001064:	601a      	str	r2, [r3, #0]
-	  		KinematicSpeedRPM = 0.0;
+	  		EncoderSpeedRPM = 0.0;
  8001066:	4b45      	ldr	r3, [pc, #276]	; (800117c <main+0x1f0>)
  8001068:	f04f 0200 	mov.w	r2, #0
  800106c:	601a      	str	r2, [r3, #0]
-	  		KinematicSpeedUnit = 0.0;
+	  		EncoderSpeedUnit = 0.0;
  800106e:	4b44      	ldr	r3, [pc, #272]	; (8001180 <main+0x1f4>)
  8001070:	f04f 0200 	mov.w	r2, #0
  8001074:	601a      	str	r2, [r3, #0]
-	  		KinematicSpeedRPSold = KinematicSpeedRPS;
+	  		EncoderSpeedRPSold = EncoderSpeedRPS;
  8001076:	4b3f      	ldr	r3, [pc, #252]	; (8001174 <main+0x1e8>)
  8001078:	681b      	ldr	r3, [r3, #0]
  800107a:	4a3d      	ldr	r2, [pc, #244]	; (8001170 <main+0x1e4>)
@@ -1407,7 +1407,7 @@ int main(void)
 	  	 }
 	  	 else
 	  	 {
-	  		KinematicSpeedRPSold = KinematicSpeedRPS;
+	  		EncoderSpeedRPSold = EncoderSpeedRPS;
  8001080:	4b3c      	ldr	r3, [pc, #240]	; (8001174 <main+0x1e8>)
  8001082:	681b      	ldr	r3, [r3, #0]
  8001084:	4a3a      	ldr	r2, [pc, #232]	; (8001170 <main+0x1e4>)
@@ -1471,9 +1471,9 @@ int main(void)
  8001104:	f004 f858 	bl	80051b8 <siprintf>
 				 PositionMotor,
 				 KinematicPositionUnit,
-				 KinematicSpeedRPS,
-				 KinematicSpeedRPM,
-				 KinematicSpeedUnit);
+				 EncoderSpeedRPS,
+				 EncoderSpeedRPM,
+				 EncoderSpeedUnit);
 	 		 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
  8001108:	f64f 73ff 	movw	r3, #65535	; 0xffff
  800110c:	2264      	movs	r2, #100	; 0x64
@@ -1490,15 +1490,11 @@ int main(void)
  8001124:	491e      	ldr	r1, [pc, #120]	; (80011a0 <main+0x214>)
  8001126:	4805      	ldr	r0, [pc, #20]	; (800113c <main+0x1b0>)
  8001128:	f002 fff0 	bl	800410c <HAL_UART_Transmit>
-	    	 KinematicSpeedRPSold = KinematicSpeedRPS;
-	    	 //KinematicSpeedRPMold = KinematicSpeedRPM;
-	     	 }
-	     */
 
 		 HAL_Delay(1);
  800112c:	2001      	movs	r0, #1
  800112e:	f000 ff59 	bl	8001fe4 <HAL_Delay>
-	  	 if((KinematicSpeedRPSold == KinematicSpeedRPS) && (IncrementSpeedCheckDouble >=10))
+	  	 if((EncoderSpeedRPSold == EncoderSpeedRPS) && (IncrementSpeedCheckDouble >=10))
  8001132:	e785      	b.n	8001040 <main+0xb4>
  8001134:	080076c0 	.word	0x080076c0
  8001138:	200002f8 	.word	0x200002f8
@@ -1515,15 +1511,15 @@ int main(void)
  8001164:	20000390 	.word	0x20000390
  8001168:	08007728 	.word	0x08007728
  800116c:	200002fc 	.word	0x200002fc
- 8001170:	200003dc 	.word	0x200003dc
- 8001174:	200003d4 	.word	0x200003d4
- 8001178:	200003ec 	.word	0x200003ec
- 800117c:	200003d8 	.word	0x200003d8
- 8001180:	200003e0 	.word	0x200003e0
+ 8001170:	200003e4 	.word	0x200003e4
+ 8001174:	200003dc 	.word	0x200003dc
+ 8001178:	200003f4 	.word	0x200003f4
+ 800117c:	200003e0 	.word	0x200003e0
+ 8001180:	200003e8 	.word	0x200003e8
  8001184:	2000028c 	.word	0x2000028c
- 8001188:	200003c8 	.word	0x200003c8
- 800118c:	200003c4 	.word	0x200003c4
- 8001190:	200003d0 	.word	0x200003d0
+ 8001188:	200003d0 	.word	0x200003d0
+ 800118c:	200003cc 	.word	0x200003cc
+ 8001190:	200003d8 	.word	0x200003d8
  8001194:	08007730 	.word	0x08007730
  8001198:	20000290 	.word	0x20000290
  800119c:	08007758 	.word	0x08007758
@@ -1900,22 +1896,22 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, LD2_Pin|Enable_A_PhaseStepper_Pin|Enable_B_PhaseStepper_Pin, GPIO_PIN_RESET);
  80013ca:	2200      	movs	r2, #0
- 80013cc:	f44f 7148 	mov.w	r1, #800	; 0x320
+ 80013cc:	f44f 71d0 	mov.w	r1, #416	; 0x1a0
  80013d0:	483f      	ldr	r0, [pc, #252]	; (80014d0 <MX_GPIO_Init+0x18c>)
  80013d2:	f001 fab5 	bl	8002940 <HAL_GPIO_WritePin>
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, IN2_PhaseA_Pin|IN1_PhaseA_Pin|IN2_PhaseB_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, IN3_PhaseA_Pin|IN1_PhaseA_Pin|IN2_PhaseB_Pin, GPIO_PIN_RESET);
  80013d6:	2200      	movs	r2, #0
- 80013d8:	f44f 618a 	mov.w	r1, #1104	; 0x450
+ 80013d8:	f44f 7118 	mov.w	r1, #608	; 0x260
  80013dc:	483d      	ldr	r0, [pc, #244]	; (80014d4 <MX_GPIO_Init+0x190>)
  80013de:	f001 faaf 	bl	8002940 <HAL_GPIO_WritePin>
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(IN1_PhaseB_GPIO_Port, IN1_PhaseB_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(IN2_PhaseB_GPIO_Port, IN2_PhaseB_Pin, GPIO_PIN_RESET);
  80013e2:	2200      	movs	r2, #0
- 80013e4:	2180      	movs	r1, #128	; 0x80
- 80013e6:	483c      	ldr	r0, [pc, #240]	; (80014d8 <MX_GPIO_Init+0x194>)
+ 80013e4:	2140      	movs	r1, #64	; 0x40
+ 80013e6:	483b      	ldr	r0, [pc, #236]	; (80014d4 <MX_GPIO_Init+0x190>)
  80013e8:	f001 faaa 	bl	8002940 <HAL_GPIO_WritePin>
 
   /*Configure GPIO pin : B1_Pin */
@@ -1952,7 +1948,7 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pins : LD2_Pin Enable_A_PhaseStepper_Pin Enable_B_PhaseStepper_Pin */
   GPIO_InitStruct.Pin = LD2_Pin|Enable_A_PhaseStepper_Pin|Enable_B_PhaseStepper_Pin;
- 8001422:	f44f 7348 	mov.w	r3, #800	; 0x320
+ 8001422:	f44f 73d0 	mov.w	r3, #416	; 0x1a0
  8001426:	617b      	str	r3, [r7, #20]
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
  8001428:	2301      	movs	r3, #1
@@ -1970,94 +1966,95 @@ static void MX_GPIO_Init(void)
  800143c:	f000 ff36 	bl	80022ac <HAL_GPIO_Init>
 
   /*Configure GPIO pins : IN2_PhaseA_Pin IN1_PhaseA_Pin IN2_PhaseB_Pin */
-  GPIO_InitStruct.Pin = IN2_PhaseA_Pin|IN1_PhaseA_Pin|IN2_PhaseB_Pin;
- 8001440:	f44f 638a 	mov.w	r3, #1104	; 0x450
- 8001444:	617b      	str	r3, [r7, #20]
+  GPIO_InitStruct.Pin = IN2_PhaseB_Pin|IN1_PhaseA_Pin|IN2_PhaseB_Pin;
+ 8001440:	2360      	movs	r3, #96	; 0x60
+ 8001442:	617b      	str	r3, [r7, #20]
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
- 8001446:	2301      	movs	r3, #1
- 8001448:	61bb      	str	r3, [r7, #24]
+ 8001444:	2301      	movs	r3, #1
+ 8001446:	61bb      	str	r3, [r7, #24]
   GPIO_InitStruct.Pull = GPIO_NOPULL;
- 800144a:	2300      	movs	r3, #0
- 800144c:	61fb      	str	r3, [r7, #28]
+ 8001448:	2300      	movs	r3, #0
+ 800144a:	61fb      	str	r3, [r7, #28]
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
- 800144e:	2300      	movs	r3, #0
- 8001450:	623b      	str	r3, [r7, #32]
+ 800144c:	2300      	movs	r3, #0
+ 800144e:	623b      	str	r3, [r7, #32]
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
- 8001452:	f107 0314 	add.w	r3, r7, #20
- 8001456:	4619      	mov	r1, r3
- 8001458:	481e      	ldr	r0, [pc, #120]	; (80014d4 <MX_GPIO_Init+0x190>)
- 800145a:	f000 ff27 	bl	80022ac <HAL_GPIO_Init>
+ 8001450:	f107 0314 	add.w	r3, r7, #20
+ 8001454:	4619      	mov	r1, r3
+ 8001456:	481f      	ldr	r0, [pc, #124]	; (80014d4 <MX_GPIO_Init+0x190>)
+ 8001458:	f000 ff28 	bl	80022ac <HAL_GPIO_Init>
 
   /*Configure GPIO pin : IN1_PhaseB_Pin */
-  GPIO_InitStruct.Pin = IN1_PhaseB_Pin;
- 800145e:	2380      	movs	r3, #128	; 0x80
- 8001460:	617b      	str	r3, [r7, #20]
+  GPIO_InitStruct.Pin = IN2_PhaseB_Pin;
+ 800145c:	2340      	movs	r3, #64	; 0x40
+ 800145e:	617b      	str	r3, [r7, #20]
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
- 8001462:	2301      	movs	r3, #1
- 8001464:	61bb      	str	r3, [r7, #24]
+ 8001460:	2301      	movs	r3, #1
+ 8001462:	61bb      	str	r3, [r7, #24]
   GPIO_InitStruct.Pull = GPIO_NOPULL;
- 8001466:	2300      	movs	r3, #0
- 8001468:	61fb      	str	r3, [r7, #28]
+ 8001464:	2300      	movs	r3, #0
+ 8001466:	61fb      	str	r3, [r7, #28]
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
- 800146a:	2300      	movs	r3, #0
- 800146c:	623b      	str	r3, [r7, #32]
-  HAL_GPIO_Init(IN1_PhaseB_GPIO_Port, &GPIO_InitStruct);
- 800146e:	f107 0314 	add.w	r3, r7, #20
- 8001472:	4619      	mov	r1, r3
- 8001474:	4818      	ldr	r0, [pc, #96]	; (80014d8 <MX_GPIO_Init+0x194>)
- 8001476:	f000 ff19 	bl	80022ac <HAL_GPIO_Init>
+ 8001468:	2300      	movs	r3, #0
+ 800146a:	623b      	str	r3, [r7, #32]
+  HAL_GPIO_Init(IN2_PhaseB_GPIO_Port, &GPIO_InitStruct);
+ 800146c:	f107 0314 	add.w	r3, r7, #20
+ 8001470:	4619      	mov	r1, r3
+ 8001472:	4818      	ldr	r0, [pc, #96]	; (80014d4 <MX_GPIO_Init+0x190>)
+ 8001474:	f000 ff1a 	bl	80022ac <HAL_GPIO_Init>
 
   /*Configure GPIO pin : Encoder1_Index_Pin */
   GPIO_InitStruct.Pin = Encoder1_Index_Pin;
- 800147a:	f44f 6380 	mov.w	r3, #1024	; 0x400
- 800147e:	617b      	str	r3, [r7, #20]
+ 8001478:	f44f 6380 	mov.w	r3, #1024	; 0x400
+ 800147c:	617b      	str	r3, [r7, #20]
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
- 8001480:	2300      	movs	r3, #0
- 8001482:	61bb      	str	r3, [r7, #24]
+ 800147e:	2300      	movs	r3, #0
+ 8001480:	61bb      	str	r3, [r7, #24]
   GPIO_InitStruct.Pull = GPIO_NOPULL;
- 8001484:	2300      	movs	r3, #0
- 8001486:	61fb      	str	r3, [r7, #28]
+ 8001482:	2300      	movs	r3, #0
+ 8001484:	61fb      	str	r3, [r7, #28]
   HAL_GPIO_Init(Encoder1_Index_GPIO_Port, &GPIO_InitStruct);
- 8001488:	f107 0314 	add.w	r3, r7, #20
- 800148c:	4619      	mov	r1, r3
- 800148e:	4810      	ldr	r0, [pc, #64]	; (80014d0 <MX_GPIO_Init+0x18c>)
- 8001490:	f000 ff0c 	bl	80022ac <HAL_GPIO_Init>
+ 8001486:	f107 0314 	add.w	r3, r7, #20
+ 800148a:	4619      	mov	r1, r3
+ 800148c:	4810      	ldr	r0, [pc, #64]	; (80014d0 <MX_GPIO_Init+0x18c>)
+ 800148e:	f000 ff0d 	bl	80022ac <HAL_GPIO_Init>
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
- 8001494:	2200      	movs	r2, #0
- 8001496:	2100      	movs	r1, #0
- 8001498:	2006      	movs	r0, #6
- 800149a:	f000 feb7 	bl	800220c <HAL_NVIC_SetPriority>
+ 8001492:	2200      	movs	r2, #0
+ 8001494:	2100      	movs	r1, #0
+ 8001496:	2006      	movs	r0, #6
+ 8001498:	f000 feb8 	bl	800220c <HAL_NVIC_SetPriority>
   HAL_NVIC_EnableIRQ(EXTI0_IRQn);
- 800149e:	2006      	movs	r0, #6
- 80014a0:	f000 fee0 	bl	8002264 <HAL_NVIC_EnableIRQ>
+ 800149c:	2006      	movs	r0, #6
+ 800149e:	f000 fee1 	bl	8002264 <HAL_NVIC_EnableIRQ>
 
   HAL_NVIC_SetPriority(EXTI1_IRQn, 0, 0);
- 80014a4:	2200      	movs	r2, #0
- 80014a6:	2100      	movs	r1, #0
- 80014a8:	2007      	movs	r0, #7
- 80014aa:	f000 feaf 	bl	800220c <HAL_NVIC_SetPriority>
+ 80014a2:	2200      	movs	r2, #0
+ 80014a4:	2100      	movs	r1, #0
+ 80014a6:	2007      	movs	r0, #7
+ 80014a8:	f000 feb0 	bl	800220c <HAL_NVIC_SetPriority>
   HAL_NVIC_EnableIRQ(EXTI1_IRQn);
- 80014ae:	2007      	movs	r0, #7
- 80014b0:	f000 fed8 	bl	8002264 <HAL_NVIC_EnableIRQ>
+ 80014ac:	2007      	movs	r0, #7
+ 80014ae:	f000 fed9 	bl	8002264 <HAL_NVIC_EnableIRQ>
 
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
- 80014b4:	2200      	movs	r2, #0
- 80014b6:	2100      	movs	r1, #0
- 80014b8:	2028      	movs	r0, #40	; 0x28
- 80014ba:	f000 fea7 	bl	800220c <HAL_NVIC_SetPriority>
+ 80014b2:	2200      	movs	r2, #0
+ 80014b4:	2100      	movs	r1, #0
+ 80014b6:	2028      	movs	r0, #40	; 0x28
+ 80014b8:	f000 fea8 	bl	800220c <HAL_NVIC_SetPriority>
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
- 80014be:	2028      	movs	r0, #40	; 0x28
- 80014c0:	f000 fed0 	bl	8002264 <HAL_NVIC_EnableIRQ>
+ 80014bc:	2028      	movs	r0, #40	; 0x28
+ 80014be:	f000 fed1 	bl	8002264 <HAL_NVIC_EnableIRQ>
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
 }
- 80014c4:	bf00      	nop
- 80014c6:	3728      	adds	r7, #40	; 0x28
- 80014c8:	46bd      	mov	sp, r7
- 80014ca:	bd80      	pop	{r7, pc}
+ 80014c2:	bf00      	nop
+ 80014c4:	3728      	adds	r7, #40	; 0x28
+ 80014c6:	46bd      	mov	sp, r7
+ 80014c8:	bd80      	pop	{r7, pc}
+ 80014ca:	bf00      	nop
  80014cc:	40023800 	.word	0x40023800
  80014d0:	40020000 	.word	0x40020000
  80014d4:	40020400 	.word	0x40020400
@@ -2271,8 +2268,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
  8001626:	3708      	adds	r7, #8
  8001628:	46bd      	mov	sp, r7
  800162a:	bd80      	pop	{r7, pc}
- 800162c:	200003c0 	.word	0x200003c0
- 8001630:	200003c1 	.word	0x200003c1
+ 800162c:	200003c8 	.word	0x200003c8
+ 8001630:	200003c9 	.word	0x200003c9
  8001634:	2000028c 	.word	0x2000028c
  8001638:	20000002 	.word	0x20000002
  800163c:	20000004 	.word	0x20000004
@@ -2368,7 +2365,7 @@ if(TM6_Currentvalue >= TM6_OldValue)
 	{
 		GetConstantFilter();
  80016f4:	f000 f8ee 	bl	80018d4 <GetConstantFilter>
-		KinematicSpeedRPSToFiler = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
+		EncoderSpeedRPSToFiler = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
  80016f8:	4b6a      	ldr	r3, [pc, #424]	; (80018a4 <Calculate_Rotation+0x264>)
  80016fa:	681b      	ldr	r3, [r3, #0]
  80016fc:	4618      	mov	r0, r3
@@ -2399,8 +2396,8 @@ if(TM6_Currentvalue >= TM6_OldValue)
  800173a:	4603      	mov	r3, r0
  800173c:	4a5b      	ldr	r2, [pc, #364]	; (80018ac <Calculate_Rotation+0x26c>)
  800173e:	6013      	str	r3, [r2, #0]
-		//KinematicSpeedRPS = ((0.854*RPSSpeedFilter) + (0.0728*KinematicSpeedRPSToFiler) + (0.0728*RPSSpeedFilterPrev));
-		KinematicSpeedRPS = ((b_i*RPSSpeedFilter) + (a_i*KinematicSpeedRPSToFiler) + (a_i*RPSSpeedFilterPrev));
+		//EncoderSpeedRPS = ((0.854*RPSSpeedFilter) + (0.0728*EncoderSpeedRPSToFiler) + (0.0728*RPSSpeedFilterPrev));
+		EncoderSpeedRPS = ((b_i*RPSSpeedFilter) + (a_i*EncoderSpeedRPSToFiler) + (a_i*RPSSpeedFilterPrev));
  8001740:	4b5b      	ldr	r3, [pc, #364]	; (80018b0 <Calculate_Rotation+0x270>)
  8001742:	ed93 7a00 	vldr	s14, [r3]
  8001746:	4b5b      	ldr	r3, [pc, #364]	; (80018b4 <Calculate_Rotation+0x274>)
@@ -2420,14 +2417,14 @@ if(TM6_Currentvalue >= TM6_OldValue)
  8001774:	ee77 7a27 	vadd.f32	s15, s14, s15
  8001778:	4b51      	ldr	r3, [pc, #324]	; (80018c0 <Calculate_Rotation+0x280>)
  800177a:	edc3 7a00 	vstr	s15, [r3]
-		KinematicSpeedRPM = (KinematicSpeedRPS * 60.0); //Calculate RPM Speed
+		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
  800177e:	4b50      	ldr	r3, [pc, #320]	; (80018c0 <Calculate_Rotation+0x280>)
  8001780:	edd3 7a00 	vldr	s15, [r3]
  8001784:	ed9f 7a4f 	vldr	s14, [pc, #316]	; 80018c4 <Calculate_Rotation+0x284>
  8001788:	ee67 7a87 	vmul.f32	s15, s15, s14
  800178c:	4b4e      	ldr	r3, [pc, #312]	; (80018c8 <Calculate_Rotation+0x288>)
  800178e:	edc3 7a00 	vstr	s15, [r3]
-		KinematicSpeedUnit = (KinematicSpeedRPM * RevoluctionFactorSet);
+		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
  8001792:	88bb      	ldrh	r3, [r7, #4]
  8001794:	ee07 3a90 	vmov	s15, r3
  8001798:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
@@ -2446,12 +2443,12 @@ if(TM6_Currentvalue >= TM6_OldValue)
  80017b8:	2120      	movs	r1, #32
  80017ba:	4845      	ldr	r0, [pc, #276]	; (80018d0 <Calculate_Rotation+0x290>)
  80017bc:	f001 f8f2 	bl	80029a4 <HAL_GPIO_TogglePin>
-		RPSSpeedFilterPrev = KinematicSpeedRPSToFiler;
+		RPSSpeedFilterPrev = EncoderSpeedRPSToFiler;
  80017c0:	4b3a      	ldr	r3, [pc, #232]	; (80018ac <Calculate_Rotation+0x26c>)
  80017c2:	681b      	ldr	r3, [r3, #0]
  80017c4:	4a3d      	ldr	r2, [pc, #244]	; (80018bc <Calculate_Rotation+0x27c>)
  80017c6:	6013      	str	r3, [r2, #0]
-		RPSSpeedFilter = KinematicSpeedRPS;
+		RPSSpeedFilter = EncoderSpeedRPS;
  80017c8:	4b3d      	ldr	r3, [pc, #244]	; (80018c0 <Calculate_Rotation+0x280>)
  80017ca:	681b      	ldr	r3, [r3, #0]
  80017cc:	4a39      	ldr	r2, [pc, #228]	; (80018b4 <Calculate_Rotation+0x274>)
@@ -2463,7 +2460,7 @@ else
 
 }
  80017d0:	e04b      	b.n	800186a <Calculate_Rotation+0x22a>
-		KinematicSpeedRPS = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
+		EncoderSpeedRPS = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
  80017d2:	4b34      	ldr	r3, [pc, #208]	; (80018a4 <Calculate_Rotation+0x264>)
  80017d4:	681b      	ldr	r3, [r3, #0]
  80017d6:	4618      	mov	r0, r3
@@ -2494,14 +2491,14 @@ else
  8001814:	4603      	mov	r3, r0
  8001816:	4a2a      	ldr	r2, [pc, #168]	; (80018c0 <Calculate_Rotation+0x280>)
  8001818:	6013      	str	r3, [r2, #0]
-		KinematicSpeedRPM = (KinematicSpeedRPS * 60.0); //Calculate RPM Speed
+		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
  800181a:	4b29      	ldr	r3, [pc, #164]	; (80018c0 <Calculate_Rotation+0x280>)
  800181c:	edd3 7a00 	vldr	s15, [r3]
  8001820:	ed9f 7a28 	vldr	s14, [pc, #160]	; 80018c4 <Calculate_Rotation+0x284>
  8001824:	ee67 7a87 	vmul.f32	s15, s15, s14
  8001828:	4b27      	ldr	r3, [pc, #156]	; (80018c8 <Calculate_Rotation+0x288>)
  800182a:	edc3 7a00 	vstr	s15, [r3]
-		KinematicSpeedUnit = (KinematicSpeedRPM * RevoluctionFactorSet);
+		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
  800182e:	88bb      	ldrh	r3, [r7, #4]
  8001830:	ee07 3a90 	vmov	s15, r3
  8001834:	eeb8 7ae7 	vcvt.f32.s32	s14, s15
@@ -2539,24 +2536,24 @@ else
  800187c:	412e8480 	.word	0x412e8480
  8001880:	2000028c 	.word	0x2000028c
  8001884:	40100000 	.word	0x40100000
- 8001888:	200003c8 	.word	0x200003c8
- 800188c:	200003cc 	.word	0x200003cc
- 8001890:	200003c4 	.word	0x200003c4
- 8001894:	200003d0 	.word	0x200003d0
+ 8001888:	200003d0 	.word	0x200003d0
+ 800188c:	200003d4 	.word	0x200003d4
+ 8001890:	200003cc 	.word	0x200003cc
+ 8001894:	200003d8 	.word	0x200003d8
  8001898:	20000200 	.word	0x20000200
- 800189c:	200003ee 	.word	0x200003ee
- 80018a0:	200003e8 	.word	0x200003e8
- 80018a4:	200003e4 	.word	0x200003e4
+ 800189c:	200003f6 	.word	0x200003f6
+ 80018a0:	200003f0 	.word	0x200003f0
+ 80018a4:	200003ec 	.word	0x200003ec
  80018a8:	200003b3 	.word	0x200003b3
  80018ac:	200003bc 	.word	0x200003bc
- 80018b0:	200003f0 	.word	0x200003f0
+ 80018b0:	200003c0 	.word	0x200003c0
  80018b4:	200003b4 	.word	0x200003b4
- 80018b8:	200003f4 	.word	0x200003f4
+ 80018b8:	200003c4 	.word	0x200003c4
  80018bc:	200003b8 	.word	0x200003b8
- 80018c0:	200003d4 	.word	0x200003d4
+ 80018c0:	200003dc 	.word	0x200003dc
  80018c4:	42700000 	.word	0x42700000
- 80018c8:	200003d8 	.word	0x200003d8
- 80018cc:	200003e0 	.word	0x200003e0
+ 80018c8:	200003e0 	.word	0x200003e0
+ 80018cc:	200003e8 	.word	0x200003e8
  80018d0:	40020000 	.word	0x40020000
 
 080018d4 <GetConstantFilter>:
@@ -2564,7 +2561,7 @@ else
  *
  */
 //----------------------------DA CONTROLLARE NON FUNZIONANTE--------------------------
-void GetConstantFilter()
+void GetConstantFilter(void)
 {
  80018d4:	b480      	push	{r7}
  80018d6:	af00      	add	r7, sp, #0
@@ -2979,9 +2976,9 @@ void GetConstantFilter()
  8001ac6:	4770      	bx	lr
  8001ac8:	20000001 	.word	0x20000001
  8001acc:	20000000 	.word	0x20000000
- 8001ad0:	200003f0 	.word	0x200003f0
+ 8001ad0:	200003c0 	.word	0x200003c0
  8001ad4:	3f7814f7 	.word	0x3f7814f7
- 8001ad8:	200003f4 	.word	0x200003f4
+ 8001ad8:	200003c4 	.word	0x200003c4
  8001adc:	3c7d6114 	.word	0x3c7d6114
  8001ae0:	3f7067ad 	.word	0x3f7067ad
  8001ae4:	3cf98537 	.word	0x3cf98537
