@@ -95,6 +95,7 @@ uint8_t IncrementSpeedCheckDouble = 0;
 float DemmandSpeedRPM = 0.0;
 uint8_t HalfStepMode = 1;
 uint32_t DemandMotorStep = 0;
+uint8_t STMStepper = 1;
 
 char uart_buf[50];
 int uart_buf_len;
@@ -778,89 +779,133 @@ void CW_Direction(uint8_t HalfStepMode,float MotorStep,float DemmandSpeedRPM)
 
 	if (HalfStepMode == 1)
 	{
-		uint8_t HalfStep1[4] = {1,0,0,0};
-		uint8_t HalfStep2[4] = {1,1,0,0};
-		uint8_t HalfStep3[4] = {0,1,0,0};
-		uint8_t HalfStep4[4] = {0,1,1,0};
-		uint8_t HalfStep5[4] = {0,0,1,0};
-		uint8_t HalfStep6[4] = {0,0,1,1};
-		uint8_t HalfStep7[4] = {0,0,0,1};
-		uint8_t HalfStep8[4] = {1,0,0,1};
-		uint8_t HalStepMotorSepper[8] = {HalfStep1,HalfStep2,HalfStep3,HalfStep4,HalfStep5,HalfStep6,HalfStep7,HalfStep8};
-
 		EnablePhaseA();
 		EnablePhaseB();
 
-
 		for (uint32_t ActualMotorStep = 0; ActualMotorStep >= DemandMotorStep; ++ActualMotorStep)
 		{
-			if(IncremnentStepping < 8)
-			{
-			HalStepMotorSepper[ActualMotorStep];
-
-			//-------------------------PHASE 1-------------------------------------------------------
-
-			if ((HalfStep1[0]== 1)||(HalfStep2[0]== 1)||(HalfStep3[0]== 1)||(HalfStep4[0]== 1)||(HalfStep5[0]== 1)||(HalfStep6[0]== 1)||(HalfStep7[0]== 1)||(HalfStep8[0]== 1))
-			{
-				HAL_GPIO_WritePin(GPIOA, IN1_PhaseA_Pin, GPIO_PIN_SET);
-			}
-			else if ((HalfStep1[0]== 0)||(HalfStep2[0]== 0)||(HalfStep3[0]== 0)||(HalfStep4[0]== 0)||(HalfStep5[0]== 0)||(HalfStep6[0]== 0)||(HalfStep7[0]== 0)||(HalfStep8[0]== 0))
-		    {
-				HAL_GPIO_WritePin(GPIOA, IN1_PhaseA_Pin, GPIO_PIN_RESET);
-		    }
-
-			//-------------------------PHASE 2-------------------------------------------------------
-
-			if ((HalfStep1[1]== 1)||(HalfStep2[1]== 1)||(HalfStep3[1]== 1)||(HalfStep4[1]== 1)||(HalfStep5[1]== 1)||(HalfStep6[1]== 1)||(HalfStep7[1]== 1)||(HalfStep8[1]== 1))
-			{
-				HAL_GPIO_WritePin(GPIOA, IN1_PhaseB_Pin, GPIO_PIN_SET);
-			}
-			else if ((HalfStep1[1]== 0)||(HalfStep2[1]== 0)||(HalfStep3[1]== 0)||(HalfStep4[1]== 0)||(HalfStep5[1]== 0)||(HalfStep6[1]== 0)||(HalfStep7[1]== 0)||(HalfStep8[1]== 0))
-			{
-				HAL_GPIO_WritePin(GPIOA, IN1_PhaseB_Pin, GPIO_PIN_RESET);
-			}
-
-			//-------------------------PHASE 3-------------------------------------------------------
-
-			if ((HalfStep1[2]== 1)||(HalfStep2[2]== 1)||(HalfStep3[2]== 1)||(HalfStep4[2]== 1)||(HalfStep5[2]== 1)||(HalfStep6[2]== 1)||(HalfStep7[2]== 1)||(HalfStep8[2]== 1))
-			{
-				HAL_GPIO_WritePin(GPIOB, IN2_PhaseA_Pin, GPIO_PIN_SET);
-			}
-			else if ((HalfStep1[2]== 0)||(HalfStep2[2]== 0)||(HalfStep3[2]== 0)||(HalfStep4[2]== 0)||(HalfStep5[2]== 0)||(HalfStep6[2]== 0)||(HalfStep7[2]== 0)||(HalfStep8[2]== 0))
-			{
-				HAL_GPIO_WritePin(GPIOB, IN2_PhaseA_Pin, GPIO_PIN_RESET);
-			}
-
-			//-------------------------PHASE 4-------------------------------------------------------
-
-			if ((HalfStep1[3]== 1)||(HalfStep2[3]== 1)||(HalfStep3[3]== 1)||(HalfStep4[3]== 1)||(HalfStep5[3]== 1)||(HalfStep6[3]== 1)||(HalfStep7[3]== 1)||(HalfStep8[3]== 1))
-			{
-				HAL_GPIO_WritePin(GPIOC, IN2_PhaseB_Pin, GPIO_PIN_SET);
-			}
-			else if ((HalfStep1[3]== 0)||(HalfStep2[3]== 0)||(HalfStep3[3]== 0)||(HalfStep4[3]== 0)||(HalfStep5[3]== 0)||(HalfStep6[3]== 0)||(HalfStep7[3]== 0)||(HalfStep8[3]== 0))
-			{
-				HAL_GPIO_WritePin(GPIOC, IN2_PhaseB_Pin, GPIO_PIN_RESET);
-			}
-
-			else
-				IncremnentStepping++;
-				ActualMotorStep++;
-			}
-			else
+			if(IncremnentStepping >= 8)
 			{
 				IncremnentStepping = 0;
 			}
+			//-------------------------HALF STEPPING-------------------------------------------------------
 
-			HAL_Delay(1);
-		}
+			switch (STMStepper) {
+				  case 1:
+					if(STMStepper == 1)
+					{
+						HAL_GPIO_WritePin(GPIOA, IN1_PhaseA_Pin, GPIO_PIN_SET);
+						HAL_GPIO_WritePin(GPIOA, IN1_PhaseB_Pin, GPIO_PIN_RESET);
+						HAL_GPIO_WritePin(GPIOA, IN2_PhaseA_Pin, GPIO_PIN_RESET);
+						HAL_GPIO_WritePin(GPIOA, IN2_PhaseB_Pin, GPIO_PIN_RESET);
+						ActualMotorStep++;
+						IncremnentStepping++;
+						HAL_Delay(1);
+						STMStepper = 2;
+					}
+					break;
+				  case 2:
+					if(STMStepper == 2)
+					{
+						HAL_GPIO_WritePin(GPIOA, IN1_PhaseA_Pin, GPIO_PIN_SET);
+						HAL_GPIO_WritePin(GPIOA, IN1_PhaseB_Pin, GPIO_PIN_SET);
+						HAL_GPIO_WritePin(GPIOA, IN2_PhaseA_Pin, GPIO_PIN_RESET);
+						HAL_GPIO_WritePin(GPIOA, IN2_PhaseB_Pin, GPIO_PIN_RESET);
+						ActualMotorStep++;
+						IncremnentStepping++;
+						HAL_Delay(1);
+						STMStepper = 3;
+					}
+					break;
+				  case 3:
+					if(STMStepper == 3)
+					{
+						HAL_GPIO_WritePin(GPIOA, IN1_PhaseA_Pin, GPIO_PIN_RESET);
+						HAL_GPIO_WritePin(GPIOA, IN1_PhaseB_Pin, GPIO_PIN_SET);
+						HAL_GPIO_WritePin(GPIOA, IN2_PhaseA_Pin, GPIO_PIN_RESET);
+						HAL_GPIO_WritePin(GPIOA, IN2_PhaseB_Pin, GPIO_PIN_RESET);
+						ActualMotorStep++;
+						IncremnentStepping++;
+						HAL_Delay(1);
+						STMStepper = 4;
+					}
+					break;
+				  case 4:
+					if(STMStepper == 4)
+					{
+						HAL_GPIO_WritePin(GPIOA, IN1_PhaseA_Pin, GPIO_PIN_RESET);
+						HAL_GPIO_WritePin(GPIOA, IN1_PhaseB_Pin, GPIO_PIN_SET);
+						HAL_GPIO_WritePin(GPIOA, IN2_PhaseA_Pin, GPIO_PIN_SET);
+						HAL_GPIO_WritePin(GPIOA, IN2_PhaseB_Pin, GPIO_PIN_RESET);
+						ActualMotorStep++;
+						IncremnentStepping++;
+						HAL_Delay(1);
+						STMStepper = 5;
+					}
+					break;
+				  case 5:
+					if(STMStepper == 5)
+					{
+						HAL_GPIO_WritePin(GPIOA, IN1_PhaseA_Pin, GPIO_PIN_RESET);
+						HAL_GPIO_WritePin(GPIOA, IN1_PhaseB_Pin, GPIO_PIN_RESET);
+						HAL_GPIO_WritePin(GPIOA, IN2_PhaseA_Pin, GPIO_PIN_SET);
+						HAL_GPIO_WritePin(GPIOA, IN2_PhaseB_Pin, GPIO_PIN_RESET);
+						ActualMotorStep++;
+						IncremnentStepping++;
+						HAL_Delay(1);
+						STMStepper = 6;
+					}
+					break;
+				  case 6:
+					if(STMStepper == 6)
+					{
+						HAL_GPIO_WritePin(GPIOA, IN1_PhaseA_Pin, GPIO_PIN_RESET);
+						HAL_GPIO_WritePin(GPIOA, IN1_PhaseB_Pin, GPIO_PIN_RESET);
+						HAL_GPIO_WritePin(GPIOA, IN2_PhaseA_Pin, GPIO_PIN_SET);
+						HAL_GPIO_WritePin(GPIOA, IN2_PhaseB_Pin, GPIO_PIN_SET);
+						ActualMotorStep++;
+						IncremnentStepping++;
+						HAL_Delay(1);
+						STMStepper = 7;
+					}
+					break;
+				  case 7:
+					if(STMStepper == 7)
+					{
+						HAL_GPIO_WritePin(GPIOA, IN1_PhaseA_Pin, GPIO_PIN_RESET);
+						HAL_GPIO_WritePin(GPIOA, IN1_PhaseB_Pin, GPIO_PIN_RESET);
+						HAL_GPIO_WritePin(GPIOA, IN2_PhaseA_Pin, GPIO_PIN_RESET);
+						HAL_GPIO_WritePin(GPIOA, IN2_PhaseB_Pin, GPIO_PIN_SET);
+						ActualMotorStep++;
+						IncremnentStepping++;
+						HAL_Delay(1);
+						STMStepper = 8;
+					}
+					break;
+				  case 8:
+					if(STMStepper == 8)
+					{
+						HAL_GPIO_WritePin(GPIOA, IN1_PhaseA_Pin, GPIO_PIN_SET);
+						HAL_GPIO_WritePin(GPIOA, IN1_PhaseB_Pin, GPIO_PIN_RESET);
+						HAL_GPIO_WritePin(GPIOA, IN2_PhaseA_Pin, GPIO_PIN_RESET);
+						HAL_GPIO_WritePin(GPIOA, IN2_PhaseB_Pin, GPIO_PIN_SET);
+						ActualMotorStep++;
+						IncremnentStepping++;
+						HAL_Delay(1);
+						STMStepper = 8;
+					}
+					break;
+
+					}
+	}
 	}
 	else if(HalfStepMode == 0)
 	{
 		EnablePhaseA();
 		EnablePhaseB();
 	}
-
 }
+
 /* USER CODE END 4 */
 
 /**
