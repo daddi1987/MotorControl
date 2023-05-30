@@ -59,6 +59,19 @@ It is possible to filter the speed in Hz, this functionality is implemented usin
 Use the L289n for driver motor, this driver have a 2 Ampere with max current.
 For the pilot motor driver use interface trigger signal modulation. Implementig Enable phase and frequency for motor speed. 
 
+### Pilot Motor Sequence
+|Step| A+ | B+| A- |B- |
+| :------------ |:---------------:| -----:|:---------------:| -----:|
+|1 | 1 | 0 |0 | 0 |
+| 2 |1 | 1 |0 | 0 |
+| 3 | 0 | 1 |0 | 0 |
+| 4 | 0 | 1 |1 | 0 |
+| 5 | 0 | 0 |1 | 0 |
+| 6 | 0 | 0 |1 | 1 |
+| 7 | 0 | 0 |0 | 1 |
+| 8 | 1 | 0 |0 | 1 |
+
+
 ![Alt text](https://content.instructables.com/F7D/J0WE/I36LH0ER/F7DJ0WEI36LH0ER.png?auto=webp?raw=true "**KinematicSpeed5Hz**")
 
 ## Features 
