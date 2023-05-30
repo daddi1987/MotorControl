@@ -1,7 +1,7 @@
 # MotorControl
 Motor Control Firmware for Stepper motor in ClosedLoop, implemented on Microcontrol STM32 F4 Cortex.
 
-![](https://img.shields.io/github/stars/pandao/editor.md.svg) ![](https://img.shields.io/github/forks/pandao/editor.md.svg) ![](https://img.shields.io/github/tag/pandao/editor.md.svg) ![](https://img.shields.io/github/release/pandao/editor.md.svg) ![](https://img.shields.io/github/issues/pandao/editor.md.svg) ![](https://img.shields.io/bower/v/editor.md.svg)
+![](https://img.shields.io/github/stars/daddi7987/editor.md.svg) ![](https://img.shields.io/github/v/tag/daddi7987/MotorControl) ![](https://img.shields.io/github/release/MotorControl/editor.md.svg) ![](https://img.shields.io/github/issues/MotorControl/editor.md.svg)
 
 **Table of Contents**
 
