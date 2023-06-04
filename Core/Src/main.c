@@ -49,7 +49,7 @@ TIM_HandleTypeDef htim7;
 
 int32_t EncoderCount = 0;
 
-uint8_t MSG[100] = {'\0'};
+uint8_t MSG[200] = {'\0'};
 uint8_t CR[2] = {'\0'};
 uint8_t Prefix[3] = {'\0'};
 uint8_t Sufix[3] = {'\0'};
@@ -65,11 +65,11 @@ uint16_t SpeedUnitSend[7];
 
 
 //---------------Decleare variables for filter Speed----------------
-uint8_t FilterSpeedEnable = 0;
+uint8_t FilterSpeedEnable = 1;
 float RPSSpeedFilter = 0;
 float RPSSpeedFilterPrev = 0;
 float EncoderSpeedRPSToFiler = 0.0;
-uint8_t FrequencySpeedFilter = 45;
+uint8_t FrequencySpeedFilter = 80;
 uint8_t FrequencyCase = 1;
 float b_i;
 float a_i;
@@ -185,23 +185,23 @@ int main(void)
     /* USER CODE END WHILE */
 	    /* USER CODE END WHILE */
 
-	  	 if((EncoderSpeedRPSold == EncoderSpeedRPS) && (IncrementSpeedCheckDouble >=10))
-	  	 {
-	  		EncoderSpeedRPS = 0.0;
-	  		EncoderSpeedRPM = 0.0;
-	  		EncoderSpeedUnit = 0.0;
-	  		EncoderSpeedRPSold = EncoderSpeedRPS;
-	  	 }
-	  	 else
-	  	 {
-	  		EncoderSpeedRPSold = EncoderSpeedRPS;
-	  		IncrementSpeedCheckDouble++;
-	  	 }
-
 	     //TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6);
 
 	  	 if (TickSerial == 1)
 	  	 {
+		  	 if((EncoderSpeedRPSold == EncoderSpeedRPS) && (IncrementSpeedCheckDouble >=10))
+		  	 {
+		  		EncoderSpeedRPS = 0.0;
+		  		EncoderSpeedRPM = 0.0;
+		  		EncoderSpeedUnit = 0.0;
+		  		EncoderSpeedRPSold = EncoderSpeedRPS;
+		  	 }
+		  	 else
+		  	 {
+		  		EncoderSpeedRPSold = EncoderSpeedRPS;
+		  		IncrementSpeedCheckDouble++;
+		  	 }
+
 			 sprintf(MSG, "Px;%d;%d;%.3f;%.3f;%.3f;%.3f;%.3f;Sx\r",
 					 EncoderCount,
 					 EncoderPosition,
@@ -213,7 +213,7 @@ int main(void)
 				 	 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
 				 	 sprintf(CR,"\n");   											//Indispensable for Send Value without error to row empty
 				 	 HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);        //Indispensable for Send Value without error to row empty
-				 	 TickSerial = 0;
+			 TickSerial = 0;
 	  	 }
 
 		 //HAL_Delay(1);
@@ -289,7 +289,7 @@ static void MX_TIM6_Init(void)  // Using Timer For calculate the time between tw
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 4;
+  htim6.Init.Prescaler = 41;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim6.Init.Period = 1000;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -330,7 +330,7 @@ static void MX_TIM7_Init(void)  // Timer for signal output serial comunication 0
   htim7.Init.Prescaler = 41;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim7.Init.Period = 1000;
-  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
   {
     Error_Handler();
@@ -528,8 +528,11 @@ if(TM6_Currentvalue >= TM6_OldValue)
 	{
 		GetConstantFilter();
 		EncoderSpeedRPSToFiler = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
-		//EncoderSpeedRPS = ((0.854*RPSSpeedFilter) + (0.0728*EncoderSpeedRPSToFiler) + (0.0728*RPSSpeedFilterPrev));
 		EncoderSpeedRPS = ((b_i*RPSSpeedFilter) + (a_i*EncoderSpeedRPSToFiler) + (a_i*RPSSpeedFilterPrev));
+		if ((EncoderSpeedRPS > 10000)||(EncoderSpeedRPS < -10000)) // Check correct value calculated
+		{
+			EncoderSpeedRPS = 0.0;
+		}
 		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
 		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
 		TM6_OldValue = TM6_Currentvalue; // Save to old value
@@ -541,6 +544,10 @@ if(TM6_Currentvalue >= TM6_OldValue)
 	else
 	{
 		EncoderSpeedRPS = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
+		if((EncoderSpeedRPS > 10000)||(EncoderSpeedRPS < -10000)) // Check correct value calculated
+		{
+			EncoderSpeedRPS = 0.0;
+		}
 		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
 		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
 		TM6_OldValue = TM6_Currentvalue; // Save to old value
