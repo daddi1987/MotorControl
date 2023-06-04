@@ -529,10 +529,6 @@ if(TM6_Currentvalue >= TM6_OldValue)
 		GetConstantFilter();
 		EncoderSpeedRPSToFiler = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
 		EncoderSpeedRPS = ((b_i*RPSSpeedFilter) + (a_i*EncoderSpeedRPSToFiler) + (a_i*RPSSpeedFilterPrev));
-		if ((EncoderSpeedRPS > 10000)||(EncoderSpeedRPS < -10000)) // Check correct value calculated
-		{
-			EncoderSpeedRPS = 0.0;
-		}
 		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
 		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
 		TM6_OldValue = TM6_Currentvalue; // Save to old value
@@ -544,10 +540,6 @@ if(TM6_Currentvalue >= TM6_OldValue)
 	else
 	{
 		EncoderSpeedRPS = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
-		if((EncoderSpeedRPS > 10000)||(EncoderSpeedRPS < -10000)) // Check correct value calculated
-		{
-			EncoderSpeedRPS = 0.0;
-		}
 		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
 		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
 		TM6_OldValue = TM6_Currentvalue; // Save to old value
