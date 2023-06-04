@@ -102,7 +102,8 @@ int uart_buf_len;
 int16_t TM6_Currentvalue;
 UART_HandleTypeDef huart2;
 
-UART_HandleTypeDef huart2;
+uint8_t TickSerial = 0;
+
 
 /* USER CODE BEGIN PV */
 
@@ -199,21 +200,25 @@ int main(void)
 
 	     //TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6);
 
-	     sprintf(MSG, "Px;%d;%d;%.3f;%.3f;%.3f;%.3f;%.3f;Sx\r",
-				 EncoderCount,
-				 EncoderPosition,
-				 PositionMotor,
-				 KinematicPositionUnit,
-				 EncoderSpeedRPS,
-				 EncoderSpeedRPM,
-				 EncoderSpeedUnit);
-	 		 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
-	 	 sprintf(CR,"\n");   											//Indispensable for Send Value without error to row empty
-	 		 HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);        //Indispensable for Send Value without error to row empty
+	  	 if (TickSerial == 1)
+	  	 {
+			 sprintf(MSG, "Px;%d;%d;%.3f;%.3f;%.3f;%.3f;%.3f;Sx\r",
+					 EncoderCount,
+					 EncoderPosition,
+					 PositionMotor,
+					 KinematicPositionUnit,
+					 EncoderSpeedRPS,
+					 EncoderSpeedRPM,
+					 EncoderSpeedUnit);
+				 	 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
+				 	 sprintf(CR,"\n");   											//Indispensable for Send Value without error to row empty
+				 	 HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);        //Indispensable for Send Value without error to row empty
+				 	 TickSerial = 0;
+	  	 }
 
-		 HAL_Delay(1);
+		 //HAL_Delay(1);
 
-		 CW_Direction(1,200,20);
+		// CW_Direction(1,200,20);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -271,7 +276,7 @@ void SystemClock_Config(void)
   * @param None
   * @retval None
   */
-static void MX_TIM6_Init(void)
+static void MX_TIM6_Init(void)  // Using Timer For calculate the time between two encoder signal samples 0.0009 s
 {
 
   /* USER CODE BEGIN TIM6_Init 0 */
@@ -309,7 +314,7 @@ static void MX_TIM6_Init(void)
   * @param None
   * @retval None
   */
-static void MX_TIM7_Init(void)
+static void MX_TIM7_Init(void)  // Timer for signal output serial comunication 0.001 s
 {
 
   /* USER CODE BEGIN TIM7_Init 0 */
@@ -322,9 +327,9 @@ static void MX_TIM7_Init(void)
 
   /* USER CODE END TIM7_Init 1 */
   htim7.Instance = TIM7;
-  htim7.Init.Prescaler = 0;
+  htim7.Init.Prescaler = 41999;
   htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim7.Init.Period = 65535;
+  htim7.Init.Period = 1000;
   htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
   {
@@ -337,7 +342,7 @@ static void MX_TIM7_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN TIM7_Init 2 */
-
+  HAL_TIM_Base_Start_IT(&htim7); // Start Timer
   /* USER CODE END TIM7_Init 2 */
 
 }
@@ -519,7 +524,7 @@ TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6); // Get current time (microseco
 if(TM6_Currentvalue >= TM6_OldValue)
 {
 	TM6_DiffCaunter = (TM6_Currentvalue - TM6_OldValue); // Calculate time from count to count
-	if (FilterSpeedEnable == 1)  // 25Hz CutOff Low-Pass Filter
+	if (FilterSpeedEnable == 1)  //  CutOff Low-Pass Filter
 	{
 		GetConstantFilter();
 		EncoderSpeedRPSToFiler = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
@@ -906,6 +911,21 @@ void CW_Direction(uint8_t HalfStepMode,float MotorStep,float DemmandSpeedRPM)
 	}
 }
 
+
+
+// Callback: timer has rolled over
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  // Check which version of the timer triggered this callback and toggle LED
+  if (htim == &htim6)
+  {
+	  //TickSerial = 1;
+  }
+  else if (htim == &htim7)
+  {
+	  TickSerial = 1;
+  }
+}
 /* USER CODE END 4 */
 
 /**
