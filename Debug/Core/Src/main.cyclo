@@ -13,6 +13,6 @@ main.c:762:6:DisablePhaseA	1
 main.c:768:6:EnablePhaseB	1
 main.c:774:6:DisablePhaseB	1
 main.c:782:6:CW_Direction	21
-main.c:920:6:HAL_TIM_PeriodElapsedCallback	3
-main.c:938:6:Error_Handler	1
-main.c:957:6:assert_failed	1
+main.c:921:6:HAL_TIM_PeriodElapsedCallback	3
+main.c:939:6:Error_Handler	1
+main.c:958:6:assert_failed	1

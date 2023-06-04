@@ -782,13 +782,14 @@ void DisablePhaseB(void)
 void CW_Direction(uint8_t HalfStepMode,float MotorStep,float DemmandSpeedRPM)
 {
     uint8_t IncremnentStepping = 0;
+    uint32_t ActualMotorStep = 0;
 
 	if (HalfStepMode == 1)
 	{
 		EnablePhaseA();
 		EnablePhaseB();
 
-		for (uint32_t ActualMotorStep = 0; ActualMotorStep >= DemandMotorStep; ++ActualMotorStep)
+		if (ActualMotorStep >= DemandMotorStep)
 		{
 			if(IncremnentStepping >= 8)
 			{
