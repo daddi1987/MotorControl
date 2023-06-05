@@ -96,6 +96,8 @@ float DemmandSpeedRPM = 0.0;
 uint8_t HalfStepMode = 1;
 uint32_t DemandMotorStep = 0;
 uint8_t STMStepper = 1;
+uint32_t ActualMotorStep = 0;
+float StepSpeed = 10.0;
 
 char uart_buf[50];
 int uart_buf_len;
@@ -216,7 +218,13 @@ int main(void)
 			 TickSerial = 0;
 	  	 }
 
-	  	CW_Direction(1,200,150);
+	  	DemandMotorStep = 400;
+	  	StepSpeed = 10;
+
+	  	if (ActualMotorStep <= DemandMotorStep)
+	  	{
+	  		CW_Direction(1,DemandMotorStep,StepSpeed);
+	  	}
 
 		 //HAL_Delay(1);
 
@@ -779,18 +787,18 @@ void DisablePhaseB(void)
 //---------------------------- FINE ENABLE PIN STEPPER MOTOR----------------------------------
 
 //---------------------------- MOVE IN CLOCKWISE DIRECTION STEPPER MOTOR----------------------
-void CW_Direction(uint8_t HalfStepMode,float MotorStep,float DemmandSpeedRPM)
+void CW_Direction(uint8_t HalfStepMode,float DemandMotorStep,float DemmandSpeedRPM)
 {
     uint8_t IncremnentStepping = 0;
-    uint32_t ActualMotorStep = 0;
+
 
 	if (HalfStepMode == 1)
 	{
 		EnablePhaseA();
 		EnablePhaseB();
 
-		if (ActualMotorStep >= DemandMotorStep)
-		{
+//		if (ActualMotorStep <= DemandMotorStep)
+//		{
 			if(IncremnentStepping >= 8)
 			{
 				IncremnentStepping = 0;
@@ -808,7 +816,7 @@ void CW_Direction(uint8_t HalfStepMode,float MotorStep,float DemmandSpeedRPM)
 						HAL_GPIO_WritePin(GPIOB, IN2_PhaseB_Pin, GPIO_PIN_RESET);
 						ActualMotorStep++;
 						IncremnentStepping++;
-						HAL_Delay(1);
+						HAL_Delay(DemmandSpeedRPM);
 						STMStepper = 2;
 					}
 					//break;
@@ -821,7 +829,7 @@ void CW_Direction(uint8_t HalfStepMode,float MotorStep,float DemmandSpeedRPM)
 						HAL_GPIO_WritePin(GPIOB, IN2_PhaseB_Pin, GPIO_PIN_RESET);
 						ActualMotorStep++;
 						IncremnentStepping++;
-						HAL_Delay(1);
+						HAL_Delay(DemmandSpeedRPM);
 						STMStepper = 3;
 					}
 					//break;
@@ -834,7 +842,7 @@ void CW_Direction(uint8_t HalfStepMode,float MotorStep,float DemmandSpeedRPM)
 						HAL_GPIO_WritePin(GPIOB, IN2_PhaseB_Pin, GPIO_PIN_RESET);
 						ActualMotorStep++;
 						IncremnentStepping++;
-						HAL_Delay(1);
+						HAL_Delay(DemmandSpeedRPM);
 						STMStepper = 4;
 					}
 					//break;
@@ -847,7 +855,7 @@ void CW_Direction(uint8_t HalfStepMode,float MotorStep,float DemmandSpeedRPM)
 						HAL_GPIO_WritePin(GPIOB, IN2_PhaseB_Pin, GPIO_PIN_RESET);
 						ActualMotorStep++;
 						IncremnentStepping++;
-						HAL_Delay(1);
+						HAL_Delay(DemmandSpeedRPM);
 						STMStepper = 5;
 					}
 					//break;
@@ -860,7 +868,7 @@ void CW_Direction(uint8_t HalfStepMode,float MotorStep,float DemmandSpeedRPM)
 						HAL_GPIO_WritePin(GPIOB, IN2_PhaseB_Pin, GPIO_PIN_RESET);
 						ActualMotorStep++;
 						IncremnentStepping++;
-						HAL_Delay(1);
+						HAL_Delay(DemmandSpeedRPM);
 						STMStepper = 6;
 					}
 					//break;
@@ -873,7 +881,7 @@ void CW_Direction(uint8_t HalfStepMode,float MotorStep,float DemmandSpeedRPM)
 						HAL_GPIO_WritePin(GPIOB, IN2_PhaseB_Pin, GPIO_PIN_SET);
 						ActualMotorStep++;
 						IncremnentStepping++;
-						HAL_Delay(1);
+						HAL_Delay(DemmandSpeedRPM);
 						STMStepper = 7;
 					}
 					//break;
@@ -886,7 +894,7 @@ void CW_Direction(uint8_t HalfStepMode,float MotorStep,float DemmandSpeedRPM)
 						HAL_GPIO_WritePin(GPIOB, IN2_PhaseB_Pin, GPIO_PIN_SET);
 						ActualMotorStep++;
 						IncremnentStepping++;
-						HAL_Delay(1);
+						HAL_Delay(DemmandSpeedRPM);
 						STMStepper = 8;
 					}
 					//break;
@@ -899,14 +907,16 @@ void CW_Direction(uint8_t HalfStepMode,float MotorStep,float DemmandSpeedRPM)
 						HAL_GPIO_WritePin(GPIOB, IN2_PhaseB_Pin, GPIO_PIN_SET);
 						ActualMotorStep++;
 						IncremnentStepping++;
-						HAL_Delay(1);
+						HAL_Delay(DemmandSpeedRPM);
 						STMStepper = 9;
 					}
 					break;
 				  case 9:
 					  default: return 1;
 					}
-	}
+//	}
+//		DisablePhaseA();
+//		DisablePhaseB();
 	}
 	else if(HalfStepMode == 0)
 	{
