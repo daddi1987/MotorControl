@@ -41,12 +41,25 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim6;
 TIM_HandleTypeDef htim7;
 UART_HandleTypeDef huart2;
 
-TIM_HandleTypeDef htim7;
+/* USER CODE BEGIN PV */
 
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
+void SystemClock_Config(void);
+static void MX_GPIO_Init(void);
+static void MX_USART2_UART_Init(void);
+static void MX_TIM6_Init(void);
+static void MX_TIM7_Init(void);
+static void MX_TIM1_Init(void);
+/* USER CODE BEGIN PFP */
+
+/* USER CODE END PFP */
 int32_t EncoderCount = 0;
 
 uint8_t MSG[200] = {'\0'};
@@ -97,7 +110,7 @@ uint8_t HalfStepMode = 1;
 uint32_t DemandMotorStep = 0;
 uint8_t STMStepper = 1;
 uint32_t ActualMotorStep = 0;
-float StepSpeed = 10.0;
+uint16_t StepSpeed;
 
 char uart_buf[50];
 int uart_buf_len;
@@ -106,20 +119,6 @@ UART_HandleTypeDef huart2;
 
 uint8_t TickSerial = 0;
 
-
-/* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
-static void MX_GPIO_Init(void);
-static void MX_USART2_UART_Init(void);
-static void MX_TIM6_Init(void);
-static void MX_TIM7_Init(void);
-/* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
@@ -157,6 +156,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM6_Init();
   MX_TIM7_Init();
+  MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
 
   sprintf(Prefix, "Px;");
@@ -183,8 +183,8 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
-  {
-    /* USER CODE END WHILE */
+ {
+   /* USER CODE END WHILE */
 	    /* USER CODE END WHILE */
 
 	     //TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6);
@@ -218,20 +218,20 @@ int main(void)
 			 TickSerial = 0;
 	  	 }
 
-	  	DemandMotorStep = 400;
-	  	StepSpeed = 10;
+	  	DemandMotorStep = 40000;
+	  	StepSpeed = 35000;
+
 
 	  	if (ActualMotorStep <= DemandMotorStep)
 	  	{
-	  		CW_Direction(1,DemandMotorStep,StepSpeed);
+	  		CW_Direction(1,StepSpeed);
 	  	}
 
 		 //HAL_Delay(1);
 
 		// CW_Direction(1,200,20);
-    /* USER CODE BEGIN 3 */
-  }
   /* USER CODE END 3 */
+}
 }
 
 /**
@@ -282,6 +282,52 @@ void SystemClock_Config(void)
 }
 
 /**
+  * @brief TIM1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM1_Init(void) // Timer for step speed
+{
+
+  /* USER CODE BEGIN TIM1_Init 0 */
+
+  /* USER CODE END TIM1_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM1_Init 1 */
+
+  /* USER CODE END TIM1_Init 1 */
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 10;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim1.Init.Period = 65535;
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM1_Init 2 */
+  HAL_TIM_Base_Start_IT(&htim1); // Start Timer
+  /* USER CODE END TIM1_Init 2 */
+
+}
+
+/**
   * @brief TIM6 Initialization Function
   * @param None
   * @retval None
@@ -324,7 +370,7 @@ static void MX_TIM6_Init(void)  // Using Timer For calculate the time between tw
   * @param None
   * @retval None
   */
-static void MX_TIM7_Init(void)  // Timer for signal output serial comunication 0.001 s
+static void MX_TIM7_Init(void) // Timer for signal output serial com
 {
 
   /* USER CODE BEGIN TIM7_Init 0 */
@@ -787,7 +833,7 @@ void DisablePhaseB(void)
 //---------------------------- FINE ENABLE PIN STEPPER MOTOR----------------------------------
 
 //---------------------------- MOVE IN CLOCKWISE DIRECTION STEPPER MOTOR----------------------
-void CW_Direction(uint8_t HalfStepMode,float DemandMotorStep,float DemmandSpeedRPM)
+void CW_Direction(uint8_t HalfStepMode, uint16_t DemmandSpeedStep)
 {
     uint8_t IncremnentStepping = 0;
 
@@ -816,7 +862,8 @@ void CW_Direction(uint8_t HalfStepMode,float DemandMotorStep,float DemmandSpeedR
 						HAL_GPIO_WritePin(GPIOB, IN2_PhaseB_Pin, GPIO_PIN_RESET);
 						ActualMotorStep++;
 						IncremnentStepping++;
-						HAL_Delay(DemmandSpeedRPM);
+						//HAL_Delay(DemmandSpeedRPM);
+						DELAY_SPEEDSTEP(DemmandSpeedStep); //10000 is 100us
 						STMStepper = 2;
 					}
 					//break;
@@ -829,7 +876,8 @@ void CW_Direction(uint8_t HalfStepMode,float DemandMotorStep,float DemmandSpeedR
 						HAL_GPIO_WritePin(GPIOB, IN2_PhaseB_Pin, GPIO_PIN_RESET);
 						ActualMotorStep++;
 						IncremnentStepping++;
-						HAL_Delay(DemmandSpeedRPM);
+						//HAL_Delay(DemmandSpeedRPM);
+						DELAY_SPEEDSTEP(DemmandSpeedStep); //10000 is 100us
 						STMStepper = 3;
 					}
 					//break;
@@ -842,7 +890,8 @@ void CW_Direction(uint8_t HalfStepMode,float DemandMotorStep,float DemmandSpeedR
 						HAL_GPIO_WritePin(GPIOB, IN2_PhaseB_Pin, GPIO_PIN_RESET);
 						ActualMotorStep++;
 						IncremnentStepping++;
-						HAL_Delay(DemmandSpeedRPM);
+						//HAL_Delay(DemmandSpeedRPM);
+						DELAY_SPEEDSTEP(DemmandSpeedStep); //10000 is 100us
 						STMStepper = 4;
 					}
 					//break;
@@ -855,7 +904,8 @@ void CW_Direction(uint8_t HalfStepMode,float DemandMotorStep,float DemmandSpeedR
 						HAL_GPIO_WritePin(GPIOB, IN2_PhaseB_Pin, GPIO_PIN_RESET);
 						ActualMotorStep++;
 						IncremnentStepping++;
-						HAL_Delay(DemmandSpeedRPM);
+						//HAL_Delay(DemmandSpeedRPM);
+						DELAY_SPEEDSTEP(DemmandSpeedStep); //10000 is 100us
 						STMStepper = 5;
 					}
 					//break;
@@ -868,7 +918,8 @@ void CW_Direction(uint8_t HalfStepMode,float DemandMotorStep,float DemmandSpeedR
 						HAL_GPIO_WritePin(GPIOB, IN2_PhaseB_Pin, GPIO_PIN_RESET);
 						ActualMotorStep++;
 						IncremnentStepping++;
-						HAL_Delay(DemmandSpeedRPM);
+						//HAL_Delay(DemmandSpeedRPM);
+						DELAY_SPEEDSTEP(DemmandSpeedStep); //10000 is 100us
 						STMStepper = 6;
 					}
 					//break;
@@ -881,7 +932,8 @@ void CW_Direction(uint8_t HalfStepMode,float DemandMotorStep,float DemmandSpeedR
 						HAL_GPIO_WritePin(GPIOB, IN2_PhaseB_Pin, GPIO_PIN_SET);
 						ActualMotorStep++;
 						IncremnentStepping++;
-						HAL_Delay(DemmandSpeedRPM);
+						//HAL_Delay(DemmandSpeedRPM);
+						DELAY_SPEEDSTEP(DemmandSpeedStep); //10000 is 100us
 						STMStepper = 7;
 					}
 					//break;
@@ -894,7 +946,8 @@ void CW_Direction(uint8_t HalfStepMode,float DemandMotorStep,float DemmandSpeedR
 						HAL_GPIO_WritePin(GPIOB, IN2_PhaseB_Pin, GPIO_PIN_SET);
 						ActualMotorStep++;
 						IncremnentStepping++;
-						HAL_Delay(DemmandSpeedRPM);
+						//HAL_Delay(DemmandSpeedRPM);
+						DELAY_SPEEDSTEP(DemmandSpeedStep); //10000 is 100us
 						STMStepper = 8;
 					}
 					//break;
@@ -907,7 +960,8 @@ void CW_Direction(uint8_t HalfStepMode,float DemandMotorStep,float DemmandSpeedR
 						HAL_GPIO_WritePin(GPIOB, IN2_PhaseB_Pin, GPIO_PIN_SET);
 						ActualMotorStep++;
 						IncremnentStepping++;
-						HAL_Delay(DemmandSpeedRPM);
+						//HAL_Delay(DemmandSpeedRPM);
+						DELAY_SPEEDSTEP(DemmandSpeedStep); //10000 is 100us
 						STMStepper = 9;
 					}
 					break;
@@ -939,6 +993,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   {
 	  TickSerial = 1;
   }
+}
+
+void DELAY_SPEEDSTEP (uint16_t StepSpeed_delay)
+{
+	__HAL_TIM_SET_COUNTER (&htim1, 0);
+	while(__HAL_TIM_GET_COUNTER(&htim1)< StepSpeed_delay);
 }
 /* USER CODE END 4 */
 
