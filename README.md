@@ -71,8 +71,11 @@ For the pilot motor driver use interface trigger signal modulation. Implementig 
 | 7 | 0 | 0 |0 | 1 |
 | 8 | 1 | 0 |0 | 1 |
 
-
 ![Alt text](https://content.instructables.com/F7D/J0WE/I36LH0ER/F7DJ0WEI36LH0ER.png?auto=webp?raw=true "**KinematicSpeed5Hz**")
+
+#### Future Hardware Implementation
+
+![Alt text](https://github.com/daddi1987/MotorControl/blob/main/Image/Circuit CurrentControl.bmp?raw=true "**KinematicSpeed35Hz**")
 
 ## Features 
 - [x] Filter Speed in Hz for eliminate noise implemented, missing convert from Hz to coefficent.
