@@ -219,10 +219,10 @@ int main(void)
 	  	 }
 
 	  	DemandMotorStep = 40000;
-	  	StepSpeed = 35000;
+	  	StepSpeed = 7000;
 
 
-	  	if (ActualMotorStep <= DemandMotorStep)
+	 	if (ActualMotorStep <= DemandMotorStep)
 	  	{
 	  		CW_Direction(1,StepSpeed);
 	  	}
@@ -286,7 +286,7 @@ void SystemClock_Config(void)
   * @param None
   * @retval None
   */
-static void MX_TIM1_Init(void) // Timer for step speed
+static void MX_TIM1_Init(void) // Timer for step speed 1 microsecond
 {
 
   /* USER CODE BEGIN TIM1_Init 0 */
@@ -300,9 +300,9 @@ static void MX_TIM1_Init(void) // Timer for step speed
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 10;
+  htim1.Init.Prescaler = 1-1;  // Old 10
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 65535;
+  htim1.Init.Period = 76;  // Old 65535
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -345,9 +345,9 @@ static void MX_TIM6_Init(void)  // Using Timer For calculate the time between tw
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 41;
+  htim6.Init.Prescaler = 41; //old 41
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 1000;
+  htim6.Init.Period = 1000; //old 1000
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
@@ -997,8 +997,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 void DELAY_SPEEDSTEP (uint16_t StepSpeed_delay)
 {
+	uint16_t StepSpeed_delaydiv = 0;
+	uint16_t CounterSpeedDiv = 0;
+	StepSpeed_delaydiv = StepSpeed_delay / htim1.Init.Period;
 	__HAL_TIM_SET_COUNTER (&htim1, 0);
-	while(__HAL_TIM_GET_COUNTER(&htim1)< StepSpeed_delay);
+
+	for(uint16_t CounterSpeedDiv = 0; CounterSpeedDiv <= StepSpeed_delaydiv;CounterSpeedDiv++)
+		while(__HAL_TIM_GET_COUNTER(&htim1)<(htim1.Init.Period - 1));
 }
 /* USER CODE END 4 */
 

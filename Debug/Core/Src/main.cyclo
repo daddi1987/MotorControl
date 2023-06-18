@@ -15,6 +15,6 @@ main.c:822:6:EnablePhaseB	1
 main.c:828:6:DisablePhaseB	1
 main.c:836:6:CW_Direction	20
 main.c:985:6:HAL_TIM_PeriodElapsedCallback	3
-main.c:998:6:DELAY_SPEEDSTEP	2
-main.c:1009:6:Error_Handler	1
-main.c:1028:6:assert_failed	1
+main.c:998:6:DELAY_SPEEDSTEP	3
+main.c:1014:6:Error_Handler	1
+main.c:1033:6:assert_failed	1
