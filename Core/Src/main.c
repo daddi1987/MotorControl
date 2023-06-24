@@ -24,17 +24,17 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-// Definizione dei pin di controllo del driver LN289N
+/* Definizione dei pin di controllo del driver LN289N
 #define IN1_PhaseA_Pin    GPIO_PIN_0
 #define IN1_PhaseB_Pin    GPIO_PIN_1
 #define IN2_PhaseA_Pin    GPIO_PIN_2
-#define IN2_PhaseB_Pin    GPIO_PIN_3
+#define IN2_PhaseB_Pin    GPIO_PIN_3 */
 
 // Definizione delle porte GPIO utilizzate per i pin di controllo
-#define IN1_PORT  GPIOB
-#define IN2_PORT  GPIOC
-#define IN3_PORT  GPIOB
-#define IN4_PORT  GPIOB
+#define IN1_PhaseA_GPIO_Port  GPIOB
+#define IN1_PhaseB_GPIO_Port  GPIOC
+#define IN2_PhaseA_GPIO_Port  GPIOB
+#define IN2_PhaseB_GPIO_Port  GPIOB
 
 /* USER CODE END Includes */
 
@@ -74,28 +74,19 @@ const uint8_t stepSequence[][4] = {
 
 // Inizializza il motore stepper
 void StepperMotor_Init(StepperMotor* motor) {
-    motor->in1Port = IN1_PORT;
+    motor->in1Port = IN1_PhaseA_GPIO_Port;
     motor->in1Pin = IN1_PhaseA_Pin;
-    motor->in2Port = IN2_PORT;
+    motor->in2Port = IN1_PhaseB_GPIO_Port;
     motor->in2Pin = IN1_PhaseB_Pin;
-    motor->in3Port = IN3_PORT;
+    motor->in3Port = IN2_PhaseA_GPIO_Port;
     motor->in3Pin = IN2_PhaseA_Pin;
-    motor->in4Port = IN4_PORT;
+    motor->in4Port = IN2_PhaseB_GPIO_Port;
     motor->in4Pin = IN2_PhaseB_Pin;
     motor->stepSequenceIndex = 0;
 
     // Abilita il clock per le porte GPIO utilizzate
     //RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOB, ENABLE);
     //RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);
-
-    // Configura i pin di controllo come output
-    GPIO_InitTypeDef gpioInitStruct;
-    gpioInitStruct.GPIO_Mode = GPIO_Mode_OUT;
-    gpioInitStruct.GPIO_OType = GPIO_OType_PP;
-    gpioInitStruct.GPIO_PuPd = GPIO_PuPd_NOPULL;
-    gpioInitStruct.GPIO_Speed = GPIO_Speed_50MHz;
-    gpioInitStruct.GPIO_Pin = motor->in1Pin | motor->in2Pin | motor->in3Pin | motor->in4Pin;
-    GPIO_Init(motor->in1Port, &gpioInitStruct);
 }
 
 /* USER CODE END PD */
@@ -247,6 +238,8 @@ int main(void)
 
      // Inizializza il motore stepper
      StepperMotor_Init(&motor);
+     EnablePhaseA();
+     EnablePhaseB();
 
      // Esegui 1000 passi in avanti
      StepperMotor_Move(&motor, 1000, 0);
@@ -299,7 +292,7 @@ int main(void)
 
 	 	if (ActualMotorStep <= DemandMotorStep)
 	  	{
-	  		CW_Direction(1,StepSpeed);
+	  		//CW_Direction(1,StepSpeed);
 	  	}
 
 		 //HAL_Delay(1);
@@ -560,14 +553,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = IN2_PhaseA_Pin|IN1_PhaseA_Pin|IN2_PhaseB_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : IN1_PhaseB_Pin */
   GPIO_InitStruct.Pin = IN1_PhaseB_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
   HAL_GPIO_Init(IN1_PhaseB_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : Encoder1_Index_Pin */
@@ -911,10 +904,10 @@ void DisablePhaseB(void)
 
 // Esegue un passo in avanti
 void StepperMotor_StepForward(StepperMotor* motor) {
-    GPIO_WriteBit(motor->in1Port, motor->in1Pin, (stepSequence[motor->stepSequenceIndex][0] != 0) ? Bit_SET : Bit_RESET);
-    GPIO_WriteBit(motor->in2Port, motor->in2Pin, (stepSequence[motor->stepSequenceIndex][1] != 0) ? Bit_SET : Bit_RESET);
-    GPIO_WriteBit(motor->in3Port, motor->in3Pin, (stepSequence[motor->stepSequenceIndex][2] != 0) ? Bit_SET : Bit_RESET);
-    GPIO_WriteBit(motor->in4Port, motor->in4Pin, (stepSequence[motor->stepSequenceIndex][3] != 0) ? Bit_SET : Bit_RESET);
+	HAL_GPIO_WritePin(motor->in1Port, motor->in1Pin, (stepSequence[motor->stepSequenceIndex][0] != 0) ? GPIO_PIN_SET  : GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(motor->in2Port, motor->in2Pin, (stepSequence[motor->stepSequenceIndex][1] != 0) ? GPIO_PIN_SET  : GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(motor->in3Port, motor->in3Pin, (stepSequence[motor->stepSequenceIndex][2] != 0) ? GPIO_PIN_SET  : GPIO_PIN_RESET);
+	HAL_GPIO_WritePin(motor->in4Port, motor->in4Pin, (stepSequence[motor->stepSequenceIndex][3] != 0) ? GPIO_PIN_SET  : GPIO_PIN_RESET);
 
     motor->stepSequenceIndex = (motor->stepSequenceIndex + 1) % 8;
 
@@ -928,10 +921,10 @@ void StepperMotor_StepBackward(StepperMotor* motor) {
     else
         motor->stepSequenceIndex--;
 
-    GPIO_WriteBit(motor->in1Port, motor->in1Pin, (stepSequence[motor->stepSequenceIndex][0] != 0) ? Bit_SET : Bit_RESET);
-    GPIO_WriteBit(motor->in2Port, motor->in2Pin, (stepSequence[motor->stepSequenceIndex][1] != 0) ? Bit_SET : Bit_RESET);
-    GPIO_WriteBit(motor->in3Port, motor->in3Pin, (stepSequence[motor->stepSequenceIndex][2] != 0) ? Bit_SET : Bit_RESET);
-    GPIO_WriteBit(motor->in4Port, motor->in4Pin, (stepSequence[motor->stepSequenceIndex][3] != 0) ? Bit_SET : Bit_RESET);
+    HAL_GPIO_WritePin(motor->in1Port, motor->in1Pin, (stepSequence[motor->stepSequenceIndex][0] != 0) ? GPIO_PIN_SET  : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(motor->in2Port, motor->in2Pin, (stepSequence[motor->stepSequenceIndex][1] != 0) ? GPIO_PIN_SET  : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(motor->in3Port, motor->in3Pin, (stepSequence[motor->stepSequenceIndex][2] != 0) ? GPIO_PIN_SET  : GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(motor->in4Port, motor->in4Pin, (stepSequence[motor->stepSequenceIndex][3] != 0) ? GPIO_PIN_SET  : GPIO_PIN_RESET);
 
     // Aggiungi un eventuale ritardo tra i passi se necessario
 }
