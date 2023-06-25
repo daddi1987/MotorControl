@@ -166,7 +166,7 @@ uint8_t HalfStepMode = 1;
 uint32_t DemandMotorStep = 0;
 uint8_t STMStepper = 1;
 uint32_t ActualMotorStep = 0;
-uint16_t StepSpeed;
+uint32_t StepSpeed;
 
 char uart_buf[50];
 int uart_buf_len;
@@ -241,10 +241,6 @@ int main(void)
      EnablePhaseA();
      EnablePhaseB();
 
-     // Esegui 1000 passi in avanti
-     StepperMotor_Move(&motor, 1000, 0);
-
-
 
   /* USER CODE END 2 */
 
@@ -286,13 +282,14 @@ int main(void)
 			 TickSerial = 0;
 	  	 }
 
-	  	DemandMotorStep = 40000;
-	  	StepSpeed = 7000;
+	  	DemandMotorStep = 400;
+	  	StepSpeed = 5000;  //1000000000
 
 
 	 	if (ActualMotorStep <= DemandMotorStep)
 	  	{
-	  		//CW_Direction(1,StepSpeed);
+	 	     // Esegui 1000 passi in avanti
+	 	     StepperMotor_Move(&motor, DemandMotorStep, 0, StepSpeed);
 	  	}
 
 		 //HAL_Delay(1);
@@ -370,7 +367,7 @@ static void MX_TIM1_Init(void) // Timer for step speed 1 microsecond
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 1-1;  // Old 10
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 76;  // Old 65535
+  htim1.Init.Period = 76;  // Old 65535  or 76
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -911,7 +908,6 @@ void StepperMotor_StepForward(StepperMotor* motor) {
 
     motor->stepSequenceIndex = (motor->stepSequenceIndex + 1) % 8;
 
-    // Aggiungi un eventuale ritardo tra i passi se necessario
 }
 
 // Esegue un passo all'indietro
@@ -926,16 +922,23 @@ void StepperMotor_StepBackward(StepperMotor* motor) {
     HAL_GPIO_WritePin(motor->in3Port, motor->in3Pin, (stepSequence[motor->stepSequenceIndex][2] != 0) ? GPIO_PIN_SET  : GPIO_PIN_RESET);
     HAL_GPIO_WritePin(motor->in4Port, motor->in4Pin, (stepSequence[motor->stepSequenceIndex][3] != 0) ? GPIO_PIN_SET  : GPIO_PIN_RESET);
 
-    // Aggiungi un eventuale ritardo tra i passi se necessario
 }
 
 // Esegue un certo numero di passi in una direzione specifica
-void StepperMotor_Move(StepperMotor* motor, uint32_t steps, uint8_t direction) {
+void StepperMotor_Move(StepperMotor* motor, uint32_t steps, uint8_t direction, uint32_t DemmandSpeedStep) {
     for (uint32_t i = 0; i < steps; i++) {
         if (direction == 0)
+        	{
             StepperMotor_StepForward(motor);
+            DELAY_SPEEDSTEP(DemmandSpeedStep);
+        	//HAL_Delay(0.1);
+        	}
         else
+        	{
             StepperMotor_StepBackward(motor);
+            DELAY_SPEEDSTEP(DemmandSpeedStep);
+        	//HAL_Delay(0.01);
+        	}
     }
 }
 
