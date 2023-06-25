@@ -283,7 +283,7 @@ int main(void)
 	  	 }
 
 	  	DemandMotorStep = 400;
-	  	StepSpeed = 5000;  //1000000000
+	  	StepSpeed = 800000;  //1000000
 
 
 	 	if (ActualMotorStep <= DemandMotorStep)
@@ -365,9 +365,9 @@ static void MX_TIM1_Init(void) // Timer for step speed 1 microsecond
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 1-1;  // Old 10
+  htim1.Init.Prescaler = 1;  // Old 1-1  // (SystemCoreClock / 1000000) - 1
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 76;  // Old 65535  or 76
+  htim1.Init.Period = 7;  // Old 65535  or 76
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -936,8 +936,8 @@ void StepperMotor_Move(StepperMotor* motor, uint32_t steps, uint8_t direction, u
         else
         	{
             StepperMotor_StepBackward(motor);
-            DELAY_SPEEDSTEP(DemmandSpeedStep);
-        	//HAL_Delay(0.01);
+            //DELAY_SPEEDSTEP(DemmandSpeedStep);
+        	HAL_Delay(0.01);
         	}
     }
 }

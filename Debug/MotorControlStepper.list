@@ -27,23 +27,23 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   ALLOC
  11 .ARM.attributes 00000030  00000000  00000000  000201e4  2**0
                   CONTENTS, READONLY
- 12 .debug_info   0000ea06  00000000  00000000  00020214  2**0
+ 12 .debug_info   0000e9e9  00000000  00000000  00020214  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_abbrev 00001e74  00000000  00000000  0002ec1a  2**0
+ 13 .debug_abbrev 00001e74  00000000  00000000  0002ebfd  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_aranges 00000d40  00000000  00000000  00030a90  2**3
+ 14 .debug_aranges 00000d40  00000000  00000000  00030a78  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 15 .debug_ranges 00000c88  00000000  00000000  000317d0  2**3
+ 15 .debug_ranges 00000c88  00000000  00000000  000317b8  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 16 .debug_macro  00022766  00000000  00000000  00032458  2**0
+ 16 .debug_macro  00022766  00000000  00000000  00032440  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 17 .debug_line   00014229  00000000  00000000  00054bbe  2**0
+ 17 .debug_line   0001422b  00000000  00000000  00054ba6  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 18 .debug_str    000d2776  00000000  00000000  00068de7  2**0
+ 18 .debug_str    000d2776  00000000  00000000  00068dd1  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 19 .comment      00000050  00000000  00000000  0013b55d  2**0
+ 19 .comment      00000050  00000000  00000000  0013b547  2**0
                   CONTENTS, READONLY
- 20 .debug_frame  00004984  00000000  00000000  0013b5b0  2**2
+ 20 .debug_frame  00004984  00000000  00000000  0013b598  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -1357,74 +1357,74 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
   sprintf(Prefix, "Px;");
- 8001004:	4975      	ldr	r1, [pc, #468]	; (80011dc <main+0x1fc>)
- 8001006:	4876      	ldr	r0, [pc, #472]	; (80011e0 <main+0x200>)
+ 8001004:	4974      	ldr	r1, [pc, #464]	; (80011d8 <main+0x1f8>)
+ 8001006:	4875      	ldr	r0, [pc, #468]	; (80011dc <main+0x1fc>)
  8001008:	f005 f8a4 	bl	8006154 <siprintf>
   HAL_UART_Transmit(&huart2, Prefix, sizeof(Prefix), 100);
  800100c:	2364      	movs	r3, #100	; 0x64
  800100e:	2203      	movs	r2, #3
- 8001010:	4973      	ldr	r1, [pc, #460]	; (80011e0 <main+0x200>)
- 8001012:	4874      	ldr	r0, [pc, #464]	; (80011e4 <main+0x204>)
+ 8001010:	4972      	ldr	r1, [pc, #456]	; (80011dc <main+0x1fc>)
+ 8001012:	4873      	ldr	r0, [pc, #460]	; (80011e0 <main+0x200>)
  8001014:	f004 f848 	bl	80050a8 <HAL_UART_Transmit>
   sprintf(HEADER1, "PulseEncoder;");
- 8001018:	4973      	ldr	r1, [pc, #460]	; (80011e8 <main+0x208>)
- 800101a:	4874      	ldr	r0, [pc, #464]	; (80011ec <main+0x20c>)
+ 8001018:	4972      	ldr	r1, [pc, #456]	; (80011e4 <main+0x204>)
+ 800101a:	4873      	ldr	r0, [pc, #460]	; (80011e8 <main+0x208>)
  800101c:	f005 f89a 	bl	8006154 <siprintf>
   HAL_UART_Transmit(&huart2, HEADER1, sizeof(HEADER1), 100);
  8001020:	2364      	movs	r3, #100	; 0x64
  8001022:	2223      	movs	r2, #35	; 0x23
- 8001024:	4971      	ldr	r1, [pc, #452]	; (80011ec <main+0x20c>)
- 8001026:	486f      	ldr	r0, [pc, #444]	; (80011e4 <main+0x204>)
+ 8001024:	4970      	ldr	r1, [pc, #448]	; (80011e8 <main+0x208>)
+ 8001026:	486e      	ldr	r0, [pc, #440]	; (80011e0 <main+0x200>)
  8001028:	f004 f83e 	bl	80050a8 <HAL_UART_Transmit>
   sprintf(HEADER2, "PositionMotor;");
- 800102c:	4970      	ldr	r1, [pc, #448]	; (80011f0 <main+0x210>)
- 800102e:	4871      	ldr	r0, [pc, #452]	; (80011f4 <main+0x214>)
+ 800102c:	496f      	ldr	r1, [pc, #444]	; (80011ec <main+0x20c>)
+ 800102e:	4870      	ldr	r0, [pc, #448]	; (80011f0 <main+0x210>)
  8001030:	f005 f890 	bl	8006154 <siprintf>
   HAL_UART_Transmit(&huart2, HEADER2, sizeof(HEADER2), 100);
  8001034:	2364      	movs	r3, #100	; 0x64
  8001036:	2223      	movs	r2, #35	; 0x23
- 8001038:	496e      	ldr	r1, [pc, #440]	; (80011f4 <main+0x214>)
- 800103a:	486a      	ldr	r0, [pc, #424]	; (80011e4 <main+0x204>)
+ 8001038:	496d      	ldr	r1, [pc, #436]	; (80011f0 <main+0x210>)
+ 800103a:	4869      	ldr	r0, [pc, #420]	; (80011e0 <main+0x200>)
  800103c:	f004 f834 	bl	80050a8 <HAL_UART_Transmit>
   sprintf(HEADER3, "RevolutionMotor;");
- 8001040:	496d      	ldr	r1, [pc, #436]	; (80011f8 <main+0x218>)
- 8001042:	486e      	ldr	r0, [pc, #440]	; (80011fc <main+0x21c>)
+ 8001040:	496c      	ldr	r1, [pc, #432]	; (80011f4 <main+0x214>)
+ 8001042:	486d      	ldr	r0, [pc, #436]	; (80011f8 <main+0x218>)
  8001044:	f005 f886 	bl	8006154 <siprintf>
   HAL_UART_Transmit(&huart2, HEADER3, sizeof(HEADER3), 100);
  8001048:	2364      	movs	r3, #100	; 0x64
  800104a:	2223      	movs	r2, #35	; 0x23
- 800104c:	496b      	ldr	r1, [pc, #428]	; (80011fc <main+0x21c>)
- 800104e:	4865      	ldr	r0, [pc, #404]	; (80011e4 <main+0x204>)
+ 800104c:	496a      	ldr	r1, [pc, #424]	; (80011f8 <main+0x218>)
+ 800104e:	4864      	ldr	r0, [pc, #400]	; (80011e0 <main+0x200>)
  8001050:	f004 f82a 	bl	80050a8 <HAL_UART_Transmit>
   sprintf(HEADER4, "KinematicPositionUnit;");
- 8001054:	496a      	ldr	r1, [pc, #424]	; (8001200 <main+0x220>)
- 8001056:	486b      	ldr	r0, [pc, #428]	; (8001204 <main+0x224>)
+ 8001054:	4969      	ldr	r1, [pc, #420]	; (80011fc <main+0x21c>)
+ 8001056:	486a      	ldr	r0, [pc, #424]	; (8001200 <main+0x220>)
  8001058:	f005 f87c 	bl	8006154 <siprintf>
   HAL_UART_Transmit(&huart2, HEADER4, sizeof(HEADER4), 100);
  800105c:	2364      	movs	r3, #100	; 0x64
  800105e:	2223      	movs	r2, #35	; 0x23
- 8001060:	4968      	ldr	r1, [pc, #416]	; (8001204 <main+0x224>)
- 8001062:	4860      	ldr	r0, [pc, #384]	; (80011e4 <main+0x204>)
+ 8001060:	4967      	ldr	r1, [pc, #412]	; (8001200 <main+0x220>)
+ 8001062:	485f      	ldr	r0, [pc, #380]	; (80011e0 <main+0x200>)
  8001064:	f004 f820 	bl	80050a8 <HAL_UART_Transmit>
   sprintf(HEADER5, "KinematicSpeed[Rpm];");
- 8001068:	4967      	ldr	r1, [pc, #412]	; (8001208 <main+0x228>)
- 800106a:	4868      	ldr	r0, [pc, #416]	; (800120c <main+0x22c>)
+ 8001068:	4966      	ldr	r1, [pc, #408]	; (8001204 <main+0x224>)
+ 800106a:	4867      	ldr	r0, [pc, #412]	; (8001208 <main+0x228>)
  800106c:	f005 f872 	bl	8006154 <siprintf>
   HAL_UART_Transmit(&huart2, HEADER5, sizeof(HEADER5), 100);
  8001070:	2364      	movs	r3, #100	; 0x64
  8001072:	2223      	movs	r2, #35	; 0x23
- 8001074:	4965      	ldr	r1, [pc, #404]	; (800120c <main+0x22c>)
- 8001076:	485b      	ldr	r0, [pc, #364]	; (80011e4 <main+0x204>)
+ 8001074:	4964      	ldr	r1, [pc, #400]	; (8001208 <main+0x228>)
+ 8001076:	485a      	ldr	r0, [pc, #360]	; (80011e0 <main+0x200>)
  8001078:	f004 f816 	bl	80050a8 <HAL_UART_Transmit>
   sprintf(Sufix, "Sx;\n");
- 800107c:	4964      	ldr	r1, [pc, #400]	; (8001210 <main+0x230>)
- 800107e:	4865      	ldr	r0, [pc, #404]	; (8001214 <main+0x234>)
+ 800107c:	4963      	ldr	r1, [pc, #396]	; (800120c <main+0x22c>)
+ 800107e:	4864      	ldr	r0, [pc, #400]	; (8001210 <main+0x230>)
  8001080:	f005 f868 	bl	8006154 <siprintf>
   HAL_UART_Transmit(&huart2, Sufix, sizeof(Sufix), 100);
  8001084:	2364      	movs	r3, #100	; 0x64
  8001086:	2203      	movs	r2, #3
- 8001088:	4962      	ldr	r1, [pc, #392]	; (8001214 <main+0x234>)
- 800108a:	4856      	ldr	r0, [pc, #344]	; (80011e4 <main+0x204>)
+ 8001088:	4961      	ldr	r1, [pc, #388]	; (8001210 <main+0x230>)
+ 800108a:	4855      	ldr	r0, [pc, #340]	; (80011e0 <main+0x200>)
  800108c:	f004 f80c 	bl	80050a8 <HAL_UART_Transmit>
   HAL_Delay(1000);
  8001090:	f44f 707a 	mov.w	r0, #1000	; 0x3e8
@@ -1451,89 +1451,89 @@ int main(void)
 	     //TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6);
 
 	  	 if (TickSerial == 1)
- 80010ae:	4b5a      	ldr	r3, [pc, #360]	; (8001218 <main+0x238>)
+ 80010ae:	4b59      	ldr	r3, [pc, #356]	; (8001214 <main+0x234>)
  80010b0:	781b      	ldrb	r3, [r3, #0]
  80010b2:	2b01      	cmp	r3, #1
  80010b4:	d178      	bne.n	80011a8 <main+0x1c8>
 	  	 {
 		  	 if((EncoderSpeedRPSold == EncoderSpeedRPS) && (IncrementSpeedCheckDouble >=10))
- 80010b6:	4b59      	ldr	r3, [pc, #356]	; (800121c <main+0x23c>)
+ 80010b6:	4b58      	ldr	r3, [pc, #352]	; (8001218 <main+0x238>)
  80010b8:	ed93 7a00 	vldr	s14, [r3]
- 80010bc:	4b58      	ldr	r3, [pc, #352]	; (8001220 <main+0x240>)
+ 80010bc:	4b57      	ldr	r3, [pc, #348]	; (800121c <main+0x23c>)
  80010be:	edd3 7a00 	vldr	s15, [r3]
  80010c2:	eeb4 7a67 	vcmp.f32	s14, s15
  80010c6:	eef1 fa10 	vmrs	APSR_nzcv, fpscr
  80010ca:	d114      	bne.n	80010f6 <main+0x116>
- 80010cc:	4b55      	ldr	r3, [pc, #340]	; (8001224 <main+0x244>)
+ 80010cc:	4b54      	ldr	r3, [pc, #336]	; (8001220 <main+0x240>)
  80010ce:	781b      	ldrb	r3, [r3, #0]
  80010d0:	2b09      	cmp	r3, #9
  80010d2:	d910      	bls.n	80010f6 <main+0x116>
 		  	 {
 		  		EncoderSpeedRPS = 0.0;
- 80010d4:	4b52      	ldr	r3, [pc, #328]	; (8001220 <main+0x240>)
+ 80010d4:	4b51      	ldr	r3, [pc, #324]	; (800121c <main+0x23c>)
  80010d6:	f04f 0200 	mov.w	r2, #0
  80010da:	601a      	str	r2, [r3, #0]
 		  		EncoderSpeedRPM = 0.0;
- 80010dc:	4b52      	ldr	r3, [pc, #328]	; (8001228 <main+0x248>)
+ 80010dc:	4b51      	ldr	r3, [pc, #324]	; (8001224 <main+0x244>)
  80010de:	f04f 0200 	mov.w	r2, #0
  80010e2:	601a      	str	r2, [r3, #0]
 		  		EncoderSpeedUnit = 0.0;
- 80010e4:	4b51      	ldr	r3, [pc, #324]	; (800122c <main+0x24c>)
+ 80010e4:	4b50      	ldr	r3, [pc, #320]	; (8001228 <main+0x248>)
  80010e6:	f04f 0200 	mov.w	r2, #0
  80010ea:	601a      	str	r2, [r3, #0]
 		  		EncoderSpeedRPSold = EncoderSpeedRPS;
- 80010ec:	4b4c      	ldr	r3, [pc, #304]	; (8001220 <main+0x240>)
+ 80010ec:	4b4b      	ldr	r3, [pc, #300]	; (800121c <main+0x23c>)
  80010ee:	681b      	ldr	r3, [r3, #0]
- 80010f0:	4a4a      	ldr	r2, [pc, #296]	; (800121c <main+0x23c>)
+ 80010f0:	4a49      	ldr	r2, [pc, #292]	; (8001218 <main+0x238>)
  80010f2:	6013      	str	r3, [r2, #0]
  80010f4:	e009      	b.n	800110a <main+0x12a>
 		  	 }
 		  	 else
 		  	 {
 		  		EncoderSpeedRPSold = EncoderSpeedRPS;
- 80010f6:	4b4a      	ldr	r3, [pc, #296]	; (8001220 <main+0x240>)
+ 80010f6:	4b49      	ldr	r3, [pc, #292]	; (800121c <main+0x23c>)
  80010f8:	681b      	ldr	r3, [r3, #0]
- 80010fa:	4a48      	ldr	r2, [pc, #288]	; (800121c <main+0x23c>)
+ 80010fa:	4a47      	ldr	r2, [pc, #284]	; (8001218 <main+0x238>)
  80010fc:	6013      	str	r3, [r2, #0]
 		  		IncrementSpeedCheckDouble++;
- 80010fe:	4b49      	ldr	r3, [pc, #292]	; (8001224 <main+0x244>)
+ 80010fe:	4b48      	ldr	r3, [pc, #288]	; (8001220 <main+0x240>)
  8001100:	781b      	ldrb	r3, [r3, #0]
  8001102:	3301      	adds	r3, #1
  8001104:	b2da      	uxtb	r2, r3
- 8001106:	4b47      	ldr	r3, [pc, #284]	; (8001224 <main+0x244>)
+ 8001106:	4b46      	ldr	r3, [pc, #280]	; (8001220 <main+0x240>)
  8001108:	701a      	strb	r2, [r3, #0]
 		  	 }
 
 			 sprintf(MSG, "Px;%d;%d;%.3f;%.3f;%.3f;%.3f;%.3f;Sx\r",
- 800110a:	4b49      	ldr	r3, [pc, #292]	; (8001230 <main+0x250>)
+ 800110a:	4b48      	ldr	r3, [pc, #288]	; (800122c <main+0x24c>)
  800110c:	681e      	ldr	r6, [r3, #0]
- 800110e:	4b49      	ldr	r3, [pc, #292]	; (8001234 <main+0x254>)
+ 800110e:	4b48      	ldr	r3, [pc, #288]	; (8001230 <main+0x250>)
  8001110:	681b      	ldr	r3, [r3, #0]
  8001112:	60fb      	str	r3, [r7, #12]
- 8001114:	4b48      	ldr	r3, [pc, #288]	; (8001238 <main+0x258>)
+ 8001114:	4b47      	ldr	r3, [pc, #284]	; (8001234 <main+0x254>)
  8001116:	681b      	ldr	r3, [r3, #0]
  8001118:	4618      	mov	r0, r3
  800111a:	f7ff fa35 	bl	8000588 <__aeabi_f2d>
  800111e:	4604      	mov	r4, r0
  8001120:	460d      	mov	r5, r1
- 8001122:	4b46      	ldr	r3, [pc, #280]	; (800123c <main+0x25c>)
+ 8001122:	4b45      	ldr	r3, [pc, #276]	; (8001238 <main+0x258>)
  8001124:	681b      	ldr	r3, [r3, #0]
  8001126:	4618      	mov	r0, r3
  8001128:	f7ff fa2e 	bl	8000588 <__aeabi_f2d>
  800112c:	4680      	mov	r8, r0
  800112e:	4689      	mov	r9, r1
- 8001130:	4b3b      	ldr	r3, [pc, #236]	; (8001220 <main+0x240>)
+ 8001130:	4b3a      	ldr	r3, [pc, #232]	; (800121c <main+0x23c>)
  8001132:	681b      	ldr	r3, [r3, #0]
  8001134:	4618      	mov	r0, r3
  8001136:	f7ff fa27 	bl	8000588 <__aeabi_f2d>
  800113a:	4682      	mov	sl, r0
  800113c:	468b      	mov	fp, r1
- 800113e:	4b3a      	ldr	r3, [pc, #232]	; (8001228 <main+0x248>)
+ 800113e:	4b39      	ldr	r3, [pc, #228]	; (8001224 <main+0x244>)
  8001140:	681b      	ldr	r3, [r3, #0]
  8001142:	4618      	mov	r0, r3
  8001144:	f7ff fa20 	bl	8000588 <__aeabi_f2d>
  8001148:	e9c7 0100 	strd	r0, r1, [r7]
- 800114c:	4b37      	ldr	r3, [pc, #220]	; (800122c <main+0x24c>)
+ 800114c:	4b36      	ldr	r3, [pc, #216]	; (8001228 <main+0x248>)
  800114e:	681b      	ldr	r3, [r3, #0]
  8001150:	4618      	mov	r0, r3
  8001152:	f7ff fa19 	bl	8000588 <__aeabi_f2d>
@@ -1547,8 +1547,8 @@ int main(void)
  800116e:	e9cd 4500 	strd	r4, r5, [sp]
  8001172:	68fb      	ldr	r3, [r7, #12]
  8001174:	4632      	mov	r2, r6
- 8001176:	4932      	ldr	r1, [pc, #200]	; (8001240 <main+0x260>)
- 8001178:	4832      	ldr	r0, [pc, #200]	; (8001244 <main+0x264>)
+ 8001176:	4931      	ldr	r1, [pc, #196]	; (800123c <main+0x25c>)
+ 8001178:	4831      	ldr	r0, [pc, #196]	; (8001240 <main+0x260>)
  800117a:	f004 ffeb 	bl	8006154 <siprintf>
 					 PositionMotor,
 					 KinematicPositionUnit,
@@ -1558,86 +1558,86 @@ int main(void)
 				 	 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
  800117e:	f64f 73ff 	movw	r3, #65535	; 0xffff
  8001182:	22c8      	movs	r2, #200	; 0xc8
- 8001184:	492f      	ldr	r1, [pc, #188]	; (8001244 <main+0x264>)
- 8001186:	4817      	ldr	r0, [pc, #92]	; (80011e4 <main+0x204>)
+ 8001184:	492e      	ldr	r1, [pc, #184]	; (8001240 <main+0x260>)
+ 8001186:	4816      	ldr	r0, [pc, #88]	; (80011e0 <main+0x200>)
  8001188:	f003 ff8e 	bl	80050a8 <HAL_UART_Transmit>
 				 	 sprintf(CR,"\n");   											//Indispensable for Send Value without error to row empty
- 800118c:	492e      	ldr	r1, [pc, #184]	; (8001248 <main+0x268>)
- 800118e:	482f      	ldr	r0, [pc, #188]	; (800124c <main+0x26c>)
+ 800118c:	492d      	ldr	r1, [pc, #180]	; (8001244 <main+0x264>)
+ 800118e:	482e      	ldr	r0, [pc, #184]	; (8001248 <main+0x268>)
  8001190:	f004 ffe0 	bl	8006154 <siprintf>
 				 	 HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);        //Indispensable for Send Value without error to row empty
  8001194:	f64f 73ff 	movw	r3, #65535	; 0xffff
  8001198:	2202      	movs	r2, #2
- 800119a:	492c      	ldr	r1, [pc, #176]	; (800124c <main+0x26c>)
- 800119c:	4811      	ldr	r0, [pc, #68]	; (80011e4 <main+0x204>)
+ 800119a:	492b      	ldr	r1, [pc, #172]	; (8001248 <main+0x268>)
+ 800119c:	4810      	ldr	r0, [pc, #64]	; (80011e0 <main+0x200>)
  800119e:	f003 ff83 	bl	80050a8 <HAL_UART_Transmit>
 			 TickSerial = 0;
- 80011a2:	4b1d      	ldr	r3, [pc, #116]	; (8001218 <main+0x238>)
+ 80011a2:	4b1c      	ldr	r3, [pc, #112]	; (8001214 <main+0x234>)
  80011a4:	2200      	movs	r2, #0
  80011a6:	701a      	strb	r2, [r3, #0]
 	  	 }
 
 	  	DemandMotorStep = 400;
- 80011a8:	4b29      	ldr	r3, [pc, #164]	; (8001250 <main+0x270>)
+ 80011a8:	4b28      	ldr	r3, [pc, #160]	; (800124c <main+0x26c>)
  80011aa:	f44f 72c8 	mov.w	r2, #400	; 0x190
  80011ae:	601a      	str	r2, [r3, #0]
-	  	StepSpeed = 5000;  //1000000000
- 80011b0:	4b28      	ldr	r3, [pc, #160]	; (8001254 <main+0x274>)
- 80011b2:	f241 3288 	movw	r2, #5000	; 0x1388
- 80011b6:	601a      	str	r2, [r3, #0]
+	  	StepSpeed = 800000;  //1000000
+ 80011b0:	4b27      	ldr	r3, [pc, #156]	; (8001250 <main+0x270>)
+ 80011b2:	4a28      	ldr	r2, [pc, #160]	; (8001254 <main+0x274>)
+ 80011b4:	601a      	str	r2, [r3, #0]
 
 
 	 	if (ActualMotorStep <= DemandMotorStep)
- 80011b8:	4b27      	ldr	r3, [pc, #156]	; (8001258 <main+0x278>)
- 80011ba:	681a      	ldr	r2, [r3, #0]
- 80011bc:	4b24      	ldr	r3, [pc, #144]	; (8001250 <main+0x270>)
- 80011be:	681b      	ldr	r3, [r3, #0]
- 80011c0:	429a      	cmp	r2, r3
- 80011c2:	f63f af74 	bhi.w	80010ae <main+0xce>
+ 80011b6:	4b28      	ldr	r3, [pc, #160]	; (8001258 <main+0x278>)
+ 80011b8:	681a      	ldr	r2, [r3, #0]
+ 80011ba:	4b24      	ldr	r3, [pc, #144]	; (800124c <main+0x26c>)
+ 80011bc:	681b      	ldr	r3, [r3, #0]
+ 80011be:	429a      	cmp	r2, r3
+ 80011c0:	f63f af75 	bhi.w	80010ae <main+0xce>
 	  	{
 	 	     // Esegui 1000 passi in avanti
 	 	     StepperMotor_Move(&motor, DemandMotorStep, 0, StepSpeed);
- 80011c6:	4b22      	ldr	r3, [pc, #136]	; (8001250 <main+0x270>)
- 80011c8:	6819      	ldr	r1, [r3, #0]
- 80011ca:	4b22      	ldr	r3, [pc, #136]	; (8001254 <main+0x274>)
- 80011cc:	681b      	ldr	r3, [r3, #0]
- 80011ce:	f107 0010 	add.w	r0, r7, #16
- 80011d2:	2200      	movs	r2, #0
- 80011d4:	f000 fe70 	bl	8001eb8 <StepperMotor_Move>
+ 80011c4:	4b21      	ldr	r3, [pc, #132]	; (800124c <main+0x26c>)
+ 80011c6:	6819      	ldr	r1, [r3, #0]
+ 80011c8:	4b21      	ldr	r3, [pc, #132]	; (8001250 <main+0x270>)
+ 80011ca:	681b      	ldr	r3, [r3, #0]
+ 80011cc:	f107 0010 	add.w	r0, r7, #16
+ 80011d0:	2200      	movs	r2, #0
+ 80011d2:	f000 fe71 	bl	8001eb8 <StepperMotor_Move>
 	  	 if (TickSerial == 1)
- 80011d8:	e769      	b.n	80010ae <main+0xce>
- 80011da:	bf00      	nop
- 80011dc:	08008660 	.word	0x08008660
- 80011e0:	200003ec 	.word	0x200003ec
- 80011e4:	200002d8 	.word	0x200002d8
- 80011e8:	08008664 	.word	0x08008664
- 80011ec:	200003f4 	.word	0x200003f4
- 80011f0:	08008674 	.word	0x08008674
- 80011f4:	20000418 	.word	0x20000418
- 80011f8:	08008684 	.word	0x08008684
- 80011fc:	2000043c 	.word	0x2000043c
- 8001200:	08008698 	.word	0x08008698
- 8001204:	20000460 	.word	0x20000460
- 8001208:	080086b0 	.word	0x080086b0
- 800120c:	20000484 	.word	0x20000484
- 8001210:	080086c8 	.word	0x080086c8
- 8001214:	200003f0 	.word	0x200003f0
- 8001218:	200004fa 	.word	0x200004fa
- 800121c:	200004d8 	.word	0x200004d8
- 8001220:	200004d0 	.word	0x200004d0
- 8001224:	200004e8 	.word	0x200004e8
- 8001228:	200004d4 	.word	0x200004d4
- 800122c:	200004dc 	.word	0x200004dc
- 8001230:	2000031c 	.word	0x2000031c
- 8001234:	200004c4 	.word	0x200004c4
- 8001238:	200004c0 	.word	0x200004c0
- 800123c:	200004cc 	.word	0x200004cc
- 8001240:	080086d0 	.word	0x080086d0
- 8001244:	20000320 	.word	0x20000320
- 8001248:	080086f8 	.word	0x080086f8
- 800124c:	200003e8 	.word	0x200003e8
- 8001250:	200004ec 	.word	0x200004ec
- 8001254:	200004f4 	.word	0x200004f4
+ 80011d6:	e76a      	b.n	80010ae <main+0xce>
+ 80011d8:	08008660 	.word	0x08008660
+ 80011dc:	200003ec 	.word	0x200003ec
+ 80011e0:	200002d8 	.word	0x200002d8
+ 80011e4:	08008664 	.word	0x08008664
+ 80011e8:	200003f4 	.word	0x200003f4
+ 80011ec:	08008674 	.word	0x08008674
+ 80011f0:	20000418 	.word	0x20000418
+ 80011f4:	08008684 	.word	0x08008684
+ 80011f8:	2000043c 	.word	0x2000043c
+ 80011fc:	08008698 	.word	0x08008698
+ 8001200:	20000460 	.word	0x20000460
+ 8001204:	080086b0 	.word	0x080086b0
+ 8001208:	20000484 	.word	0x20000484
+ 800120c:	080086c8 	.word	0x080086c8
+ 8001210:	200003f0 	.word	0x200003f0
+ 8001214:	200004fa 	.word	0x200004fa
+ 8001218:	200004d8 	.word	0x200004d8
+ 800121c:	200004d0 	.word	0x200004d0
+ 8001220:	200004e8 	.word	0x200004e8
+ 8001224:	200004d4 	.word	0x200004d4
+ 8001228:	200004dc 	.word	0x200004dc
+ 800122c:	2000031c 	.word	0x2000031c
+ 8001230:	200004c4 	.word	0x200004c4
+ 8001234:	200004c0 	.word	0x200004c0
+ 8001238:	200004cc 	.word	0x200004cc
+ 800123c:	080086d0 	.word	0x080086d0
+ 8001240:	20000320 	.word	0x20000320
+ 8001244:	080086f8 	.word	0x080086f8
+ 8001248:	200003e8 	.word	0x200003e8
+ 800124c:	200004ec 	.word	0x200004ec
+ 8001250:	200004f4 	.word	0x200004f4
+ 8001254:	000c3500 	.word	0x000c3500
  8001258:	200004f0 	.word	0x200004f0
 
 0800125c <SystemClock_Config>:
@@ -1815,9 +1815,9 @@ static void MX_TIM1_Init(void) // Timer for step speed 1 microsecond
  8001354:	4b1f      	ldr	r3, [pc, #124]	; (80013d4 <MX_TIM1_Init+0x9c>)
  8001356:	4a20      	ldr	r2, [pc, #128]	; (80013d8 <MX_TIM1_Init+0xa0>)
  8001358:	601a      	str	r2, [r3, #0]
-  htim1.Init.Prescaler = 1-1;  // Old 10
+  htim1.Init.Prescaler = 1;  // Old 1-1  // (SystemCoreClock / 1000000) - 1
  800135a:	4b1e      	ldr	r3, [pc, #120]	; (80013d4 <MX_TIM1_Init+0x9c>)
- 800135c:	2200      	movs	r2, #0
+ 800135c:	2201      	movs	r2, #1
  800135e:	605a      	str	r2, [r3, #4]
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
  8001360:	4b1c      	ldr	r3, [pc, #112]	; (80013d4 <MX_TIM1_Init+0x9c>)
@@ -3604,9 +3604,10 @@ void StepperMotor_Move(StepperMotor* motor, uint32_t steps, uint8_t direction, u
             StepperMotor_StepBackward(motor);
  8001ee2:	68f8      	ldr	r0, [r7, #12]
  8001ee4:	f7ff ff88 	bl	8001df8 <StepperMotor_StepBackward>
-            DELAY_SPEEDSTEP(DemmandSpeedStep);
- 8001ee8:	6838      	ldr	r0, [r7, #0]
- 8001eea:	f000 f829 	bl	8001f40 <DELAY_SPEEDSTEP>
+            //DELAY_SPEEDSTEP(DemmandSpeedStep);
+        	HAL_Delay(0.01);
+ 8001ee8:	2000      	movs	r0, #0
+ 8001eea:	f000 faeb 	bl	80024c4 <HAL_Delay>
     for (uint32_t i = 0; i < steps; i++) {
  8001eee:	697b      	ldr	r3, [r7, #20]
  8001ef0:	3301      	adds	r3, #1
@@ -3615,7 +3616,6 @@ void StepperMotor_Move(StepperMotor* motor, uint32_t steps, uint8_t direction, u
  8001ef6:	68bb      	ldr	r3, [r7, #8]
  8001ef8:	429a      	cmp	r2, r3
  8001efa:	d3e8      	bcc.n	8001ece <StepperMotor_Move+0x16>
-        	//HAL_Delay(0.01);
         	}
     }
 }
