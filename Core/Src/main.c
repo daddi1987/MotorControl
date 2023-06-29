@@ -176,6 +176,7 @@ UART_HandleTypeDef huart2;
 uint8_t TickSerial = 0;
 
 
+
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
@@ -282,8 +283,8 @@ int main(void)
 			 TickSerial = 0;
 	  	 }
 
-	  	DemandMotorStep = 400;
-	  	StepSpeed = 800000;  //1000000
+	  	DemandMotorStep = 10;
+	  	StepSpeed = 1;  //us  1000us è un millisecondo
 
 
 	 	if (ActualMotorStep <= DemandMotorStep)
@@ -367,7 +368,7 @@ static void MX_TIM1_Init(void) // Timer for step speed 1 microsecond
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 1;  // Old 1-1  // (SystemCoreClock / 1000000) - 1
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 7;  // Old 65535  or 76
+  htim1.Init.Period = 41;  // Old 65535  or 76
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -926,18 +927,21 @@ void StepperMotor_StepBackward(StepperMotor* motor) {
 
 // Esegue un certo numero di passi in una direzione specifica
 void StepperMotor_Move(StepperMotor* motor, uint32_t steps, uint8_t direction, uint32_t DemmandSpeedStep) {
-    for (uint32_t i = 0; i < steps; i++) {
+
+	if (ActualMotorStep < steps) {
         if (direction == 0)
         	{
             StepperMotor_StepForward(motor);
             DELAY_SPEEDSTEP(DemmandSpeedStep);
         	//HAL_Delay(0.1);
+            ActualMotorStep++;
         	}
         else
         	{
             StepperMotor_StepBackward(motor);
             //DELAY_SPEEDSTEP(DemmandSpeedStep);
         	HAL_Delay(0.01);
+        	ActualMotorStep++;
         	}
     }
 }
