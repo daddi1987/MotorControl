@@ -79,6 +79,7 @@ For the pilot motor driver use interface trigger signal modulation. Implementig 
 
 ### FreeRTOS
 ![Alt text](https://d2v6vdsk2p900z.cloudfront.net/original/1X/7fc8fdb729c645aab5b20282bbe34e57cb407be6.jpeg?raw=true "**FreeRTOS**")
+
 I used the OS FreeRTOS for generate multitasking.
 Use Task1 for send values to the serial port, task2 for diagnostic and more task for everythink. 
 
