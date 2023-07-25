@@ -1,3 +1,4 @@
+
 # MotorControl
 Motor Control Firmware for Stepper motor in ClosedLoop, implemented on Microcontrol STM32 F4 Cortex.
 
@@ -84,6 +85,13 @@ I used the OS FreeRTOS for generate multitasking.
 Use Task1 for send values to the serial port, task2 for diagnostic and more task for everythink. 
 
 The futures implementation to be alternated Between While(1) for the control motor, to garantited the max speed performance and all task FreeRTOS.
+
+Link Used: 
+https://www.youtube.com/watch?v=KeQ6vH1Kgrs FreeRTOS Italian Language 
+
+https://www.youtube.com/watch?v=hArOFZlov9c Used this link for develop 
+
+
 
 
 
