@@ -77,8 +77,18 @@ For the pilot motor driver use interface trigger signal modulation. Implementig 
 
 ![Alt text](https://github.com/daddi1987/MotorControl/blob/main/Image/CircuitCurrentControl.png?raw=true "**KinematicSpeed35Hz**")
 
+### FreeRTOS
+![Alt text](https://d2v6vdsk2p900z.cloudfront.net/original/1X/7fc8fdb729c645aab5b20282bbe34e57cb407be6.jpeg?raw=true "**FreeRTOS**")
+I used the OS FreeRTOS for generate multitasking.
+Use Task1 for send values to the serial port, task2 for diagnostic and more task for everythink. 
+
+The futures implementation to be alternated Between While(1) for the control motor, to garantited the max speed performance and all task FreeRTOS.
+
+
+
 ## Features 
 - [x] Filter Speed in Hz for eliminate noise implemented, missing convert from Hz to coefficent.
+- [x] Inset FreeRTOS for multiTask.
 
 ## Bug
 - [x] Max 4/5 Values for to send at serial comunication (To be check tomorrow)
