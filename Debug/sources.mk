@@ -22,8 +22,9 @@ C_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+AZURE_RTOS/App \
 Core/Src \
 Core/Startup \
 Drivers/STM32F4xx_HAL_Driver \
-Middlewares/FreeRTOS \
+Middlewares/ThreadX/RTOS/ThreadX/Core \
 

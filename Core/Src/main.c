@@ -18,10 +18,8 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include "app_threadx.h"
 #include "main.h"
-#include <stdbool.h>
-#include "cmsis_os.h"
-#include <stdio.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -105,20 +103,6 @@ TIM_HandleTypeDef htim7;
 
 UART_HandleTypeDef huart2;
 
-/* Definitions for Task1 */
-osThreadId_t Task1Handle;
-const osThreadAttr_t Task1_attributes = {
-  .name = "Task1",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
-};
-/* Definitions for Task2 */
-osThreadId_t Task2Handle;
-const osThreadAttr_t Task2_attributes = {
-  .name = "Task2",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,
-};
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -130,72 +114,9 @@ static void MX_USART2_UART_Init(void);
 static void MX_TIM6_Init(void);
 static void MX_TIM7_Init(void);
 static void MX_TIM1_Init(void);
-void StartTask1(void *argument);
-void StartTask2(void *argument);
-
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
-
-int32_t EncoderCount = 0;
-
-uint8_t MSG[200] = {'\0'};
-uint8_t CR[2] = {'\0'};
-uint8_t Prefix[3] = {'\0'};
-uint8_t Sufix[3] = {'\0'};
-uint8_t HEADER1[35] = {'\0'};
-uint8_t HEADER2[35] = {'\0'};
-uint8_t HEADER3[35] = {'\0'};
-uint8_t HEADER4[35] = {'\0'};
-uint8_t HEADER5[35] = {'\0'};
-uint16_t PositionSend[7];
-uint16_t KinematicPositionSend[7];
-uint16_t SpeedSend[7];
-uint16_t SpeedUnitSend[7];
-
-
-//---------------Decleare variables for filter Speed----------------
-uint8_t FilterSpeedEnable = 1;
-float RPSSpeedFilter = 0;
-float RPSSpeedFilterPrev = 0;
-float EncoderSpeedRPSToFiler = 0.0;
-uint8_t FrequencySpeedFilter = 80;
-uint8_t FrequencyCase = 1;
-float b_i;
-float a_i;
-
-
-uint8_t rot_new_state = 0;
-uint8_t rot_old_state = 0;
-
-//Declare variables for Calculate Position Encoder
-float PositionMotor;
-int32_t EncoderPosition = 0;
-float EncoderPositionFloat = 0.0;
-uint16_t EncoderPulse = 2048;
-uint16_t RevoluctionFactor = 1;
-float KinematicPositionUnit = 0.0;
-float EncoderSpeedRPS = 0.0;
-float EncoderSpeedRPM = 0.0;
-float EncoderSpeedRPSold = 0.0;
-float EncoderSpeedUnit = 0.0;
-uint32_t TM6_DiffCaunter;
-uint32_t TM6_OldValue;
-uint8_t IncrementSpeedCheckDouble = 0;
-float DemmandSpeedRPM = 0.0;
-uint8_t HalfStepMode = 1;
-uint32_t DemandMotorStep = 0;
-uint8_t STMStepper = 1;
-uint32_t ActualMotorStep = 0;
-uint32_t StepSpeed;
-
-char uart_buf[50];
-int uart_buf_len;
-int16_t TM6_Currentvalue;
-UART_HandleTypeDef huart2;
-
-uint8_t TickSerial = 0;
-
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
@@ -265,71 +186,15 @@ int main(void)
 
   /* USER CODE END 2 */
 
-  /* Init scheduler */
-  osKernelInitialize();
+  MX_ThreadX_Init();
 
-  /* USER CODE BEGIN RTOS_MUTEX */
-  /* add mutexes, ... */
-  /* USER CODE END RTOS_MUTEX */
-
-  /* USER CODE BEGIN RTOS_SEMAPHORES */
-  /* add semaphores, ... */
-  /* USER CODE END RTOS_SEMAPHORES */
-
-  /* USER CODE BEGIN RTOS_TIMERS */
-  /* start timers, add new ones, ... */
-  /* USER CODE END RTOS_TIMERS */
-
-  /* USER CODE BEGIN RTOS_QUEUES */
-  /* add queues, ... */
-  /* USER CODE END RTOS_QUEUES */
-
-  /* Create the thread(s) */
-  /* creation of Task1 */
-  Task1Handle = osThreadNew(StartTask1, NULL, &Task1_attributes);
-
-  /* creation of Task2 */
-  Task2Handle = osThreadNew(StartTask2, NULL, &Task2_attributes);
-
-  /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
-  /* USER CODE END RTOS_THREADS */
-
-  /* USER CODE BEGIN RTOS_EVENTS */
-  /* add events, ... */
-  /* USER CODE END RTOS_EVENTS */
-
-  /* Start scheduler */
-  osKernelStart();
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
  {
     /* USER CODE END WHILE */
-	   /* USER CODE END WHILE */
-		    /* USER CODE END WHILE */
 
-		     //TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6);
-
-
-	        //--------------------- COMMAND MOTOR-----------------------------------------
-
-		  	//DemandMotorStep = 10;
-		  	/*
-		  	StepSpeed = 1;  //us  1000us è un millisecondo
-
-
-		 	if (ActualMotorStep <= DemandMotorStep)
-		  	{
-		 	     // Esegui 1000 passi in avanti
-		 	     StepperMotor_Move(&motor, DemandMotorStep, 0, StepSpeed);
-		  	}
-	  */
-		 	//---------------------END COMMAND MOTOR ----------------------------------------
-			 //HAL_Delay(1);
-
-			// CW_Direction(1,200,20);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -387,7 +252,7 @@ void SystemClock_Config(void)
   * @param None
   * @retval None
   */
-static void MX_TIM1_Init(void)  // Timer for step speed 1 microsecond
+static void MX_TIM1_Init(void)
 {
 
   /* USER CODE BEGIN TIM1_Init 0 */
@@ -401,9 +266,9 @@ static void MX_TIM1_Init(void)  // Timer for step speed 1 microsecond
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 1; // Old 1-1  // (SystemCoreClock / 1000000) - 1
+  htim1.Init.Prescaler = 1-1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 41; // Old 65535  or 76
+  htim1.Init.Period = 65535;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -433,7 +298,7 @@ static void MX_TIM1_Init(void)  // Timer for step speed 1 microsecond
   * @param None
   * @retval None
   */
-static void MX_TIM6_Init(void)  // Using Timer For calculate the time between two encoder signal samples 0.0009 s
+static void MX_TIM6_Init(void)
 {
 
   /* USER CODE BEGIN TIM6_Init 0 */
@@ -586,14 +451,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pin = IN2_PhaseA_Pin|IN1_PhaseA_Pin|IN2_PhaseB_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pin : IN1_PhaseB_Pin */
   GPIO_InitStruct.Pin = IN1_PhaseB_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(IN1_PhaseB_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : Encoder1_Index_Pin */
@@ -603,13 +468,13 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_Init(Encoder1_Index_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI0_IRQn, 5, 0);
+  HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI0_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI1_IRQn, 5, 0);
+  HAL_NVIC_SetPriority(EXTI1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI1_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
@@ -1008,70 +873,6 @@ void DELAY_SPEEDSTEP (uint16_t StepSpeed_delay)
 }
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartTask1 */
-/**
-  * @brief  Function implementing the Task1 thread.
-  * @param  argument: Not used
-  * @retval None
-  */
-/* USER CODE END Header_StartTask1 */
-void StartTask1(void *argument)
-{
-  /* USER CODE BEGIN 5 */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-    //printf("Task1 \n");
-		 if((EncoderSpeedRPSold == EncoderSpeedRPS) && (IncrementSpeedCheckDouble >=10))
-		 {
-			EncoderSpeedRPS = 0.0;
-			EncoderSpeedRPM = 0.0;
-			EncoderSpeedUnit = 0.0;
-			EncoderSpeedRPSold = EncoderSpeedRPS;
-		 }
-		 else
-		 {
-			EncoderSpeedRPSold = EncoderSpeedRPS;
-			IncrementSpeedCheckDouble++;
-		 }
-
-		 sprintf(MSG, "Px;%d;%d;%.3f;%.3f;%.3f;%.3f;%.3f;Sx\r",
-				 EncoderCount,
-				 EncoderPosition,
-				 PositionMotor,
-				 KinematicPositionUnit,
-				 EncoderSpeedRPS,
-				 EncoderSpeedRPM,
-				 EncoderSpeedUnit);
-				 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
-				 sprintf(CR,"\n");   											//Indispensable for Send Value without error to row empty
-				 HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);        //Indispensable for Send Value without error to row empty
-
-	 }
-
-  /* USER CODE END 5 */
-}
-
-/* USER CODE BEGIN Header_StartTask2 */
-/**
-* @brief Function implementing the Task2 thread.
-* @param argument: Not used
-* @retval None
-*/
-/* USER CODE END Header_StartTask2 */
-void StartTask2(void *argument)
-{
-  /* USER CODE BEGIN StartTask2 */
-  /* Infinite loop */
-  for(;;)
-  {
-    osDelay(1);
-    //printf("Task2 \n");
-  }
-  /* USER CODE END StartTask2 */
-}
-
 /**
   * @brief  Period elapsed callback in non blocking mode
   * @note   This function is called  when TIM2 interrupt took place, inside
@@ -1080,6 +881,18 @@ void StartTask2(void *argument)
   * @param  htim : TIM handle
   * @retval None
   */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM2) {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.

@@ -9,10 +9,11 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include Middlewares/FreeRTOS/subdir.mk
+-include Middlewares/ThreadX/RTOS/ThreadX/Core/subdir.mk
 -include Drivers/STM32F4xx_HAL_Driver/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
+-include AZURE_RTOS/App/subdir.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)
