@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "app_threadx.h"
 #include "main.h"
+#include "stdint.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -120,6 +121,64 @@ static void MX_TIM1_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+int32_t EncoderCount = 0;
+
+uint8_t MSG[200] = {'\0'};
+uint8_t CR[2] = {'\0'};
+uint8_t Prefix[3] = {'\0'};
+uint8_t Sufix[3] = {'\0'};
+uint8_t HEADER1[35] = {'\0'};
+uint8_t HEADER2[35] = {'\0'};
+uint8_t HEADER3[35] = {'\0'};
+uint8_t HEADER4[35] = {'\0'};
+uint8_t HEADER5[35] = {'\0'};
+uint16_t PositionSend[7];
+uint16_t KinematicPositionSend[7];
+uint16_t SpeedSend[7];
+uint16_t SpeedUnitSend[7];
+
+
+//---------------Decleare variables for filter Speed----------------
+uint8_t FilterSpeedEnable = 1;
+float RPSSpeedFilter = 0;
+float RPSSpeedFilterPrev = 0;
+float EncoderSpeedRPSToFiler = 0.0;
+uint8_t FrequencySpeedFilter = 80;
+uint8_t FrequencyCase = 1;
+float b_i;
+float a_i;
+
+
+uint8_t rot_new_state = 0;
+uint8_t rot_old_state = 0;
+
+
+//Declare variables for Calculate Position Encoder
+float PositionMotor;
+int32_t EncoderPosition = 0;
+float EncoderPositionFloat = 0.0;
+uint16_t EncoderPulse = 2048;
+uint16_t RevoluctionFactor = 1;
+float KinematicPositionUnit = 0.0;
+float EncoderSpeedRPS = 0.0;
+float EncoderSpeedRPM = 0.0;
+float EncoderSpeedRPSold = 0.0;
+float EncoderSpeedUnit = 0.0;
+uint32_t TM6_DiffCaunter;
+uint32_t TM6_OldValue;
+uint8_t IncrementSpeedCheckDouble = 0;
+float DemmandSpeedRPM = 0.0;
+uint8_t HalfStepMode = 1;
+uint32_t DemandMotorStep = 0;
+uint8_t STMStepper = 1;
+uint32_t ActualMotorStep = 0;
+uint16_t StepSpeed;
+
+char uart_buf[50];
+int uart_buf_len;
+int16_t TM6_Currentvalue;
+
+uint8_t TickSerial = 0;
 
 /* USER CODE END 0 */
 
@@ -847,19 +906,7 @@ void StepperMotor_Move(StepperMotor* motor, uint32_t steps, uint8_t direction, u
 }
 
 
-// Callback: timer has rolled over
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  // Check which version of the timer triggered this callback and toggle LED
-  if (htim == &htim6)
-  {
-	  //TickSerial = 1;
-  }
-  else if (htim == &htim7)
-  {
-	  TickSerial = 1;
-  }
-}
+
 
 void DELAY_SPEEDSTEP (uint16_t StepSpeed_delay)
 {
@@ -888,6 +935,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   /* USER CODE END Callback 0 */
   if (htim->Instance == TIM2) {
     HAL_IncTick();
+  }
+  else if (htim == &htim6)
+  {
+  	  //TickSerial = 1;
+  }
+  else if (htim == &htim7)
+  {
+  	  TickSerial = 1;
   }
   /* USER CODE BEGIN Callback 1 */
 

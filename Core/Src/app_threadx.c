@@ -21,6 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "app_threadx.h"
 #include "main.h"
+#include "stdint.h"
 //#include "stdbool.h"
 //#include "stdio.h"
 
@@ -140,12 +141,34 @@ void my_Thread_entry_3(ULONG initial_input)  // TRADE SERIALE
 {
 	while(1)
 	{
-		  //HAL_GPIO_TogglePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin);
-		  HAL_GPIO_WritePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin, 0);
-		  HAL_Delay(250);
-		  //HAL_GPIO_TogglePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin);
-		  HAL_GPIO_WritePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin, 1);
-		  HAL_Delay(250);
+		 if (TickSerial == 1)
+			  	 {
+				  	 if((EncoderSpeedRPSold == EncoderSpeedRPS) && (IncrementSpeedCheckDouble >=10))
+				  	 {
+				  		EncoderSpeedRPS = 0.0;
+				  		EncoderSpeedRPM = 0.0;
+				  		EncoderSpeedUnit = 0.0;
+				  		EncoderSpeedRPSold = EncoderSpeedRPS;
+				  	 }
+				  	 else
+				  	 {
+				  		EncoderSpeedRPSold = EncoderSpeedRPS;
+				  		IncrementSpeedCheckDouble++;
+				  	 }
+
+					 sprintf(MSG, "Px;%d;%d;%.3f;%.3f;%.3f;%.3f;%.3f;Sx\r",
+							 EncoderCount,
+							 EncoderPosition,
+							 PositionMotor,
+							 KinematicPositionUnit,
+							 EncoderSpeedRPS,
+							 EncoderSpeedRPM,
+							 EncoderSpeedUnit);
+						 	 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
+						 	 sprintf(CR,"\n");   											//Indispensable for Send Value without error to row empty
+						 	 HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);        //Indispensable for Send Value without error to row empty
+					 TickSerial = 0;
+			  	 }
 	}
 }
 

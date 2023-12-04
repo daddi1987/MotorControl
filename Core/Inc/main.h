@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
+#include "stdint.h"
 #ifndef __MAIN_H
 #define __MAIN_H
 
@@ -92,6 +93,17 @@ void Error_Handler(void);
 #define IN1_PhaseA_GPIO_Port GPIOB
 #define IN2_PhaseB_Pin GPIO_PIN_6
 #define IN2_PhaseB_GPIO_Port GPIOB
+
+extern uint8_t TickSerial;
+extern float EncoderSpeedRPSold;
+extern uint8_t IncrementSpeedCheckDouble;
+extern float EncoderSpeedRPS;
+extern float EncoderSpeedRPM;
+extern float EncoderSpeedRPSold;
+extern float EncoderSpeedUnit;
+extern uint8_t MSG[200];
+extern int32_t EncoderCount;
+extern int32_t EncoderPosition;
 
 /* USER CODE BEGIN Private defines */
 
