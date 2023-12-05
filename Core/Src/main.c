@@ -124,7 +124,7 @@ static void MX_TIM1_Init(void);
 int32_t EncoderCount = 0;
 
 uint8_t MSG[200] = {'\0'};
-uint8_t CR[2] = {'\0'};
+//uint8_t CR[2] = {'\0'};
 uint8_t Prefix[3] = {'\0'};
 uint8_t Sufix[3] = {'\0'};
 uint8_t HEADER1[35] = {'\0'};

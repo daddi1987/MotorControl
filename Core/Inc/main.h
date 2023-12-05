@@ -104,6 +104,10 @@ extern float EncoderSpeedUnit;
 extern uint8_t MSG[200];
 extern int32_t EncoderCount;
 extern int32_t EncoderPosition;
+extern float PositionMotor;
+extern float KinematicPositionUnit;
+extern UART_HandleTypeDef huart2;
+extern uint8_t CR;
 
 /* USER CODE BEGIN Private defines */
 
