@@ -147,7 +147,7 @@ void my_Thread_entry_2(ULONG initial_input)
 		  //HAL_GPIO_TogglePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin);
 		  //HAL_GPIO_WritePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin, 1);
 		  //HAL_Delay(1000);
-		  sprintf(MSG, "%d;%d;Sx",Counter,CounterDiag);
+		  sprintf(MSG, "Px,%d;%d;Sx",Counter,CounterDiag);
 		  HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
 		  sprintf(CR,"\r\n");   											//Indispensable for Send Value without error to row empty
 		  HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);
