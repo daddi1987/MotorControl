@@ -39,12 +39,15 @@ uint8_t thread_stack1[THREAD_STACK_SIZE];
 TX_THREAD thread_ptr1;
 uint8_t thread_stack2[THREAD_STACK_SIZE];
 TX_THREAD thread_ptr2;
+uint8_t thread_stack3[THREAD_STACK_SIZE];
+TX_THREAD thread_ptr3;
 uint8_t HEADER2[14] = {'\0'};
 uint8_t HEADER3[16] = {'\0'};
 //uint8_t HEADER4[16] = {'\0'};
-uint8_t MSG[10] = {'\0'};
+uint8_t MSG[100] = {'\0'};
 uint8_t CR[4] = {'\0'};
 uint32_t Counter = 0;
+uint32_t CounterDiag = 0;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -56,7 +59,7 @@ uint32_t Counter = 0;
 /* USER CODE BEGIN PV */
 void my_Thread_entry_1(ULONG initial_input);  // INIZIALIZZARE IL PRIMO TRADE
 void my_Thread_entry_2(ULONG initial_input);  // INIZIALIZZARE IL SECONDO TRADE
-
+void my_Thread_entry_3(ULONG initial_input);  // INIZIALIZZARE IL TERZO TRADE
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -79,6 +82,8 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
    		  15,15,1,TX_AUTO_START);  //RICHIAMARE IL PRIMO TRADE
   tx_thread_create(&thread_ptr2,"my_Second_trade",my_Thread_entry_2,0x1234,thread_stack2,THREAD_STACK_SIZE,
    		  15,15,1,TX_AUTO_START);  //RICHIAMARE IL SECONDO TRADE
+  tx_thread_create(&thread_ptr3,"my_Third_trade",my_Thread_entry_3,0x1234,thread_stack3,THREAD_STACK_SIZE,
+     	  15,15,1,TX_AUTO_START);  //RICHIAMARE IL SECONDO TRADE
   (void)byte_pool;
   /* USER CODE END App_ThreadX_Init */
 
@@ -142,11 +147,23 @@ void my_Thread_entry_2(ULONG initial_input)
 		  //HAL_GPIO_TogglePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin);
 		  //HAL_GPIO_WritePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin, 1);
 		  //HAL_Delay(1000);
-		  sprintf(MSG, "%d;Sx",Counter);
+		  sprintf(MSG, "%d;%d;Sx",Counter,CounterDiag);
 		  HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
 		  sprintf(CR,"\r\n");   											//Indispensable for Send Value without error to row empty
 		  HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);
 		  //HAL_Delay(1000);
+		}
+	}
+}
+
+void my_Thread_entry_3(ULONG initial_input)
+{
+	while(1)
+	{
+		if(TickDiag == true)
+		{
+		  TickDiag = false;
+		  CounterDiag = CounterDiag+1;
 		}
 	}
 }

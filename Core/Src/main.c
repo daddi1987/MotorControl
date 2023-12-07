@@ -43,6 +43,7 @@
 /* Private variables ---------------------------------------------------------*/
 TIM_HandleTypeDef htim7;
 TIM_HandleTypeDef htim10;
+TIM_HandleTypeDef htim11;
 
 UART_HandleTypeDef huart2;
 
@@ -51,6 +52,7 @@ uint8_t HEADER1[35] = {'\0'};
 uint8_t HEADER4[16] = {'\0'};
 bool TickMotion = false;
 bool TickSerial = false;
+bool TickDiag = false;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,6 +61,7 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM7_Init(void);
 static void MX_TIM10_Init(void);
+static void MX_TIM11_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -99,6 +102,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM7_Init();
   MX_TIM10_Init();
+  MX_TIM11_Init();
   /* USER CODE BEGIN 2 */
   sprintf(HEADER1, "Initialized Serial Comunication \n");
   HAL_UART_Transmit(&huart2, HEADER1, sizeof(HEADER1), 100);
@@ -235,6 +239,37 @@ static void MX_TIM10_Init(void)
 }
 
 /**
+  * @brief TIM11 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM11_Init(void)
+{
+
+  /* USER CODE BEGIN TIM11_Init 0 */
+
+  /* USER CODE END TIM11_Init 0 */
+
+  /* USER CODE BEGIN TIM11_Init 1 */
+
+  /* USER CODE END TIM11_Init 1 */
+  htim11.Instance = TIM11;
+  htim11.Init.Prescaler = 100;
+  htim11.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim11.Init.Period = 839;
+  htim11.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim11.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim11) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM11_Init 2 */
+  HAL_TIM_Base_Start_IT(&htim11); // Start Timer
+  /* USER CODE END TIM11_Init 2 */
+
+}
+
+/**
   * @brief USART2 Initialization Function
   * @param None
   * @retval None
@@ -331,6 +366,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   else if (htim->Instance == TIM10) {
   	TickSerial = true;
   }
+  else if (htim->Instance == TIM11) {
+    	TickDiag = true;
+    }
   /* USER CODE END Callback 1 */
 }
 

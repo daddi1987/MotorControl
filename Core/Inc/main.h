@@ -36,6 +36,7 @@ extern uint8_t HEADER2[14];
 extern uint8_t HEADER3[16];
 extern bool TickMotion;
 extern bool TickSerial;
+extern bool TickDiag;
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
