@@ -111,8 +111,8 @@ void my_Thread_entry_1(ULONG initial_input)
 	{
 		if(TickMotion == true)
 		{
-		  Counter = Counter+1;
 		  TickMotion = false;
+		  Counter = Counter+1;
 		  /*
 		  //HAL_GPIO_TogglePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin);
 		  HAL_GPIO_WritePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin, 1);
@@ -125,7 +125,6 @@ void my_Thread_entry_1(ULONG initial_input)
 		  */
 		  //Indispensable for Send Value without error to row empty
 		  //HAL_Delay(1);
-
 	}
 }
 }
@@ -134,6 +133,9 @@ void my_Thread_entry_2(ULONG initial_input)
 {
 	while(1)
 	{
+		if(TickSerial == true)
+		{
+		  TickSerial = false;
 		  HAL_GPIO_TogglePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin);
 		  //HAL_GPIO_WritePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin, 0);
 		  //HAL_Delay(1000);
@@ -144,7 +146,8 @@ void my_Thread_entry_2(ULONG initial_input)
 		  HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
 		  sprintf(CR,"\r\n");   											//Indispensable for Send Value without error to row empty
 		  HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);
-		  HAL_Delay(1000);
+		  //HAL_Delay(1000);
+		}
 	}
 }
 /* USER CODE END 1 */
