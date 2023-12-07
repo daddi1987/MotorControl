@@ -19,7 +19,6 @@
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#include "stdint.h"
 #ifndef __MAIN_H
 #define __MAIN_H
 
@@ -32,7 +31,8 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+extern uint8_t HEADER2[14];
+extern uint8_t HEADER3[16];
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -60,56 +60,22 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define B1_Pin GPIO_PIN_13
 #define B1_GPIO_Port GPIOC
-#define B1_EXTI_IRQn EXTI15_10_IRQn
-#define Encoder1_Count_Pin GPIO_PIN_0
-#define Encoder1_Count_GPIO_Port GPIOA
-#define Encoder1_Count_EXTI_IRQn EXTI0_IRQn
-#define Encoder1_Direct_Pin GPIO_PIN_1
-#define Encoder1_Direct_GPIO_Port GPIOA
-#define Encoder1_Direct_EXTI_IRQn EXTI1_IRQn
 #define USART_TX_Pin GPIO_PIN_2
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
 #define USART_RX_GPIO_Port GPIOA
-#define LD2_Pin GPIO_PIN_5
-#define LD2_GPIO_Port GPIOA
-#define IN2_PhaseA_Pin GPIO_PIN_10
-#define IN2_PhaseA_GPIO_Port GPIOB
-#define IN1_PhaseB_Pin GPIO_PIN_7
-#define IN1_PhaseB_GPIO_Port GPIOC
-#define Enable_A_PhaseStepper_Pin GPIO_PIN_8
-#define Enable_A_PhaseStepper_GPIO_Port GPIOA
-#define Enable_B_PhaseStepper_Pin GPIO_PIN_9
-#define Enable_B_PhaseStepper_GPIO_Port GPIOA
-#define Encoder1_Index_Pin GPIO_PIN_10
-#define Encoder1_Index_GPIO_Port GPIOA
+#define LD2_Green_Led_Pin GPIO_PIN_5
+#define LD2_Green_Led_GPIO_Port GPIOA
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
-#define IN1_PhaseA_Pin GPIO_PIN_4
-#define IN1_PhaseA_GPIO_Port GPIOB
-#define IN2_PhaseB_Pin GPIO_PIN_6
-#define IN2_PhaseB_GPIO_Port GPIOB
-
-extern uint8_t TickSerial;
-extern float EncoderSpeedRPSold;
-extern uint8_t IncrementSpeedCheckDouble;
-extern float EncoderSpeedRPS;
-extern float EncoderSpeedRPM;
-extern float EncoderSpeedRPSold;
-extern float EncoderSpeedUnit;
-extern uint8_t MSG[200];
-extern int32_t EncoderCount;
-extern int32_t EncoderPosition;
-extern float PositionMotor;
-extern float KinematicPositionUnit;
-extern UART_HandleTypeDef huart2;
-extern uint8_t CR;
 
 /* USER CODE BEGIN Private defines */
+
+extern UART_HandleTypeDef huart2;
 
 /* USER CODE END Private defines */
 

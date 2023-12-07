@@ -9,8 +9,9 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
--include Middlewares/ThreadX/RTOS/ThreadX/Core/subdir.mk
--include Drivers/STM32F4xx_HAL_Driver/subdir.mk
+-include Middlewares/ST/threadx/ports/cortex_m4/gnu/src/subdir.mk
+-include Middlewares/ST/threadx/common/src/subdir.mk
+-include Drivers/STM32F4xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk
 -include AZURE_RTOS/App/subdir.mk
@@ -36,34 +37,34 @@ $(wildcard ../makefile.init) \
 $(wildcard ../makefile.targets) \
 
 
-BUILD_ARTIFACT_NAME := MotorControlStepper
+BUILD_ARTIFACT_NAME := MotionControl
 BUILD_ARTIFACT_EXTENSION := elf
 BUILD_ARTIFACT_PREFIX :=
 BUILD_ARTIFACT := $(BUILD_ARTIFACT_PREFIX)$(BUILD_ARTIFACT_NAME)$(if $(BUILD_ARTIFACT_EXTENSION),.$(BUILD_ARTIFACT_EXTENSION),)
 
 # Add inputs and outputs from these tool invocations to the build variables 
 EXECUTABLES += \
-MotorControlStepper.elf \
+MotionControl.elf \
 
 MAP_FILES += \
-MotorControlStepper.map \
+MotionControl.map \
 
 SIZE_OUTPUT += \
 default.size.stdout \
 
 OBJDUMP_LIST += \
-MotorControlStepper.list \
+MotionControl.list \
 
 
 # All Target
 all: main-build
 
 # Main-build Target
-main-build: MotorControlStepper.elf secondary-outputs
+main-build: MotionControl.elf secondary-outputs
 
 # Tool invocations
-MotorControlStepper.elf MotorControlStepper.map: $(OBJS) $(USER_OBJS) C:\Users\david\Documents\GitHub\MotorControl\STM32F446RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "MotorControlStepper.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\david\Documents\GitHub\MotorControl\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MotorControlStepper.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -u _printf_float -Wl,--start-group -lc -lm -Wl,--end-group
+MotionControl.elf MotionControl.map: $(OBJS) $(USER_OBJS) C:\Users\david\Documents\GitHub\MotorControl\STM32F446RETX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "MotionControl.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"C:\Users\david\Documents\GitHub\MotorControl\STM32F446RETX_FLASH.ld" --specs=nosys.specs -Wl,-Map="MotionControl.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
@@ -72,14 +73,14 @@ default.size.stdout: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
 	@echo 'Finished building: $@'
 	@echo ' '
 
-MotorControlStepper.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "MotorControlStepper.list"
+MotionControl.list: $(EXECUTABLES) makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-objdump -h -S $(EXECUTABLES) > "MotionControl.list"
 	@echo 'Finished building: $@'
 	@echo ' '
 
 # Other Targets
 clean:
-	-$(RM) MotorControlStepper.elf MotorControlStepper.list MotorControlStepper.map default.size.stdout
+	-$(RM) MotionControl.elf MotionControl.list MotionControl.map default.size.stdout
 	-@echo ' '
 
 secondary-outputs: $(SIZE_OUTPUT) $(OBJDUMP_LIST)

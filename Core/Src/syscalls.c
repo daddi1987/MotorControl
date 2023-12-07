@@ -29,23 +29,7 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/times.h>
-/*
-#define DEMCR 				*((volatile uint32_t*) 0xE000EDFCU)
 
-#define ITM_STIMULUS_PORT0 *((volatile uint32_t*) 0xE0000000)
-#define ITM_TRACE_EN *((volatile uint32_t*) 0xE0000E00)
-
-void ITM_SendChart(uint8_t ch)
-{
-	DEMCR |= (1<<24);
-
-	ITM_TRACE_EN |= (1<<0);
-
-	while(!(ITM_STIMULUS_PORT0 & 1));
-
-	ITM_STIMULUS_PORT0 = ch;
-}
-*/
 
 /* Variables */
 extern int __io_putchar(int ch) __attribute__((weak));
@@ -88,7 +72,6 @@ __attribute__((weak)) int _read(int file, char *ptr, int len)
   for (DataIdx = 0; DataIdx < len; DataIdx++)
   {
     *ptr++ = __io_getchar();
-    //ITM_SendChart(*ptr++);
   }
 
   return len;

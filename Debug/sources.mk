@@ -25,6 +25,7 @@ SUBDIRS := \
 AZURE_RTOS/App \
 Core/Src \
 Core/Startup \
-Drivers/STM32F4xx_HAL_Driver \
-Middlewares/ThreadX/RTOS/ThreadX/Core \
+Drivers/STM32F4xx_HAL_Driver/Src \
+Middlewares/ST/threadx/common/src \
+Middlewares/ST/threadx/ports/cortex_m4/gnu/src \
 
