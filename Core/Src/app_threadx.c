@@ -44,9 +44,10 @@ TX_THREAD thread_ptr3;
 uint8_t HEADER2[14] = {'\0'};
 uint8_t HEADER3[16] = {'\0'};
 //uint8_t HEADER4[16] = {'\0'};
-uint8_t MSG[100] = {'\0'};
+uint8_t MSG[86] = {'\0'};
 uint8_t CR[4] = {'\0'};
 uint32_t Counter = 0;
+uint32_t CouterSerial = 0;
 uint32_t CounterDiag = 0;
 /* USER CODE END PD */
 
@@ -118,6 +119,11 @@ void my_Thread_entry_1(ULONG initial_input)
 		{
 		  TickMotion = false;
 		  Counter = Counter+1;
+		  if(TickSerial == true)
+		  {
+			  CouterSerial = Counter;
+			  Counter = 0;
+		  }
 		  /*
 		  //HAL_GPIO_TogglePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin);
 		  HAL_GPIO_WritePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin, 1);
@@ -147,9 +153,9 @@ void my_Thread_entry_2(ULONG initial_input)
 		  //HAL_GPIO_TogglePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin);
 		  //HAL_GPIO_WritePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin, 1);
 		  //HAL_Delay(1000);
-		  sprintf(MSG, "Px,%d;%d;Sx",Counter,CounterDiag);
+		  sprintf(MSG,"Px,%d;%d;Sx",CouterSerial,CounterDiag);
 		  HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
-		  sprintf(CR,"\r\n");   											//Indispensable for Send Value without error to row empty
+		  sprintf(CR,"\r\n");   // sprintf(CR,"\r\n"); 	//Ritorno a capo e a destra
 		  HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);
 		  //HAL_Delay(1000);
 		}
