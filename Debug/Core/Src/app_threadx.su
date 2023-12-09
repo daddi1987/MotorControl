@@ -1,5 +1,5 @@
-../Core/Src/app_threadx.c:76:6:App_ThreadX_Init	56	static
-../Core/Src/app_threadx.c:99:6:MX_ThreadX_Init	8	static
-../Core/Src/app_threadx.c:114:6:my_Thread_entry_1	16	static
-../Core/Src/app_threadx.c:143:6:my_Thread_entry_2	16	static
-../Core/Src/app_threadx.c:166:6:my_Thread_entry_3	16	static
+../Core/Src/app_threadx.c:79:6:App_ThreadX_Init	56	static
+../Core/Src/app_threadx.c:102:6:MX_ThreadX_Init	8	static
+../Core/Src/app_threadx.c:117:6:my_Thread_entry_1	16	static
+../Core/Src/app_threadx.c:135:6:my_Thread_entry_2	16	static
+../Core/Src/app_threadx.c:152:6:my_Thread_entry_3	24	static

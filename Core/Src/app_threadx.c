@@ -49,6 +49,9 @@ uint8_t CR[4] = {'\0'};
 uint32_t Counter = 0;
 uint32_t CouterSerial = 0;
 uint32_t CounterDiag = 0;
+uint32_t CounterDiagSerial = 0;
+uint32_t SerialTX = 0;
+uint32_t ThransholdSerialTX = 10000;
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -80,11 +83,11 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
 
   /* USER CODE BEGIN App_ThreadX_Init */
   tx_thread_create(&thread_ptr1,"my_First_trade",my_Thread_entry_1,0x1234,thread_stack1,THREAD_STACK_SIZE,
-   		  15,15,1,TX_AUTO_START);  //RICHIAMARE IL PRIMO TRADE
+   		  3,3,1,TX_AUTO_START);  //RICHIAMARE IL PRIMO TRADE
   tx_thread_create(&thread_ptr2,"my_Second_trade",my_Thread_entry_2,0x1234,thread_stack2,THREAD_STACK_SIZE,
-   		  15,15,1,TX_AUTO_START);  //RICHIAMARE IL SECONDO TRADE
+   		  3,3,1,TX_AUTO_START);  //RICHIAMARE IL SECONDO TRADE
   tx_thread_create(&thread_ptr3,"my_Third_trade",my_Thread_entry_3,0x1234,thread_stack3,THREAD_STACK_SIZE,
-     	  15,15,1,TX_AUTO_START);  //RICHIAMARE IL SECONDO TRADE
+     	  3,3,1,TX_AUTO_START);  //RICHIAMARE IL SECONDO TRADE
   (void)byte_pool;
   /* USER CODE END App_ThreadX_Init */
 
@@ -117,25 +120,14 @@ void my_Thread_entry_1(ULONG initial_input)
 	{
 		if(TickMotion == true)
 		{
-		  TickMotion = false;
-		  Counter = Counter+1;
-		  if(TickSerial == true)
+		  Counter++;
+		  if((TickSerial == true)&&(TickMotion == true))
 		  {
 			  CouterSerial = Counter;
 			  Counter = 0;
 		  }
-		  /*
-		  //HAL_GPIO_TogglePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin);
-		  HAL_GPIO_WritePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin, 1);
-		  HAL_Delay(1);
-		  //HAL_GPIO_TogglePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin);
-		  HAL_GPIO_WritePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin, 0);
-		  //HAL_Delay(100);
-		  sprintf(HEADER4, "Inside Trade 1\r\n");
-		  HAL_UART_Transmit(&huart2, HEADER4, sizeof(HEADER4), 100);
-		  */
-		  //Indispensable for Send Value without error to row empty
-		  //HAL_Delay(1);
+		 TickMotion = false;
+
 	}
 }
 }
@@ -144,20 +136,15 @@ void my_Thread_entry_2(ULONG initial_input)
 {
 	while(1)
 	{
-		if(TickSerial == true)
+		if(TickDiag == true)
 		{
-		  TickSerial = false;
-		  HAL_GPIO_TogglePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin);
-		  //HAL_GPIO_WritePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin, 0);
-		  //HAL_Delay(1000);
-		  //HAL_GPIO_TogglePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin);
-		  //HAL_GPIO_WritePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin, 1);
-		  //HAL_Delay(1000);
-		  sprintf(MSG,"Px,%d;%d;Sx",CouterSerial,CounterDiag);
-		  HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
-		  sprintf(CR,"\r\n");   // sprintf(CR,"\r\n"); 	//Ritorno a capo e a destra
-		  HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);
-		  //HAL_Delay(1000);
+		  CounterDiag++;
+		  if((TickSerial == true)&&(TickDiag == true))
+		  {
+			  CounterDiagSerial = CounterDiag;
+			  CounterDiag = 0;
+		  }
+		 TickDiag = false;
 		}
 	}
 }
@@ -165,12 +152,24 @@ void my_Thread_entry_2(ULONG initial_input)
 void my_Thread_entry_3(ULONG initial_input)
 {
 	while(1)
-	{
-		if(TickDiag == true)
 		{
-		  TickDiag = false;
-		  CounterDiag = CounterDiag+1;
+			if(TickSerial == true)
+			{
+			  TickSerial = false;
+			  if (SerialTX >= ThransholdSerialTX)
+			  {
+				  SerialTX = 0;
+				  SerialTX++;
+			  }
+			  else
+			  {
+				  SerialTX++;
+			  }
+				  sprintf(MSG,"Px,%d;%d;%d;Sx",SerialTX,CouterSerial,CounterDiagSerial);
+				  HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
+				  sprintf(CR,"\r\n");   // sprintf(CR,"\r\n"); 	//Ritorno a capo e a destra
+				  HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);
+			 }
 		}
-	}
 }
 /* USER CODE END 1 */
