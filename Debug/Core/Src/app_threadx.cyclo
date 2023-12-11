@@ -1,5 +1,3 @@
 app_threadx.c:79:6:App_ThreadX_Init	1
-app_threadx.c:102:6:MX_ThreadX_Init	1
-app_threadx.c:117:6:my_Thread_entry_1	4
-app_threadx.c:135:6:my_Thread_entry_2	4
-app_threadx.c:152:6:my_Thread_entry_3	3
+app_threadx.c:104:6:MX_ThreadX_Init	1
+app_threadx.c:119:6:my_Thread_entry_1	3

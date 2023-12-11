@@ -62,8 +62,8 @@ uint32_t ThransholdSerialTX = 10000;
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 void my_Thread_entry_1(ULONG initial_input);  // INIZIALIZZARE IL PRIMO TRADE
-void my_Thread_entry_2(ULONG initial_input);  // INIZIALIZZARE IL SECONDO TRADE
-void my_Thread_entry_3(ULONG initial_input);  // INIZIALIZZARE IL TERZO TRADE
+//void my_Thread_entry_2(ULONG initial_input);  // INIZIALIZZARE IL SECONDO TRADE
+//void my_Thread_entry_3(ULONG initial_input);  // INIZIALIZZARE IL TERZO TRADE
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -84,11 +84,13 @@ UINT App_ThreadX_Init(VOID *memory_ptr)
   /* USER CODE BEGIN App_ThreadX_Init */
   tx_thread_create(&thread_ptr1,"my_First_trade",my_Thread_entry_1,0x1234,thread_stack1,THREAD_STACK_SIZE,
    		  3,3,1,TX_AUTO_START);  //RICHIAMARE IL PRIMO TRADE
-  tx_thread_create(&thread_ptr2,"my_Second_trade",my_Thread_entry_2,0x1234,thread_stack2,THREAD_STACK_SIZE,
+  /*tx_thread_create(&thread_ptr2,"my_Second_trade",my_Thread_entry_2,0x1234,thread_stack2,THREAD_STACK_SIZE,
    		  3,3,1,TX_AUTO_START);  //RICHIAMARE IL SECONDO TRADE
   tx_thread_create(&thread_ptr3,"my_Third_trade",my_Thread_entry_3,0x1234,thread_stack3,THREAD_STACK_SIZE,
      	  3,3,1,TX_AUTO_START);  //RICHIAMARE IL SECONDO TRADE
+     	  */
   (void)byte_pool;
+
   /* USER CODE END App_ThreadX_Init */
 
   return ret;
@@ -118,20 +120,27 @@ void my_Thread_entry_1(ULONG initial_input)
 {
 	while(1)
 	{
-		if(TickMotion == true)
-		{
-		  Counter++;
-		  if((TickSerial == true)&&(TickMotion == true))
-		  {
-			  CouterSerial = Counter;
-			  Counter = 0;
-		  }
-		 TickMotion = false;
+		if(TickSerial == true)
+					{
+					  TickSerial = false;
+					  if (SerialTX >= ThransholdSerialTX)
+					  {
+						  SerialTX = 0;
+						  SerialTX++;
+					  }
+					  else
+					  {
+						  SerialTX++;
+					  }
+						  sprintf(MSG,"Px,%d;%d;%d;Sx",SerialTX,Counter,CounterDiag);
+						  HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
+						  sprintf(CR,"\r\n");   // sprintf(CR,"\r\n"); 	//Ritorno a capo e a destra
+						  HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);
+					 }
 
 	}
 }
-}
-
+/*
 void my_Thread_entry_2(ULONG initial_input)
 {
 	while(1)
@@ -148,28 +157,6 @@ void my_Thread_entry_2(ULONG initial_input)
 		}
 	}
 }
+*/
 
-void my_Thread_entry_3(ULONG initial_input)
-{
-	while(1)
-		{
-			if(TickSerial == true)
-			{
-			  TickSerial = false;
-			  if (SerialTX >= ThransholdSerialTX)
-			  {
-				  SerialTX = 0;
-				  SerialTX++;
-			  }
-			  else
-			  {
-				  SerialTX++;
-			  }
-				  sprintf(MSG,"Px,%d;%d;%d;Sx",SerialTX,CouterSerial,CounterDiagSerial);
-				  HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
-				  sprintf(CR,"\r\n");   // sprintf(CR,"\r\n"); 	//Ritorno a capo e a destra
-				  HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);
-			 }
-		}
-}
 /* USER CODE END 1 */

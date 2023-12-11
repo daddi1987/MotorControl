@@ -38,6 +38,10 @@ extern bool TickMotion;
 extern bool TickSerial;
 extern bool TickDiag;
 extern uint32_t SerialTX;
+extern uint32_t Counter;
+extern uint32_t CouterSerial;
+extern uint32_t CouterSerialOld;
+extern uint32_t CounterDiag;
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/

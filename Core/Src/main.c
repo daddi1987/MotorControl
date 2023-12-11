@@ -53,6 +53,8 @@ uint8_t HEADER4[16] = {'\0'};
 bool TickMotion = false;
 bool TickSerial = false;
 bool TickDiag = false;
+uint32_t CounterDiagSerialOld = 0;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -256,7 +258,7 @@ static void MX_TIM11_Init(void)
   htim11.Instance = TIM11;
   htim11.Init.Prescaler = 1000;
   htim11.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim11.Init.Period = 839;
+  htim11.Init.Period = 83;
   htim11.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim11.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim11) != HAL_OK)
@@ -340,7 +342,18 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void Motion(void)      // THIS VOID RUN AT 20Khz
+{
+	  Counter++;
+	  if(TickSerial == true)
+	  {
+		  CouterSerial = Counter;
+	  }
+}
+void DiagnosticMotor(void)
+{
+	  CounterDiag++;
+}
 /* USER CODE END 4 */
 
 /**
@@ -361,13 +374,13 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
   /* USER CODE BEGIN Callback 1 */
   else if (htim->Instance == TIM7) {
-	TickMotion = true;
+	Motion();
   }
   else if (htim->Instance == TIM10) {
   	TickSerial = true;
   }
   else if (htim->Instance == TIM11) {
-    	TickDiag = true;
+    DiagnosticMotor();
     }
   /* USER CODE END Callback 1 */
 }
