@@ -41,6 +41,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim7;
 TIM_HandleTypeDef htim10;
 TIM_HandleTypeDef htim11;
@@ -64,6 +65,7 @@ static void MX_USART2_UART_Init(void);
 static void MX_TIM7_Init(void);
 static void MX_TIM10_Init(void);
 static void MX_TIM11_Init(void);
+static void MX_TIM1_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -105,6 +107,7 @@ int main(void)
   MX_TIM7_Init();
   MX_TIM10_Init();
   MX_TIM11_Init();
+  MX_TIM1_Init();
   /* USER CODE BEGIN 2 */
   sprintf(HEADER1, "Initialized Serial Comunication \n");
   HAL_UART_Transmit(&huart2, HEADER1, sizeof(HEADER1), 100);
@@ -169,6 +172,52 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief TIM1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM1_Init(void)
+{
+
+  /* USER CODE BEGIN TIM1_Init 0 */
+
+  /* USER CODE END TIM1_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM1_Init 1 */
+
+  /* USER CODE END TIM1_Init 1 */
+  htim1.Instance = TIM1;
+  htim1.Init.Prescaler = 0;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim1.Init.Period = 65535;
+  htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM1_Init 2 */
+
+  /* USER CODE END TIM1_Init 2 */
+
 }
 
 /**
@@ -330,6 +379,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pins : Encoder1_Count_Pin Encoder1_Direction_Pin */
+  GPIO_InitStruct.Pin = Encoder1_Count_Pin|Encoder1_Direction_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
   /*Configure GPIO pin : LD2_Green_Led_Pin */
   GPIO_InitStruct.Pin = LD2_Green_Led_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -337,23 +392,24 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LD2_Green_Led_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : Encoder_Index_Pin */
+  GPIO_InitStruct.Pin = Encoder_Index_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(Encoder_Index_GPIO_Port, &GPIO_InitStruct);
+
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
 }
 
 /* USER CODE BEGIN 4 */
-void Motion(void)      // THIS VOID RUN AT 20Khz
-{
-	  Counter++;
-	  if(TickSerial == true)
-	  {
-		  CouterSerial = Counter;
-	  }
-}
-void DiagnosticMotor(void)
-{
-	  CounterDiag++;
-}
+
+
+
+
+
+
+
 /* USER CODE END 4 */
 
 /**
@@ -374,6 +430,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
   /* USER CODE BEGIN Callback 1 */
   else if (htim->Instance == TIM7) {
+	TM1_Currentvalue = __HAL_TIM_GET_COUNTER(&htim1); // Get current time (microseconds)
 	Motion();
   }
   else if (htim->Instance == TIM10) {

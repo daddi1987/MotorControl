@@ -1,0 +1,4 @@
+../Core/Src/motion.c:39:6:Motion	8	static
+../Core/Src/motion.c:48:6:DiagnosticMotor	4	static
+../Core/Src/motion.c:53:6:EncoderFeadBack	16	static
+../Core/Src/motion.c:103:6:Calculate_Rotation	24	static

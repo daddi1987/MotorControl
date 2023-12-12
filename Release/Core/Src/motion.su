@@ -1,0 +1,2 @@
+../Core/Src/motion.c:13:6:Motion	0	static
+../Core/Src/motion.c:21:6:DiagnosticMotor	0	static

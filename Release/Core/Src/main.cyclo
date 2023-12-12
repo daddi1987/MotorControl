@@ -1,0 +1,6 @@
+motion.c:13:6:Motion	2
+motion.c:21:6:DiagnosticMotor	1
+main.c:365:6:HAL_TIM_PeriodElapsedCallback	5
+main.c:390:6:Error_Handler	1
+main.c:132:6:SystemClock_Config	2
+main.c:81:5:main	5
