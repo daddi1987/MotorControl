@@ -31,6 +31,10 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
+extern TIM_HandleTypeDef htim1;
+
+
 #include <stdbool.h>
 extern uint8_t HEADER2[14];
 extern uint8_t HEADER3[16];
@@ -66,6 +70,10 @@ extern uint8_t FrequencyCase;
 extern float b_i;
 extern float a_i;
 extern int16_t TM1_Currentvalue;
+extern float ActualPosition;
+extern float ActualSpeedRPM;
+extern float ActualSpeed;
+
 
 /* USER CODE END Includes */
 
@@ -94,10 +102,13 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define B1_Pin GPIO_PIN_13
 #define B1_GPIO_Port GPIOC
+#define B1_EXTI_IRQn EXTI15_10_IRQn
 #define Encoder1_Count_Pin GPIO_PIN_0
 #define Encoder1_Count_GPIO_Port GPIOA
+#define Encoder1_Count_EXTI_IRQn EXTI0_IRQn
 #define Encoder1_Direction_Pin GPIO_PIN_1
 #define Encoder1_Direction_GPIO_Port GPIOA
+#define Encoder1_Direction_EXTI_IRQn EXTI1_IRQn
 #define USART_TX_Pin GPIO_PIN_2
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3

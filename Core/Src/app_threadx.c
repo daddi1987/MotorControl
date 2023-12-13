@@ -132,7 +132,8 @@ void my_Thread_entry_1(ULONG initial_input)
 					  {
 						  SerialTX++;
 					  }
-						  sprintf(MSG,"Px,%d;%d;%d;Sx",SerialTX,Counter,CounterDiag);
+						  sprintf(MSG,"Px,%d;%d;%d;%.3f;%.3f;%.3f;Sx",SerialTX,Counter,CounterDiag,
+								  ActualPosition,ActualSpeedRPM,ActualSpeed);
 						  HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
 						  sprintf(CR,"\r\n");   // sprintf(CR,"\r\n"); 	//Ritorno a capo e a destra
 						  HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);
