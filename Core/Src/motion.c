@@ -82,7 +82,7 @@ void EncoderFeadBack (rot_old_state, rot_new_state)
 		}
 
 		rot_old_state = rot_new_state;
-		Calculate_Rotation(EncoderPulse,RevoluctionFactor);
+		Calculate_Rotation(EncoderPulse,RevoluctionFactor,EncoderCount);
 	}
 	// ---------------------------------END EXTERNAL INTERRUPT FOR ENCODER MOTOR--------------------------------------
 
@@ -90,9 +90,9 @@ void EncoderFeadBack (rot_old_state, rot_new_state)
 /* Calculate Revolution to Factor
  *
  */
-void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet)
+void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,uint16_t EncoderCountSet)
 {
-	EncoderPosition = EncoderCount/4.0;   // Single Event Encoder 1*4 in Single Counter
+	EncoderPosition = EncoderCountSet/4.0;   // Single Event Encoder 1*4 in Single Counter
 	EncoderPositionFloat = EncoderPosition; // Single Counter Encoder
 	PositionMotor = EncoderPositionFloat/EncoderPulseSet;
 	KinematicPositionUnit = RevoluctionFactorSet * PositionMotor;
