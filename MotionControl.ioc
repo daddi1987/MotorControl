@@ -222,8 +222,8 @@ STMicroelectronics.X-CUBE-AZRTOS-F4.1.1.0.ThreadXCcRTOSJjThreadXJjTraceXOosuppor
 STMicroelectronics.X-CUBE-AZRTOS-F4.1.1.0_IsAnAzureRtosMw=true
 STMicroelectronics.X-CUBE-AZRTOS-F4.1.1.0_SwParameter=ThreadXCcRTOSJjThreadXJjTraceXOosupport\:true;ThreadXCcRTOSJjThreadXJjCore\:true;
 TIM1.IPParameters=Prescaler,Period
-TIM1.Period=1000
-TIM1.Prescaler=41
+TIM1.Period=2099
+TIM1.Prescaler=1
 TIM10.AutoReloadPreload=TIM_AUTORELOAD_PRELOAD_ENABLE
 TIM10.IPParameters=Prescaler,Period,AutoReloadPreload
 TIM10.Period=839

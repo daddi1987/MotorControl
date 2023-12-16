@@ -60,8 +60,9 @@ void DiagnosticMotor(void)
 	  CounterDiag++;
 }
 
-void EncoderFeadBack (rot_old_state, rot_new_state)
+void EncoderFeeBack(void)
 {
+	rot_new_state = rot_get_state();
 		// Check transition
 		if (rot_old_state == 3 && rot_new_state == 2) {        // 3 -> 2 transition
 			EncoderCount++;
@@ -90,14 +91,14 @@ void EncoderFeadBack (rot_old_state, rot_new_state)
 /* Calculate Revolution to Factor
  *
  */
-void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,uint16_t EncoderCountSet)
+void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,int32_t EncoderCountSet)
 {
 	EncoderPosition = EncoderCountSet/4.0;   // Single Event Encoder 1*4 in Single Counter
 	EncoderPositionFloat = EncoderPosition; // Single Counter Encoder
 	PositionMotor = EncoderPositionFloat/EncoderPulseSet;
 	KinematicPositionUnit = RevoluctionFactorSet * PositionMotor;
 
-	TM1_Currentvalue = __HAL_TIM_GET_COUNTER(&htim1); // Get current time (microseconds)
+	TM1_Currentvalue = Counter; // Get current time (microseconds)
 
 	if(TM1_Currentvalue >= TM1_OldValue)
 		{
@@ -105,7 +106,7 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,u
 	if (FilterSpeedEnable == 1)  //  CutOff Low-Pass Filter
 	{
 		//GetConstantFilter();        DA INSERIRE //////////////////////////////////////////////////////////
-		EncoderSpeedRPSToFiler = ((1000000.0/TM1_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
+		EncoderSpeedRPSToFiler = ((20000.0/TM1_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
 		EncoderSpeedRPS = ((b_i*RPSSpeedFilter) + (a_i*EncoderSpeedRPSToFiler) + (a_i*RPSSpeedFilterPrev));
 		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
 		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
@@ -117,7 +118,7 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,u
 	}
 	else
 	{
-		EncoderSpeedRPS = ((1000000.0/TM1_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
+		EncoderSpeedRPS = ((1/(0.00005*TM1_DiffCaunter))*(EncoderPulseSet)); //Calculate RPS speed From microsecond to second
 		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
 		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
 		TM1_OldValue = TM1_Currentvalue; // Save to old value

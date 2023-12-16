@@ -224,9 +224,9 @@ static void MX_TIM1_Init(void)
 
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 41;
+  htim1.Init.Prescaler = 1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 1000;
+  htim1.Init.Period = 2099;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -443,11 +443,9 @@ uint8_t rot_get_state() {
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if (GPIO_Pin == Encoder1_Count_Pin || GPIO_Pin == Encoder1_Direction_Pin) {
-			rot_new_state = rot_get_state();
-			EncoderFeadBack(rot_old_state,rot_new_state);
+			EncoderFeeBack();
 		}
 }
-
 
 /* USER CODE END 4 */
 

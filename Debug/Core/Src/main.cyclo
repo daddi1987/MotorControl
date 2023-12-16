@@ -9,5 +9,5 @@ main.c:359:13:MX_USART2_UART_Init	2
 main.c:392:13:MX_GPIO_Init	1
 main.c:438:9:rot_get_state	1
 main.c:444:6:HAL_GPIO_EXTI_Callback	3
-main.c:462:6:HAL_TIM_PeriodElapsedCallback	5
-main.c:488:6:Error_Handler	1
+main.c:460:6:HAL_TIM_PeriodElapsedCallback	5
+main.c:486:6:Error_Handler	1
