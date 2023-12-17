@@ -19,8 +19,8 @@ float EncoderSpeedRPS = 0.0;
 float EncoderSpeedRPM = 0.0;
 float EncoderSpeedRPSold = 0.0;
 float EncoderSpeedUnit = 0.0;
-uint32_t TM1_DiffCaunter;
-uint32_t TM1_OldValue;
+float DiffTickClockMotion;
+float OldTickClockMotion;
 int32_t EncoderPosition = 0;
 float EncoderPositionFloat = 0.0;
 float PositionMotor;
@@ -33,10 +33,11 @@ uint8_t FrequencySpeedFilter = 80;
 uint8_t FrequencyCase = 1;
 float b_i;
 float a_i;
-int16_t TM1_Currentvalue;
+float TickClockMotion;
 float ActualPosition = 0;
 float ActualSpeedRPM = 0;
 float ActualSpeed = 0;
+float OldEncoderSpeedRPM = 0;
 
 
 void Motion(void)      // THIS VOID RUN AT 20Khz
@@ -52,6 +53,7 @@ void Motion(void)      // THIS VOID RUN AT 20Khz
 	  ActualPosition = KinematicPositionUnit;
 	  ActualSpeedRPM = EncoderSpeedRPM;
 	  ActualSpeed = EncoderSpeedUnit;
+	  //OldEncoderSpeedRPM = EncoderSpeedRPM;
 
 
 }
@@ -98,19 +100,19 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,i
 	PositionMotor = EncoderPositionFloat/EncoderPulseSet;
 	KinematicPositionUnit = RevoluctionFactorSet * PositionMotor;
 
-	TM1_Currentvalue = Counter; // Get current time (microseconds)
+	TickClockMotion = Counter*0.00005; // Get current time (seconds)
 
-	if(TM1_Currentvalue >= TM1_OldValue)
-		{
-		TM1_DiffCaunter = (TM1_Currentvalue - TM1_OldValue); // Calculate time from count to count
+	DiffTickClockMotion = (TickClockMotion - OldTickClockMotion); // Calculate time from count to count
+
+
 	if (FilterSpeedEnable == 1)  //  CutOff Low-Pass Filter
 	{
 		//GetConstantFilter();        DA INSERIRE //////////////////////////////////////////////////////////
-		EncoderSpeedRPSToFiler = ((20000.0/TM1_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
+		EncoderSpeedRPSToFiler = ((20000.0/DiffTickClockMotion)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
 		EncoderSpeedRPS = ((b_i*RPSSpeedFilter) + (a_i*EncoderSpeedRPSToFiler) + (a_i*RPSSpeedFilterPrev));
 		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
 		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
-		TM1_OldValue = TM1_Currentvalue; // Save to old value
+		OldTickClockMotion = TickClockMotion; // Save to old value
 		HAL_GPIO_TogglePin (GPIOA, LD2_Green_Led_Pin);
 		RPSSpeedFilterPrev = EncoderSpeedRPSToFiler;
 		RPSSpeedFilter = EncoderSpeedRPS;
@@ -118,20 +120,15 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,i
 	}
 	else
 	{
-		EncoderSpeedRPS = ((1/(0.00005*TM1_DiffCaunter))*(EncoderPulseSet)); //Calculate RPS speed From microsecond to second
+		EncoderSpeedRPS = (1/(DiffTickClockMotion*EncoderPulseSet)); //Calculate RPS speed From microsecond to second
 		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
 		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
-		TM1_OldValue = TM1_Currentvalue; // Save to old value
+		OldTickClockMotion = TickClockMotion; // Save to old value
 		//IncrementSpeedCheckOld = IncrementSpeedCheck;
 		//IncrementSpeedCheck++;
 		//TM6_Currentvalue = 0; //Reset Current Value Counter
 		HAL_GPIO_TogglePin (GPIOA, LD2_Green_Led_Pin);
 	}
-}
-else
-{
-	TM1_OldValue = TM1_Currentvalue;
-}
 
 }
 // -------------------------------------END CALCULATE REV TO FACTOR --------------------------------------
