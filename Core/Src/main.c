@@ -275,11 +275,11 @@ static void MX_TIM2_Init(void)
 
   /* USER CODE END TIM2_Init 1 */
   htim2.Instance = TIM2;
-  htim2.Init.Prescaler = 0;
+  htim2.Init.Prescaler = 1;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 65535;
+  htim2.Init.Period = 2099;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   sConfig.EncoderMode = TIM_ENCODERMODE_TI12;
   sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
@@ -509,23 +509,23 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
-  else if (htim->Instance == TIM7) {
-	//TM1_Currentvalue = __HAL_TIM_GET_COUNTER(&htim1); // Get current time (microseconds)
-	Motion();
+  else if (htim->Instance == TIM7)  //20KHz 20000sample/sec
+  {
+	  Motion();
   }
-  else if (htim->Instance == TIM10) {
+  else if (htim->Instance == TIM10) //0.1KHz 10ms/sample
+  {
   	TickSerial = true;
   }
-  else if (htim->Instance == TIM11) {
-    DiagnosticMotor();
-    }
-  else if (htim->Instance == TIM2) {
-
+  else if (htim->Instance == TIM11)  // 1KHz 1ms/sample
+  {
 	  timer_counter = __HAL_TIM_GET_COUNTER(&htim2);
 	  // measure velocity, position
 	  UpdateEncoderFeeBack(&enc_instance_mot, &htim2);
 	  EncoderPosition = enc_instance_mot.position;
 	  EncoderSpeed = enc_instance_mot.velocity;
+
+    DiagnosticMotor();
     }
   /* USER CODE END Callback 1 */
 }

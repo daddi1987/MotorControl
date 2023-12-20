@@ -51,8 +51,8 @@ void Motion(void)      // THIS VOID RUN AT 20Khz
 	  //--------------------GET SENSOR VALUES------------------------------
 
 	  ActualPosition = KinematicPositionUnit;
-	  ActualSpeedRPM = EncoderSpeedRPM;
-	  ActualSpeed = EncoderSpeedUnit;
+	  ActualSpeedRPM = EncoderPosition;
+	  ActualSpeed = EncoderSpeed;
 	  //OldEncoderSpeedRPM = EncoderSpeedRPM;
 
 
