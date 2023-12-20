@@ -52,13 +52,13 @@ extern uint8_t rot_old_state;
 extern uint16_t EncoderPulse;
 extern uint16_t RevoluctionFactor;
 extern float KinematicPositionUnit;
-extern float EncoderSpeedRPS;
+extern int16_t EncoderSpeed;
 extern float EncoderSpeedRPM;
 extern float EncoderSpeedRPSold;
 extern float EncoderSpeedUnit;
 extern float DiffTickClockMotion;
 extern uint32_t TM1_OldValue;
-extern int32_t EncoderPosition;
+extern int64_t EncoderPosition;
 extern float EncoderPositionFloat;
 extern float PositionMotor;
 extern uint8_t FilterSpeedEnable;
@@ -73,6 +73,13 @@ extern float TickClockMotion;
 extern float ActualPosition;
 extern float ActualSpeedRPM;
 extern float ActualSpeed;
+extern uint16_t timer_counter;
+
+typedef struct{
+	int16_t velocity;
+	int64_t position;
+	uint32_t last_Encoder_counter_value;
+}encoder_instance;
 
 
 /* USER CODE END Includes */
@@ -103,12 +110,6 @@ void Error_Handler(void);
 #define B1_Pin GPIO_PIN_13
 #define B1_GPIO_Port GPIOC
 #define B1_EXTI_IRQn EXTI15_10_IRQn
-#define Encoder1_Count_Pin GPIO_PIN_0
-#define Encoder1_Count_GPIO_Port GPIOA
-#define Encoder1_Count_EXTI_IRQn EXTI0_IRQn
-#define Encoder1_Direction_Pin GPIO_PIN_1
-#define Encoder1_Direction_GPIO_Port GPIOA
-#define Encoder1_Direction_EXTI_IRQn EXTI1_IRQn
 #define USART_TX_Pin GPIO_PIN_2
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
@@ -121,8 +122,6 @@ void Error_Handler(void);
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
-#define SWO_Pin GPIO_PIN_3
-#define SWO_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
