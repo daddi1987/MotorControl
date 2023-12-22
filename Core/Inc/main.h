@@ -73,6 +73,8 @@ extern float TickClockMotion;
 extern float ActualPosition;
 extern float ActualSpeedRPM;
 extern float ActualSpeed;
+extern uint32_t CounterSpeed;
+extern uint32_t OldEncoderPosition;
 
 
 /* USER CODE END Includes */

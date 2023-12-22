@@ -55,6 +55,7 @@ bool TickMotion = false;
 bool TickSerial = false;
 bool TickDiag = false;
 uint32_t CounterDiagSerialOld = 0;
+uint32_t CounterSpeed = 0;
 
 
 /* USER CODE END PV */
@@ -226,10 +227,10 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 1;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 2099;
+  htim1.Init.Period = 20;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
-  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
   {
     Error_Handler();
@@ -466,16 +467,20 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
-  else if (htim->Instance == TIM7) {
+  else if (htim->Instance == TIM1) {   //?????????????????
+	CounterSpeed++;
+  }
+  else if (htim->Instance == TIM7) {   //20KHz
 	//TM1_Currentvalue = __HAL_TIM_GET_COUNTER(&htim1); // Get current time (microseconds)
 	Motion();
   }
-  else if (htim->Instance == TIM10) {
-  	TickSerial = true;
-  }
-  else if (htim->Instance == TIM11) {
+  else if (htim->Instance == TIM11) {  //1KHz
     DiagnosticMotor();
     }
+  else if (htim->Instance == TIM10) {  //0.1KHz
+  	TickSerial = true;
+  }
+
   /* USER CODE END Callback 1 */
 }
 

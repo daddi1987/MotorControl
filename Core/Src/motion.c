@@ -10,6 +10,7 @@
 #include <stdbool.h>
 
 int32_t EncoderCount = 0;
+uint32_t OldEncoderPosition = 0;
 uint8_t rot_new_state = 0;
 uint8_t rot_old_state = 0;
 uint16_t EncoderPulse = 2048;
@@ -100,10 +101,15 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,i
 	PositionMotor = EncoderPositionFloat/EncoderPulseSet;
 	KinematicPositionUnit = RevoluctionFactorSet * PositionMotor;
 
-	TickClockMotion = Counter*0.00005; // Get current time (seconds)
-
+	if(EncoderPosition == OldEncoderPosition)
+	{
+	   DiffTickClockMotion = 0;
+	}
+	else
+	{
+	TickClockMotion = CounterSpeed; // Get current time (seconds)
 	DiffTickClockMotion = (TickClockMotion - OldTickClockMotion); // Calculate time from count to count
-
+	}
 
 	if (FilterSpeedEnable == 1)  //  CutOff Low-Pass Filter
 	{
@@ -120,7 +126,7 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,i
 	}
 	else
 	{
-		EncoderSpeedRPS = (1/(DiffTickClockMotion*EncoderPulseSet)); //Calculate RPS speed From microsecond to second
+		EncoderSpeedRPS = (1/(DiffTickClockMotion*0,0000005*(EncoderPulseSet*4))); //Calculate RPS speed From microsecond to second
 		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
 		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
 		OldTickClockMotion = TickClockMotion; // Save to old value
@@ -129,7 +135,7 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,i
 		//TM6_Currentvalue = 0; //Reset Current Value Counter
 		HAL_GPIO_TogglePin (GPIOA, LD2_Green_Led_Pin);
 	}
-
+	OldEncoderPosition = EncoderPosition;
 }
 // -------------------------------------END CALCULATE REV TO FACTOR --------------------------------------
 
