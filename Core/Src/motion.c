@@ -62,53 +62,33 @@ void DiagnosticMotor(void)
 	  CounterDiag++;
 }
 
-void UpdateEncoderFeeBack(encoder_instance *encoder_value, TIM_HandleTypeDef *htim)
-    {
-	uint32_t temp_counter = __HAL_TIM_GET_COUNTER(htim);
-	static uint8_t first_time = 0;
-	if(!first_time)
-	{
-	   encoder_value ->velocity = 0;
-	   first_time = 1;
+void EncoderFeeBack(void)
+{
+	rot_new_state = rot_get_state();
+		// Check transition
+		if (rot_old_state == 3 && rot_new_state == 2) {        // 3 -> 2 transition
+			EncoderCount++;
+		} else if (rot_old_state == 2 && rot_new_state == 0) { // 2 -> 0 transition
+			EncoderCount++;
+		} else if (rot_old_state == 0 && rot_new_state == 1) { // 0 -> 1 transition
+			EncoderCount++;
+		} else if (rot_old_state == 1 && rot_new_state == 3) { // 1 -> 3 transition
+			EncoderCount++;
+		} else if (rot_old_state == 3 && rot_new_state == 1) { // 3 -> 1 transition
+			EncoderCount--;
+		} else if (rot_old_state == 1 && rot_new_state == 0) { // 1 -> 0 transition
+			EncoderCount--;
+		} else if (rot_old_state == 0 && rot_new_state == 2) { // 0 -> 2 transition
+			EncoderCount--;
+		} else if (rot_old_state == 2 && rot_new_state == 3) { // 2 -> 3 transition
+			EncoderCount--;
+		}
+
+		rot_old_state = rot_new_state;
+		Calculate_Rotation(EncoderPulse,RevoluctionFactor,EncoderCount);
 	}
-	else
-	{
-	  if(temp_counter == encoder_value ->last_Encoder_counter_value)
-	  {
-	    encoder_value ->velocity = 0;
-	  }
-	  else if(temp_counter > encoder_value ->last_Encoder_counter_value)
-	  {
-	    if (__HAL_TIM_IS_TIM_COUNTING_DOWN(htim))
-	    {
-	      encoder_value ->velocity = -encoder_value ->last_Encoder_counter_value -
-		(__HAL_TIM_GET_AUTORELOAD(htim)-temp_counter);
-	    }
-	    else
-	    {
-	      encoder_value ->velocity = temp_counter -
-	           encoder_value ->last_Encoder_counter_value;
-	    }
-	  }
-	  else
-	  {
-	    if (__HAL_TIM_IS_TIM_COUNTING_DOWN(htim))
-	    {
-		encoder_value ->velocity = temp_counter -
-	            encoder_value ->last_Encoder_counter_value;
-	    }
-	    else
-	    {
-		encoder_value ->velocity = temp_counter +
-		(__HAL_TIM_GET_AUTORELOAD(htim) -
-	              encoder_value ->last_Encoder_counter_value);
-	    }
-	   }
-	}
-	encoder_value ->position += encoder_value ->velocity;
-	encoder_value ->last_Encoder_counter_value = temp_counter;
-}
-	// ---------------------------------END EXTERNAL INTERRUPT FOR ENCODER MOTOR--------------------------------------
+// ---------------------------------END EXTERNAL INTERRUPT FOR ENCODER MOTOR--------------------------------------
+
 
 // ----------------------------------------CALCULATE REV TO FACTOR --------------------------------------
 /* Calculate Revolution to Factor
@@ -121,7 +101,7 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,i
 	PositionMotor = EncoderPositionFloat/EncoderPulseSet;
 	KinematicPositionUnit = RevoluctionFactorSet * PositionMotor;
 
-	TickClockMotion = Counter*0.00005; // Get current time (seconds)
+	TickClockMotion = Counter; // Get current time (seconds)
 
 	DiffTickClockMotion = (TickClockMotion - OldTickClockMotion); // Calculate time from count to count
 
@@ -141,7 +121,7 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,i
 	}
 	else
 	{
-		EncoderSpeed= (1/(DiffTickClockMotion*EncoderPulseSet)); //Calculate RPS speed From microsecond to second
+		EncoderSpeed= ((DiffTickClockMotion*0.00002)*(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
 		EncoderSpeedRPM = (EncoderSpeed* 60.0); //Calculate RPM Speed
 		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
 		OldTickClockMotion = TickClockMotion; // Save to old value
