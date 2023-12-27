@@ -33,7 +33,7 @@ extern "C" {
 /* USER CODE BEGIN Includes */
 
 extern TIM_HandleTypeDef htim1;
-
+extern TIM_HandleTypeDef htim3;
 
 #include <stdbool.h>
 extern uint8_t HEADER2[14];
@@ -46,7 +46,7 @@ extern uint32_t Counter;
 extern uint32_t CouterSerial;
 extern uint32_t CouterSerialOld;
 extern uint32_t CounterDiag;
-extern int32_t EncoderCount;
+extern int16_t EncoderCount;
 extern uint8_t rot_new_state;
 extern uint8_t rot_old_state;
 extern uint16_t EncoderPulse;
@@ -58,7 +58,7 @@ extern float EncoderSpeedRPSold;
 extern float EncoderSpeedUnit;
 extern float DiffTickClockMotion;
 extern uint32_t TM1_OldValue;
-extern int64_t EncoderPosition;
+extern int16_t EncoderPosition;
 extern float EncoderPositionFloat;
 extern float PositionMotor;
 extern uint8_t FilterSpeedEnable;
@@ -73,7 +73,8 @@ extern float TickClockMotion;
 extern float ActualPosition;
 extern float ActualSpeedRPM;
 extern float ActualSpeed;
-extern uint16_t timer_counter;
+extern uint32_t timer_counter;
+extern int16_t EncoderCounter;
 extern int64_t CounterSpeed;
 
 typedef struct{
@@ -111,12 +112,6 @@ void Error_Handler(void);
 #define B1_Pin GPIO_PIN_13
 #define B1_GPIO_Port GPIOC
 #define B1_EXTI_IRQn EXTI15_10_IRQn
-#define Encoder1_Count_Pin GPIO_PIN_0
-#define Encoder1_Count_GPIO_Port GPIOA
-#define Encoder1_Count_EXTI_IRQn EXTI0_IRQn
-#define Encoder1_Direction_Pin GPIO_PIN_1
-#define Encoder1_Direction_GPIO_Port GPIOA
-#define Encoder1_Direction_EXTI_IRQn EXTI1_IRQn
 #define USART_TX_Pin GPIO_PIN_2
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3

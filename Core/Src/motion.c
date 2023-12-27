@@ -9,7 +9,7 @@
 #include "main.h"
 #include <stdbool.h>
 
-int32_t EncoderCount = 0;
+int16_t EncoderCount = 0;
 uint8_t rot_new_state = 0;
 uint8_t rot_old_state = 0;
 uint16_t EncoderPulse = 2048;
@@ -63,28 +63,7 @@ void DiagnosticMotor(void)
 }
 
 void EncoderFeeBack(void)
-{
-	rot_new_state = rot_get_state();
-		// Check transition
-		if (rot_old_state == 3 && rot_new_state == 2) {        // 3 -> 2 transition
-			EncoderCount++;
-		} else if (rot_old_state == 2 && rot_new_state == 0) { // 2 -> 0 transition
-			EncoderCount++;
-		} else if (rot_old_state == 0 && rot_new_state == 1) { // 0 -> 1 transition
-			EncoderCount++;
-		} else if (rot_old_state == 1 && rot_new_state == 3) { // 1 -> 3 transition
-			EncoderCount++;
-		} else if (rot_old_state == 3 && rot_new_state == 1) { // 3 -> 1 transition
-			EncoderCount--;
-		} else if (rot_old_state == 1 && rot_new_state == 0) { // 1 -> 0 transition
-			EncoderCount--;
-		} else if (rot_old_state == 0 && rot_new_state == 2) { // 0 -> 2 transition
-			EncoderCount--;
-		} else if (rot_old_state == 2 && rot_new_state == 3) { // 2 -> 3 transition
-			EncoderCount--;
-		}
-
-		rot_old_state = rot_new_state;
+    {
 		Calculate_Rotation(EncoderPulse,RevoluctionFactor,EncoderCount);
 	}
 // ---------------------------------END EXTERNAL INTERRUPT FOR ENCODER MOTOR--------------------------------------
@@ -121,8 +100,8 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,i
 	}
 	else
 	{
-		EncoderSpeed= ((DiffTickClockMotion*0.00002)*(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
-		EncoderSpeedRPM = (EncoderSpeed* 60.0); //Calculate RPM Speed
+		//EncoderSpeed= ((DiffTickClockMotion*0.00002)*(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
+		EncoderSpeedRPM = ((EncoderSpeed/EncoderPulseSet)*60.0); //Calculate RPM Speed
 		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
 		OldTickClockMotion = TickClockMotion; // Save to old value
 		//IncrementSpeedCheckOld = IncrementSpeedCheck;
