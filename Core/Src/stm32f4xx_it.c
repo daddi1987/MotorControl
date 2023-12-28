@@ -62,6 +62,7 @@ int index = 0;
 /* External variables --------------------------------------------------------*/
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim7;
 extern TIM_HandleTypeDef htim10;
 extern TIM_HandleTypeDef htim11;
@@ -228,6 +229,26 @@ void TIM2_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles TIM3 global interrupt.
+  */
+void TIM3_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM3_IRQn 0 */
+
+  /* USER CODE END TIM3_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim3);
+  /* USER CODE BEGIN TIM3_IRQn 1 */
+  index++;
+    if(index == 1106)
+    {
+  	  EncoderSpeed = ((EncoderPosition-oldEncoderPosition)*1000); // Speed in Count/0.1sec
+  	  oldEncoderPosition = EncoderPosition;
+  	  index = 0;
+    }
+  /* USER CODE END TIM3_IRQn 1 */
+}
+
+/**
   * @brief This function handles EXTI line[15:10] interrupts.
   */
 void EXTI15_10_IRQHandler(void)
@@ -251,13 +272,7 @@ void TIM6_DAC_IRQHandler(void)
   /* USER CODE END TIM6_DAC_IRQn 0 */
   HAL_TIM_IRQHandler(&htim6);
   /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
-  index++;
-  if(index == 1)
-  {
-	  EncoderSpeed = ((EncoderPosition-oldEncoderPosition)*1); // Speed in Count/0.1sec
-	  oldEncoderPosition = EncoderPosition;
-	  index = 0;
-  }
+
   /* USER CODE END TIM6_DAC_IRQn 1 */
 }
 

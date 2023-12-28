@@ -101,7 +101,7 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,i
 	else
 	{
 		//EncoderSpeed= ((DiffTickClockMotion*0.00002)*(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
-		EncoderSpeedRPM = ((EncoderSpeed/EncoderPulseSet)*60.0); //Calculate RPM Speed
+		EncoderSpeedRPM = ((EncoderSpeed/(EncoderPulseSet*4))*60.0); //Calculate RPM Speed
 		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
 		OldTickClockMotion = TickClockMotion; // Save to old value
 		//IncrementSpeedCheckOld = IncrementSpeedCheck;
