@@ -55,7 +55,9 @@
 extern int16_t EncoderPosition;
 int16_t oldEncoderPosition = 0;
 extern int16_t EncoderSpeed;
-int index = 0;
+uint32_t index = 0;
+uint32_t index2 = 0;
+uint16_t index3 = 0;
 
 /* USER CODE END 0 */
 
@@ -239,12 +241,19 @@ void TIM3_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim3);
   /* USER CODE BEGIN TIM3_IRQn 1 */
   index++;
-    if(index == 1106)
+
+    if(index == 10000) // 1sec
     {
-  	  EncoderSpeed = ((EncoderPosition-oldEncoderPosition)*1000); // Speed in Count/0.1sec
+  	  EncoderSpeed = ((EncoderPosition-oldEncoderPosition)*1); // Speed in Count/0.001s
   	  oldEncoderPosition = EncoderPosition;
   	  index = 0;
+  	  index2++;
     }
+    if (index2 == 1000)
+		{
+    		index2 = 0;
+			index3++;
+		}
   /* USER CODE END TIM3_IRQn 1 */
 }
 

@@ -76,6 +76,7 @@ extern float ActualSpeed;
 extern uint32_t timer_counter;
 extern int16_t EncoderCounter;
 extern int64_t CounterSpeed;
+extern uint32_t index2;
 
 typedef struct{
 	int16_t velocity;
