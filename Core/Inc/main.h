@@ -32,7 +32,7 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-extern TIM_HandleTypeDef htim2;
+//extern TIM_HandleTypeDef htim2;
 
 
 #include <stdbool.h>
@@ -50,9 +50,12 @@ extern int32_t EncoderCount;
 extern uint32_t TM2_Currentvalue;
 extern uint8_t rot_old_state;
 extern uint16_t EncoderPulse;
-extern uint16_t RevoluctionFactor;
+extern float RevoluctionFactor;
 extern float KinematicPositionUnit;
-extern int16_t EncoderSpeedRPS;
+extern float EncoderSpeedRPS;
+extern float EncoderSpeedRPSFloat;
+extern float RevoluctionFactorSet;
+extern int16_t EncoderRevCount;
 extern float EncoderSpeedRPM;
 extern float EncoderSpeedRPSold;
 extern float EncoderSpeedUnit;

@@ -16,9 +16,11 @@ uint32_t OldEncoderPosition = 0;
 uint8_t rot_new_state = 0;
 uint8_t rot_old_state = 0;
 uint16_t EncoderPulse = 2048;
-uint16_t RevoluctionFactor = 2;
-float KinematicPositionUnit = 0.0;
-int16_t EncoderSpeedRPS = 0.0;
+float RevoluctionFactor = 2.769775390625f;
+float RevoluctionFactorSet = 0.0f;
+float KinematicPositionUnit = 0.0f;
+float EncoderSpeedRPS = 0.0f;
+int16_t EncoderRevCount = 0;
 float EncoderSpeedRPM = 0.0;
 float EncoderSpeedRPSold = 0.0;
 float EncoderSpeedUnit = 0.0;
@@ -27,6 +29,7 @@ float OldTickClockMotion;
 int32_t EncoderPosition = 0;
 float EncoderPositionFloat = 0.0;
 float PositionMotor;
+float EncoderSpeedRPSFloat = 0.0f;
 //---------------Decleare variables for filter Speed----------------
 uint8_t FilterSpeedEnable = 0;
 float RPSSpeedFilter = 0;
@@ -66,13 +69,14 @@ void DiagnosticMotor(void)
 	  CounterDiag++;
 }
 
-void EncoderFeeBack(void)
+void EncoderFeeBack(TIM_HandleTypeDef *htim)
     {
 	    //--------------------UPDATE STATE ENCODER---------------------------
-		TM2_Currentvalue = __HAL_TIM_GET_COUNTER(&htim2); // Get current time (microseconds)
-		Update_Encoder(&enc_instance, &htim2);
+		TM2_Currentvalue = __HAL_TIM_GET_COUNTER(htim); // Get current time (microseconds)
+		Update_Encoder(&enc_instance, htim);
 		EncoderPosition = enc_instance.position;
-		EncoderSpeedRPS = enc_instance.speed;
+		EncoderRevCount = enc_instance.speed;
+		Calculate_Rotation(EncoderPulse, EncoderPosition,EncoderRevCount);
 
 		//Calculate_Rotation(EncoderPulse,RevoluctionFactor,EncoderCount);
 	}
@@ -129,22 +133,12 @@ encoder_value ->position += encoder_value ->speed;
 encoder_value ->LastCounterValue = temp_counter;
  }
 
-void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,int32_t EncoderCountSet)
+void Calculate_Rotation(uint16_t EncoderPulseSet,int32_t EncoderCountSet,int16_t EncoderSpeedSet)
 {
 	EncoderPosition = EncoderCountSet/4.0;   // Single Event Encoder 1*4 in Single Counter
 	EncoderPositionFloat = EncoderPosition; // Single Counter Encoder
 	PositionMotor = EncoderPositionFloat/EncoderPulseSet;
-	KinematicPositionUnit = RevoluctionFactorSet * PositionMotor;
-
-	if(EncoderPosition == OldEncoderPosition)
-	{
-	   DiffTickClockMotion = 0;
-	}
-	else
-	{
-	TickClockMotion = CounterSpeed; // Get current time (seconds)
-	DiffTickClockMotion = (TickClockMotion - OldTickClockMotion); // Calculate time from count to count
-	}
+	KinematicPositionUnit = PositionMotor/RevoluctionFactor;
 
 	if (FilterSpeedEnable == 1)  //  CutOff Low-Pass Filter
 	{
@@ -152,7 +146,7 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,i
 		EncoderSpeedRPSToFiler = ((20000.0/DiffTickClockMotion)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
 		EncoderSpeedRPS = ((b_i*RPSSpeedFilter) + (a_i*EncoderSpeedRPSToFiler) + (a_i*RPSSpeedFilterPrev));
 		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
-		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
+		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactor);
 		OldTickClockMotion = TickClockMotion; // Save to old value
 		HAL_GPIO_TogglePin (GPIOA, LD2_Green_Led_Pin);
 		RPSSpeedFilterPrev = EncoderSpeedRPSToFiler;
@@ -161,16 +155,13 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,i
 	}
 	else
 	{
-		EncoderSpeedRPS = (1/(DiffTickClockMotion*0,0000005*(EncoderPulseSet*4))); //Calculate RPS speed From microsecond to second
+		EncoderSpeedRPSFloat = EncoderSpeedSet;
+		EncoderSpeedRPS = ((EncoderSpeedRPSFloat/(EncoderPulseSet/4))*100); //Calculate RPS speed From microsecond to second
 		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
-		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
+		EncoderSpeedUnit = (EncoderSpeedRPM / RevoluctionFactor);
 		OldTickClockMotion = TickClockMotion; // Save to old value
-		//IncrementSpeedCheckOld = IncrementSpeedCheck;
-		//IncrementSpeedCheck++;
-		//TM6_Currentvalue = 0; //Reset Current Value Counter
-		HAL_GPIO_TogglePin (GPIOA, LD2_Green_Led_Pin);
+		//HAL_GPIO_TogglePin (GPIOA, LD2_Green_Led_Pin);
 	}
-	OldEncoderPosition = EncoderPosition;
 }
 // -------------------------------------END CALCULATE REV TO FACTOR --------------------------------------
 

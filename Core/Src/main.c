@@ -453,8 +453,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	Motion();
   }
   else if (htim->Instance == TIM11) {  //1KHz
-	//TM2_Currentvalue = __HAL_TIM_GET_COUNTER(&htim2); // Get current time (microseconds)
-	EncoderFeeBack();
+	EncoderFeeBack(&htim2);
     DiagnosticMotor();
     }
   else if (htim->Instance == TIM10) {  //0.1KHz
