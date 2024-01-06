@@ -1,4 +1,5 @@
-motion.c:44:6:Motion	2
-motion.c:61:6:DiagnosticMotor	1
-motion.c:66:6:EncoderFeeBack	17
-motion.c:97:6:Calculate_Rotation	3
+motion.c:47:6:Motion	2
+motion.c:64:6:DiagnosticMotor	1
+motion.c:69:6:EncoderFeeBack	1
+motion.c:85:6:Update_Encoder	6
+motion.c:132:6:Calculate_Rotation	3

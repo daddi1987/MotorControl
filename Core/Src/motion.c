@@ -9,6 +9,8 @@
 #include "main.h"
 #include <stdbool.h>
 
+encoder_instance enc_instance;
+
 int32_t EncoderCount = 0;
 uint32_t OldEncoderPosition = 0;
 uint8_t rot_new_state = 0;
@@ -16,7 +18,7 @@ uint8_t rot_old_state = 0;
 uint16_t EncoderPulse = 2048;
 uint16_t RevoluctionFactor = 2;
 float KinematicPositionUnit = 0.0;
-float EncoderSpeedRPS = 0.0;
+int16_t EncoderSpeedRPS = 0.0;
 float EncoderSpeedRPM = 0.0;
 float EncoderSpeedRPSold = 0.0;
 float EncoderSpeedUnit = 0.0;
@@ -39,6 +41,7 @@ float ActualPosition = 0;
 float ActualSpeedRPM = 0;
 float ActualSpeed = 0;
 float OldEncoderSpeedRPM = 0;
+
 
 
 void Motion(void)      // THIS VOID RUN AT 20Khz
@@ -64,29 +67,14 @@ void DiagnosticMotor(void)
 }
 
 void EncoderFeeBack(void)
-{
-	rot_new_state = rot_get_state();
-		// Check transition
-		if (rot_old_state == 3 && rot_new_state == 2) {        // 3 -> 2 transition
-			EncoderCount++;
-		} else if (rot_old_state == 2 && rot_new_state == 0) { // 2 -> 0 transition
-			EncoderCount++;
-		} else if (rot_old_state == 0 && rot_new_state == 1) { // 0 -> 1 transition
-			EncoderCount++;
-		} else if (rot_old_state == 1 && rot_new_state == 3) { // 1 -> 3 transition
-			EncoderCount++;
-		} else if (rot_old_state == 3 && rot_new_state == 1) { // 3 -> 1 transition
-			EncoderCount--;
-		} else if (rot_old_state == 1 && rot_new_state == 0) { // 1 -> 0 transition
-			EncoderCount--;
-		} else if (rot_old_state == 0 && rot_new_state == 2) { // 0 -> 2 transition
-			EncoderCount--;
-		} else if (rot_old_state == 2 && rot_new_state == 3) { // 2 -> 3 transition
-			EncoderCount--;
-		}
+    {
+	    //--------------------UPDATE STATE ENCODER---------------------------
+		TM2_Currentvalue = __HAL_TIM_GET_COUNTER(&htim2); // Get current time (microseconds)
+		Update_Encoder(&enc_instance, &htim2);
+		EncoderPosition = enc_instance.position;
+		EncoderSpeedRPS = enc_instance.speed;
 
-		rot_old_state = rot_new_state;
-		Calculate_Rotation(EncoderPulse,RevoluctionFactor,EncoderCount);
+		//Calculate_Rotation(EncoderPulse,RevoluctionFactor,EncoderCount);
 	}
 	// ---------------------------------END EXTERNAL INTERRUPT FOR ENCODER MOTOR--------------------------------------
 
@@ -94,6 +82,53 @@ void EncoderFeeBack(void)
 /* Calculate Revolution to Factor
  *
  */
+void Update_Encoder(encoder_instance *encoder_value, TIM_HandleTypeDef *htim)
+ {
+uint32_t temp_counter = __HAL_TIM_GET_COUNTER(htim);
+static uint8_t first_time = 0;
+if(!first_time)
+{
+   encoder_value ->speed = 0;
+   first_time = 1;
+}
+else
+{
+  if(temp_counter == encoder_value ->LastCounterValue)
+  {
+    encoder_value ->speed = 0;
+  }
+  else if(temp_counter > encoder_value ->LastCounterValue)
+  {
+    if (__HAL_TIM_IS_TIM_COUNTING_DOWN(htim))
+    {
+      encoder_value ->speed = -encoder_value ->LastCounterValue -
+	(__HAL_TIM_GET_AUTORELOAD(htim)-temp_counter);
+    }
+    else
+    {
+      encoder_value ->speed = temp_counter -
+           encoder_value ->LastCounterValue;
+    }
+  }
+  else
+  {
+    if (__HAL_TIM_IS_TIM_COUNTING_DOWN(htim))
+    {
+	encoder_value ->speed = temp_counter -
+            encoder_value ->LastCounterValue;
+    }
+    else
+    {
+	encoder_value ->speed = temp_counter +
+	(__HAL_TIM_GET_AUTORELOAD(htim) -
+              encoder_value ->LastCounterValue);
+    }
+   }
+}
+encoder_value ->position += encoder_value ->speed;
+encoder_value ->LastCounterValue = temp_counter;
+ }
+
 void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,int32_t EncoderCountSet)
 {
 	EncoderPosition = EncoderCountSet/4.0;   // Single Event Encoder 1*4 in Single Counter
