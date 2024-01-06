@@ -10,5 +10,5 @@ main.c:427:13:MX_TIM11_Init	2
 main.c:458:13:MX_USART2_UART_Init	2
 main.c:491:13:MX_GPIO_Init	1
 main.c:541:6:HAL_TIM_IC_CaptureCallback	1
-main.c:559:6:HAL_TIM_PeriodElapsedCallback	5
-main.c:591:6:Error_Handler	1
+main.c:561:6:HAL_TIM_PeriodElapsedCallback	5
+main.c:594:6:Error_Handler	1

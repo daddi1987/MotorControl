@@ -52,7 +52,7 @@ extern uint8_t rot_old_state;
 extern uint16_t EncoderPulse;
 extern uint16_t RevoluctionFactor;
 extern float KinematicPositionUnit;
-extern int16_t EncoderSpeed;
+extern float EncoderSpeed;
 extern float EncoderSpeedRPM;
 extern float EncoderSpeedRPSold;
 extern float EncoderSpeedUnit;
@@ -69,13 +69,13 @@ extern uint8_t FrequencySpeedFilter;
 extern uint8_t FrequencyCase;
 extern float b_i;
 extern float a_i;
-extern float TickClockMotion;
+extern uint32_t TickClockMotion;
 extern float ActualPosition;
 extern float ActualSpeedRPM;
 extern float ActualSpeed;
 extern uint32_t timer_counter;
 extern int16_t EncoderCounter;
-extern int64_t CounterSpeed;
+extern uint32_t CounterSpeed;
 extern uint32_t index2;
 
 typedef struct{

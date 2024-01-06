@@ -61,7 +61,7 @@ bool TickDiag = false;
 uint32_t CounterDiagSerialOld = 0;
 uint32_t timer_counter = 0;
 int16_t EncoderPosition = 0;
-int16_t EncoderSpeed = 0;
+float EncoderSpeed = 0;
 
 
 /* USER CODE END PV */
@@ -280,7 +280,7 @@ static void MX_TIM2_Init(void)
   htim2.Init.Period = 4294967295;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  sConfig.EncoderMode = TIM_ENCODERMODE_TI12;
+  sConfig.EncoderMode = TIM_ENCODERMODE_TI1;
   sConfig.IC1Polarity = TIM_ICPOLARITY_FALLING;
   sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
   sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
@@ -326,7 +326,7 @@ static void MX_TIM3_Init(void)
   htim3.Instance = TIM3;
   htim3.Init.Prescaler = 1;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 419;
+  htim3.Init.Period = 2090;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -338,7 +338,7 @@ static void MX_TIM3_Init(void)
   {
     Error_Handler();
   }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
   {
@@ -542,8 +542,10 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
 	timer_counter = __HAL_TIM_GET_COUNTER(htim);
 	EncoderCount = (int16_t)timer_counter;
-	Calculate_Rotation(EncoderPulse,RevoluctionFactor,EncoderCount);
+	//Calculate_Rotation(EncoderPulse,RevoluctionFactor,EncoderCount);
 	//EncoderPosition = EncoderCount/4;
+	// CAMBIARE APPROCCIO INSERIRE IL GET TEMPORALE DELLA VELOCITA' DIRETTAMENTE
+	//IN QUESTA SEZIONE CALCOLANDO LA VARIAZIONE TRA I COUNTER ENCODER E RICALCOLANDO LA VELOCITA'.
 }
 
 /* USER CODE END 4 */
@@ -572,6 +574,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   else if (htim->Instance == TIM7)  //20KHz 20000sample/sec
   {
 	  Motion();
+	  Calculate_Rotation(EncoderPulse,RevoluctionFactor,EncoderCount);
   }
   else if (htim->Instance == TIM10) //0.1KHz 10ms/sample
   {
@@ -580,7 +583,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   else if (htim->Instance == TIM11)  // 1KHz 1ms/sample
   {
     DiagnosticMotor();
-    }
+  }
   /* USER CODE END Callback 1 */
 }
 

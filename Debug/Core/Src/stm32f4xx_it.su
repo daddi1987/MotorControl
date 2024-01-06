@@ -9,6 +9,6 @@
 ../Core/Src/stm32f4xx_it.c:207:6:TIM1_TRG_COM_TIM11_IRQHandler	8	static
 ../Core/Src/stm32f4xx_it.c:222:6:TIM2_IRQHandler	8	static
 ../Core/Src/stm32f4xx_it.c:236:6:TIM3_IRQHandler	8	static
-../Core/Src/stm32f4xx_it.c:263:6:EXTI15_10_IRQHandler	8	static
-../Core/Src/stm32f4xx_it.c:277:6:TIM6_DAC_IRQHandler	8	static
-../Core/Src/stm32f4xx_it.c:291:6:TIM7_IRQHandler	8	static
+../Core/Src/stm32f4xx_it.c:250:6:EXTI15_10_IRQHandler	8	static
+../Core/Src/stm32f4xx_it.c:264:6:TIM6_DAC_IRQHandler	8	static
+../Core/Src/stm32f4xx_it.c:278:6:TIM7_IRQHandler	8	static

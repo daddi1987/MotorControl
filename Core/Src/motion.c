@@ -32,11 +32,12 @@ uint8_t FrequencySpeedFilter = 80;
 uint8_t FrequencyCase = 1;
 float b_i;
 float a_i;
-float TickClockMotion;
+uint32_t TickClockMotion;
 float ActualPosition = 0;
 float ActualSpeedRPM = 0;
 float ActualSpeed = 0;
 float OldEncoderSpeedRPM = 0;
+int16_t oldEncoderPosition = 0;
 
 
 void Motion(void)      // THIS VOID RUN AT 20Khz
@@ -51,8 +52,8 @@ void Motion(void)      // THIS VOID RUN AT 20Khz
 	  //--------------------GET SENSOR VALUES------------------------------
 
 	  ActualPosition = KinematicPositionUnit;
-	  ActualSpeedRPM = EncoderPosition;
-	  ActualSpeed = EncoderSpeed;
+	  ActualSpeedRPM = EncoderSpeedRPM;
+	  ActualSpeed = EncoderSpeedUnit;
 	  //OldEncoderSpeedRPM = EncoderSpeedRPM;
 
 
@@ -75,15 +76,22 @@ void EncoderFeeBack(void)
  */
 void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,int32_t EncoderCountSet)
 {
-	EncoderPosition = EncoderCountSet/4.0;   // Single Event Encoder 1*4 in Single Counter
+	EncoderPosition = EncoderCountSet; // /4.0;   // Single Event Encoder 1*4 in Single Counter
 	EncoderPositionFloat = EncoderPosition; // Single Counter Encoder
 	PositionMotor = EncoderPositionFloat/EncoderPulseSet;
 	KinematicPositionUnit = RevoluctionFactorSet * PositionMotor;
 
-	TickClockMotion = Counter; // Get current time (seconds)
-
-	DiffTickClockMotion = (TickClockMotion - OldTickClockMotion); // Calculate time from count to count
-
+	TickClockMotion = CounterSpeed; // Get current time (seconds)
+	//TickClockMotion =  __HAL_TIM_GET_COUNTER(&htim3);; // Get current time (seconds)
+    if (EncoderPosition == oldEncoderPosition)
+    {
+    	DiffTickClockMotion = 0.0;
+    }
+    else
+    {
+    	DiffTickClockMotion = (TickClockMotion - OldTickClockMotion); // Calculate time from count to count
+    	HAL_GPIO_TogglePin (GPIOA, LD2_Green_Led_Pin);
+    }
 
 	if (FilterSpeedEnable == 1)  //  CutOff Low-Pass Filter
 	{
@@ -100,15 +108,16 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,i
 	}
 	else
 	{
-		//EncoderSpeed= ((DiffTickClockMotion*0.00002)*(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
-		EncoderSpeedRPM = ((EncoderSpeed/(EncoderPulseSet*4))*60.0); //Calculate RPM Speed
+		EncoderSpeed= ((DiffTickClockMotion*0.000005)*(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second in RPS
+		EncoderSpeedRPM = (EncoderSpeed*60.0); //Calculate RPM Speed
 		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
 		OldTickClockMotion = TickClockMotion; // Save to old value
 		//IncrementSpeedCheckOld = IncrementSpeedCheck;
 		//IncrementSpeedCheck++;
 		//TM6_Currentvalue = 0; //Reset Current Value Counter
-		HAL_GPIO_TogglePin (GPIOA, LD2_Green_Led_Pin);
+
 	}
+	oldEncoderPosition = EncoderPosition;
 
 }
 // -------------------------------------END CALCULATE REV TO FACTOR --------------------------------------
