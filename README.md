@@ -60,6 +60,7 @@ It is possible to filter the speed in Hz, this functionality is implemented usin
 Use the L289n for driver motor, this driver have a 2 Ampere with max current.
 For the pilot motor driver use interface trigger signal modulation. Implementig Enable phase and frequency for motor speed. 
 
+
 ### Pilot Motor Sequence
 |Step| A+ | B+| A- |B- |
 | :------------ |:---------------:| -----:|:---------------:| -----:|
@@ -92,7 +93,18 @@ https://www.youtube.com/watch?v=KeQ6vH1Kgrs FreeRTOS Italian Language
 https://www.youtube.com/watch?v=hArOFZlov9c Used this link for develop 
 
 
+### Serial Output
+For external monitoring with graph use the serial terminal, which samples every 10ms.
+Used Prefix and Suffix for check (Px-Sx)
 
+>Px,1909;381977;0.204;210.938;76.157;Sx
+
+Output date: (to be defined)
+1.	Sample
+2.	Counter for check 20Khz
+3.	AcutalPosition
+4.	RPM
+5.	ActualSpeed
 
 
 ## Features 
