@@ -60,7 +60,7 @@ bool TickSerial = false;
 bool TickDiag = false;
 uint32_t CounterDiagSerialOld = 0;
 uint32_t timer_counter = 0;
-int16_t EncoderPosition = 0;
+int32_t EncoderPosition = 0;
 float EncoderSpeed = 0;
 
 
@@ -324,9 +324,9 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 1;
+  htim3.Init.Prescaler = 400;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 2090;
+  htim3.Init.Period = 1;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
@@ -541,7 +541,7 @@ static void MX_GPIO_Init(void)
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
 	timer_counter = __HAL_TIM_GET_COUNTER(htim);
-	EncoderCount = (int16_t)timer_counter;
+	EncoderCount = (int32_t)timer_counter;
 	//Calculate_Rotation(EncoderPulse,RevoluctionFactor,EncoderCount);
 	//EncoderPosition = EncoderCount/4;
 	// CAMBIARE APPROCCIO INSERIRE IL GET TEMPORALE DELLA VELOCITA' DIRETTAMENTE
@@ -574,7 +574,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   else if (htim->Instance == TIM7)  //20KHz 20000sample/sec
   {
 	  Motion();
-	  Calculate_Rotation(EncoderPulse,RevoluctionFactor,EncoderCount);
   }
   else if (htim->Instance == TIM10) //0.1KHz 10ms/sample
   {
@@ -583,6 +582,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   else if (htim->Instance == TIM11)  // 1KHz 1ms/sample
   {
     DiagnosticMotor();
+    Calculate_Rotation(EncoderPulse,RevoluctionFactor,EncoderCount);
   }
   /* USER CODE END Callback 1 */
 }

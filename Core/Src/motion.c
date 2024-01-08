@@ -9,11 +9,11 @@
 #include "main.h"
 #include <stdbool.h>
 
-int16_t EncoderCount = 0;
+int32_t EncoderCount = 0;
 uint8_t rot_new_state = 0;
 uint8_t rot_old_state = 0;
 uint16_t EncoderPulse = 2048;
-uint16_t RevoluctionFactor = 2;
+float RevoluctionFactor = 2.769775390625f;
 float KinematicPositionUnit = 0.0;
 float EncoderSpeedRPM = 0.0;
 float EncoderSpeedUnit = 0.0;
@@ -76,10 +76,10 @@ void EncoderFeeBack(void)
  */
 void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,int32_t EncoderCountSet)
 {
-	EncoderPosition = EncoderCountSet; // /4.0;   // Single Event Encoder 1*4 in Single Counter
+	EncoderPosition = EncoderCount; // /4.0;   // Single Event Encoder 1*4 in Single Counter
 	EncoderPositionFloat = EncoderPosition; // Single Counter Encoder
 	PositionMotor = EncoderPositionFloat/EncoderPulseSet;
-	KinematicPositionUnit = RevoluctionFactorSet * PositionMotor;
+	KinematicPositionUnit = PositionMotor/RevoluctionFactor;
 
 	TickClockMotion = CounterSpeed; // Get current time (seconds)
 	//TickClockMotion =  __HAL_TIM_GET_COUNTER(&htim3);; // Get current time (seconds)
@@ -108,9 +108,9 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet,i
 	}
 	else
 	{
-		EncoderSpeed= ((DiffTickClockMotion*0.000005)*(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second in RPS
+		EncoderSpeed= ((DiffTickClockMotion*0.0000095)*(EncoderPulseSet)); //Calculate RPS speed From microsecond to second in RPS
 		EncoderSpeedRPM = (EncoderSpeed*60.0); //Calculate RPM Speed
-		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactorSet);
+		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactor);
 		OldTickClockMotion = TickClockMotion; // Save to old value
 		//IncrementSpeedCheckOld = IncrementSpeedCheck;
 		//IncrementSpeedCheck++;

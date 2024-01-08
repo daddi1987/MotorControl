@@ -52,7 +52,7 @@
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-extern int16_t EncoderPosition;
+extern int32_t EncoderPosition;
 extern float EncoderSpeed;
 uint32_t index = 0;
 uint32_t index2 = 0;
