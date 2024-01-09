@@ -157,7 +157,7 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,int32_t EncoderCountSet,int16_t
 	{
 		EncoderSpeedRPSFloat = EncoderSpeedSet;
 		EncoderSpeedRPS = ((EncoderSpeedRPSFloat/(EncoderPulseSet/4))*100); //Calculate RPS speed From microsecond to second
-		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
+		EncoderSpeedRPM = (EncoderSpeedRPS*60); //Calculate RPM Speed
 		EncoderSpeedUnit = (EncoderSpeedRPM / RevoluctionFactor);
 		OldTickClockMotion = TickClockMotion; // Save to old value
 		//HAL_GPIO_TogglePin (GPIOA, LD2_Green_Led_Pin);
