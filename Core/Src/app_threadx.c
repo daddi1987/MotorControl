@@ -46,14 +46,10 @@ uint8_t thread_stack3[THREAD_STACK_SIZE];
 TX_THREAD thread_ptr3;
 uint8_t HEADER2[14] = {'\0'};
 uint8_t HEADER3[16] = {'\0'};
-//uint8_t HEADER4[16] = {'\0'};
-
-//uint8_t MSG[86] = {'\0'};
-//uint8_t CR[4] = {'\0'};
-
 
 char MSG[MSG_SIZE];
 char CR[CR_SIZE];
+int msgLength;
 
 uint32_t Counter = 0;
 uint32_t CouterSerial = 0;
@@ -142,7 +138,7 @@ void my_Thread_entry_1(ULONG initial_input)
 						  SerialTX++;
 					  }
 
-					  int msgLength = sprintf(MSG, "Px;%d;%d;%.3f;%.3f;%.3f;",
+					  msgLength = sprintf(MSG, "Px;%d;%d;%.3f;%.3f;%.3f;",
 					                          SerialTX, Counter, ActualPosition,
 					                          ActualSpeedRPM, ActualSpeed);
 
@@ -151,12 +147,6 @@ void my_Thread_entry_1(ULONG initial_input)
 
 					  HAL_UART_Transmit(&huart2, (uint8_t *)MSG, msgLength, 0xFFFF);
 					  HAL_UART_Transmit(&huart2, (uint8_t *)CR, sizeof(CR), 0xFFFF);
-
-					//	  sprintf(MSG,"Px;%d;%d;%.3f;%.3f;%.3f;Sx",SerialTX,Counter,
-					//			  ActualPosition,ActualSpeedRPM,ActualSpeed);
-					//	  HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
-					//	  sprintf(CR,"\r\n");   // sprintf(CR,"\r\n"); 	//Ritorno a capo e a destra
-					//	  HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);
 
 					 }
 
