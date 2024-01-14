@@ -1,5 +1,6 @@
-../Core/Src/motion.c:50:6:Motion	4	static
-../Core/Src/motion.c:67:6:DiagnosticMotor	4	static
-../Core/Src/motion.c:72:6:EncoderFeeBack	16	static
-../Core/Src/motion.c:89:6:Update_Encoder	24	static
-../Core/Src/motion.c:136:6:Calculate_Rotation	24	static
+../Core/Src/motion.c:58:7:lowPassFilter	32	static
+../Core/Src/motion.c:75:6:Motion	4	static
+../Core/Src/motion.c:92:6:DiagnosticMotor	4	static
+../Core/Src/motion.c:97:6:EncoderFeeBack	32	static
+../Core/Src/motion.c:114:6:Update_Encoder	24	static
+../Core/Src/motion.c:161:6:Calculate_Rotation	40	static

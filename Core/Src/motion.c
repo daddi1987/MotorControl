@@ -8,6 +8,11 @@
 #include "app_threadx.h"
 #include "main.h"
 #include <stdbool.h>
+#include <math.h>
+
+//--------------Filter Cionstant Time baase samples--------------------
+#define RC 1.0f
+#define SAMPLE_RATE 1000.0f
 
 encoder_instance enc_instance;
 
@@ -44,6 +49,26 @@ float ActualPosition = 0;
 float ActualSpeedRPM = 0;
 float ActualSpeed = 0;
 float OldEncoderSpeedRPM = 0;
+float dt = 0.0;
+uint8_t cutoffFrequency = 100;  //Max Filter is 255 Hz
+float alpha = 0.0;
+float filteredValue = 0.0;
+
+/////////--------------------LOW PASS FILTER------------------////////////////////////
+float lowPassFilter(float input, float dt, float alpha) {
+    static float filteredValue = 0.0f;
+
+    // Calcolare la costante di tempo del filtro in base alla frequenza di taglio
+    float tau = 1.0f / (2.0f * M_PI * alpha);
+
+    // Calcolare il peso del nuovo valore rispetto al valore precedente
+    float alphaCalc = dt / (tau + dt);
+
+    // Applicare il filtro
+    filteredValue = alphaCalc * input + (1.0f - alphaCalc) * filteredValue;
+
+    return filteredValue;
+}
 
 
 
@@ -76,7 +101,7 @@ void EncoderFeeBack(TIM_HandleTypeDef *htim)
 		Update_Encoder(&enc_instance, htim);
 		EncoderPosition = enc_instance.position;
 		EncoderRevCount = enc_instance.speed;
-		Calculate_Rotation(EncoderPulse, EncoderPosition,EncoderRevCount);
+		Calculate_Rotation(EncoderPulse, EncoderPosition,EncoderRevCount,FilterSpeedEnable,cutoffFrequency);
 
 		//Calculate_Rotation(EncoderPulse,RevoluctionFactor,EncoderCount);
 	}
@@ -133,34 +158,45 @@ encoder_value ->position += encoder_value ->speed;
 encoder_value ->LastCounterValue = temp_counter;
  }
 
-void Calculate_Rotation(uint16_t EncoderPulseSet,int32_t EncoderCountSet,int16_t EncoderSpeedSet)
+void Calculate_Rotation(uint16_t EncoderPulseSet,int32_t EncoderCountSet,int16_t EncoderSpeedSet,uint8_t FilterSpeedEnableSet,uint8_t cutoffFrequencySet)
 {
 	EncoderPosition = EncoderCountSet;   // Single Event Encoder 1*4 in Single Counter
 	EncoderPositionFloat = EncoderPosition; // Single Counter Encoder
 	PositionMotor = EncoderPositionFloat/(EncoderPulseSet*4);
-	KinematicPositionUnit = PositionMotor*RevoluctionFactor;
+	KinematicPositionUnit = PositionMotor*RevoluctionFactor;  //Unit Position Factor
 
-	if (FilterSpeedEnable == 1)  //  CutOff Low-Pass Filter
+	if (FilterSpeedEnableSet == 1)  //  CutOff Low-Pass Filter
 	{
 		//GetConstantFilter();        DA INSERIRE //////////////////////////////////////////////////////////
-		EncoderSpeedRPSToFiler = ((20000.0/DiffTickClockMotion)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
-		EncoderSpeedRPS = ((b_i*RPSSpeedFilter) + (a_i*EncoderSpeedRPSToFiler) + (a_i*RPSSpeedFilterPrev));
-		EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
-		EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactor);
-		OldTickClockMotion = TickClockMotion; // Save to old value
-		HAL_GPIO_TogglePin (GPIOA, LD2_Green_Led_Pin);
-		RPSSpeedFilterPrev = EncoderSpeedRPSToFiler;
-		RPSSpeedFilter = EncoderSpeedRPS;
+		//EncoderSpeedRPSToFiler = ((20000.0/DiffTickClockMotion)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
+		//EncoderSpeedRPS = ((b_i*RPSSpeedFilter) + (a_i*EncoderSpeedRPSToFiler) + (a_i*RPSSpeedFilterPrev));
+		//EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
+		//EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactor);
+		//OldTickClockMotion = TickClockMotion; // Save to old value
+		//HAL_GPIO_TogglePin (GPIOA, LD2_Green_Led_Pin);
+		//RPSSpeedFilterPrev = EncoderSpeedRPSToFiler;
+		//RPSSpeedFilter = EncoderSpeedRPS;
 		//HAL_Delay(1);
+
+		EncoderSpeedRPSFloat = EncoderSpeedSet;
+		EncoderSpeedRPS = ((EncoderSpeedRPSFloat)/(EncoderPulseSet*4)*1000); //Calculate RPS speed From microsecond to second
+		EncoderSpeedRPM = (EncoderSpeedRPS*60); //Calculate RPM Speed
+		EncoderSpeedUnit = (1 / RevoluctionFactor);
+		EncoderSpeedUnit = EncoderSpeedRPM * EncoderSpeedUnit;  // Calculate Speed Unit Value
+		//---------------------Filter Cuttoff-------------------------------------------------
+
+	    dt = 1.0f / SAMPLE_RATE; // Sample Rate
+	    alpha = dt / (1.0f / (2.0f * M_PI * cutoffFrequencySet) + dt);
+	    filteredValue = lowPassFilter(EncoderSpeedUnit, dt, alpha);    // Apply Filter
+	    EncoderSpeedUnit = filteredValue;
 	}
 	else
 	{
 		EncoderSpeedRPSFloat = EncoderSpeedSet;
 		EncoderSpeedRPS = ((EncoderSpeedRPSFloat)/(EncoderPulseSet*4)*1000); //Calculate RPS speed From microsecond to second
 		EncoderSpeedRPM = (EncoderSpeedRPS*60); //Calculate RPM Speed
-		EncoderSpeedUnit = EncoderSpeedRPM * RevoluctionFactor;
-		OldTickClockMotion = TickClockMotion; // Save to old value
-		//HAL_GPIO_TogglePin (GPIOA, LD2_Green_Led_Pin);
+		EncoderSpeedUnit = (1.0 / RevoluctionFactor);
+		EncoderSpeedUnit = EncoderSpeedRPM * EncoderSpeedUnit;  // Calculate Speed Unit Value
 	}
 }
 // -------------------------------------END CALCULATE REV TO FACTOR --------------------------------------
