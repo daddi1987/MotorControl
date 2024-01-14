@@ -8,11 +8,10 @@
 #include "app_threadx.h"
 #include "main.h"
 #include <stdbool.h>
-#include <math.h>
-
 //--------------Filter Cionstant Time baase samples--------------------
-#define RC 1.0f
-#define SAMPLE_RATE 1000.0f
+#define NUM_STAGES 1
+#define BLOCK_SIZE 1
+
 
 encoder_instance enc_instance;
 
@@ -40,7 +39,7 @@ uint8_t FilterSpeedEnable = 0;
 float RPSSpeedFilter = 0;
 float RPSSpeedFilterPrev = 0;
 float EncoderSpeedRPSToFiler = 0.0;
-uint8_t FrequencySpeedFilter = 80;
+uint8_t FrequencySpeedFilter = 20;
 uint8_t FrequencyCase = 1;
 float b_i;
 float a_i;
@@ -49,28 +48,7 @@ float ActualPosition = 0;
 float ActualSpeedRPM = 0;
 float ActualSpeed = 0;
 float OldEncoderSpeedRPM = 0;
-float dt = 0.0;
-uint8_t cutoffFrequency = 100;  //Max Filter is 255 Hz
-float alpha = 0.0;
-float filteredValue = 0.0;
-
-/////////--------------------LOW PASS FILTER------------------////////////////////////
-float lowPassFilter(float input, float dt, float alpha) {
-    static float filteredValue = 0.0f;
-
-    // Calcolare la costante di tempo del filtro in base alla frequenza di taglio
-    float tau = 1.0f / (2.0f * M_PI * alpha);
-
-    // Calcolare il peso del nuovo valore rispetto al valore precedente
-    float alphaCalc = dt / (tau + dt);
-
-    // Applicare il filtro
-    filteredValue = alphaCalc * input + (1.0f - alphaCalc) * filteredValue;
-
-    return filteredValue;
-}
-
-
+float KinematicSpeedRPSToFiler = 0.0;
 
 void Motion(void)      // THIS VOID RUN AT 20Khz
 {
@@ -101,7 +79,7 @@ void EncoderFeeBack(TIM_HandleTypeDef *htim)
 		Update_Encoder(&enc_instance, htim);
 		EncoderPosition = enc_instance.position;
 		EncoderRevCount = enc_instance.speed;
-		Calculate_Rotation(EncoderPulse, EncoderPosition,EncoderRevCount,FilterSpeedEnable,cutoffFrequency);
+		Calculate_Rotation(EncoderPulse, EncoderPosition,EncoderRevCount,FilterSpeedEnable,FrequencySpeedFilter);
 
 		//Calculate_Rotation(EncoderPulse,RevoluctionFactor,EncoderCount);
 	}
@@ -158,7 +136,7 @@ encoder_value ->position += encoder_value ->speed;
 encoder_value ->LastCounterValue = temp_counter;
  }
 
-void Calculate_Rotation(uint16_t EncoderPulseSet,int32_t EncoderCountSet,int16_t EncoderSpeedSet,uint8_t FilterSpeedEnableSet,uint8_t cutoffFrequencySet)
+void Calculate_Rotation(uint16_t EncoderPulseSet,int32_t EncoderCountSet,int16_t EncoderSpeedSet,uint8_t FilterSpeedEnableSet,uint8_t FrequencySpeedFilterSet)
 {
 	EncoderPosition = EncoderCountSet;   // Single Event Encoder 1*4 in Single Counter
 	EncoderPositionFloat = EncoderPosition; // Single Counter Encoder
@@ -167,28 +145,15 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,int32_t EncoderCountSet,int16_t
 
 	if (FilterSpeedEnableSet == 1)  //  CutOff Low-Pass Filter
 	{
-		//GetConstantFilter();        DA INSERIRE //////////////////////////////////////////////////////////
-		//EncoderSpeedRPSToFiler = ((20000.0/DiffTickClockMotion)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
-		//EncoderSpeedRPS = ((b_i*RPSSpeedFilter) + (a_i*EncoderSpeedRPSToFiler) + (a_i*RPSSpeedFilterPrev));
-		//EncoderSpeedRPM = (EncoderSpeedRPS * 60.0); //Calculate RPM Speed
-		//EncoderSpeedUnit = (EncoderSpeedRPM * RevoluctionFactor);
-		//OldTickClockMotion = TickClockMotion; // Save to old value
-		//HAL_GPIO_TogglePin (GPIOA, LD2_Green_Led_Pin);
-		//RPSSpeedFilterPrev = EncoderSpeedRPSToFiler;
-		//RPSSpeedFilter = EncoderSpeedRPS;
-		//HAL_Delay(1);
-
+		GetConstantFilter();
 		EncoderSpeedRPSFloat = EncoderSpeedSet;
-		EncoderSpeedRPS = ((EncoderSpeedRPSFloat)/(EncoderPulseSet*4)*1000); //Calculate RPS speed From microsecond to second
+		KinematicSpeedRPSToFiler = ((EncoderSpeedRPSFloat)/(EncoderPulseSet*4)*1000); //Calculate RPS speed From microsecond to second
+		EncoderSpeedRPS = ((b_i*RPSSpeedFilter) + (a_i*KinematicSpeedRPSToFiler) + (a_i*RPSSpeedFilterPrev));
 		EncoderSpeedRPM = (EncoderSpeedRPS*60); //Calculate RPM Speed
 		EncoderSpeedUnit = (1 / RevoluctionFactor);
 		EncoderSpeedUnit = EncoderSpeedRPM * EncoderSpeedUnit;  // Calculate Speed Unit Value
-		//---------------------Filter Cuttoff-------------------------------------------------
-
-	    dt = 1.0f / SAMPLE_RATE; // Sample Rate
-	    alpha = dt / (1.0f / (2.0f * M_PI * cutoffFrequencySet) + dt);
-	    filteredValue = lowPassFilter(EncoderSpeedUnit, dt, alpha);    // Apply Filter
-	    EncoderSpeedUnit = filteredValue;
+		RPSSpeedFilterPrev = KinematicSpeedRPSToFiler;
+		RPSSpeedFilter = EncoderSpeedRPS;
 	}
 	else
 	{
@@ -201,3 +166,178 @@ void Calculate_Rotation(uint16_t EncoderPulseSet,int32_t EncoderCountSet,int16_t
 }
 // -------------------------------------END CALCULATE REV TO FACTOR --------------------------------------
 
+//----------------------------START FILTER--------------------------
+void GetConstantFilter()
+{
+	switch (FrequencyCase) {
+
+	  case 1:
+		if(FrequencySpeedFilter <= 5)
+		{
+			b_i = 0.96906992;
+			a_i = 0.01546504;
+			//FrequencySpeedFilter = 1;
+			break;
+		}
+		else
+		{
+			FrequencyCase = 2;
+		}
+
+
+	  case 2:
+		if ((FrequencySpeedFilter >= 6)&&(FrequencySpeedFilter <= 10))
+		{
+		    b_i = 0.93908194;
+		    a_i = 0.03045903;
+		    //FrequencySpeedFilter = 2;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 3;
+		}
+
+
+	  case 3:
+		if ((FrequencySpeedFilter >= 11)&&(FrequencySpeedFilter <= 15))
+		{
+		    b_i = 0.90999367;
+		    a_i = 0.04500317;
+		    //FrequencySpeedFilter = 3;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 4;
+		}
+
+
+	  case 4:
+		if ((FrequencySpeedFilter >= 16)&&(FrequencySpeedFilter <= 25))
+		{
+		    b_i = 0.85435899;
+		    a_i = 0.07282051;
+		    //FrequencySpeedFilter = 4;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 5;
+		}
+
+
+	  case 5:
+		if ((FrequencySpeedFilter >= 26)&&(FrequencySpeedFilter <= 35))
+		{
+		    b_i = 0.80187364;
+		    a_i = 0.09906318;
+		    //FrequencySpeedFilter = 5;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 6;
+		}
+
+
+	  case 6:
+		if ((FrequencySpeedFilter >= 36)&&(FrequencySpeedFilter <= 45))
+		{
+		    b_i = 0.75227759;
+		    a_i = 0.1238612;
+		    //FrequencySpeedFilter = 6;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 7;
+		}
+
+
+	  case 7:
+		if ((FrequencySpeedFilter >= 46)&&(FrequencySpeedFilter <= 55))
+		{
+		    b_i = 0.70533864;
+		    a_i = 0.14733068;
+		    //FrequencySpeedFilter = 7;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 8;
+		}
+
+
+	  case 8:
+		if ((FrequencySpeedFilter >= 56)&&(FrequencySpeedFilter <= 65))
+		{
+		    b_i = 0.66084882;
+		    a_i = 0.16957559;
+		    //FrequencySpeedFilter = 8;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 9;
+		}
+
+
+	  case 9:
+		if ((FrequencySpeedFilter >= 66)&&(FrequencySpeedFilter <= 75))
+		{
+		    b_i = 0.61862133;
+		    a_i = 0.19068933;
+		    //FrequencySpeedFilter = 9;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 10;
+		}
+
+
+	  case 10:
+		if ((FrequencySpeedFilter >= 76)&&(FrequencySpeedFilter <= 85))
+		{
+		    b_i = 0.57848789;
+		    a_i = 0.21075605;
+		    //FrequencySpeedFilter = 10;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 11;
+		}
+
+
+	  case 11:
+		if ((FrequencySpeedFilter >= 86)&&(FrequencySpeedFilter <= 95))
+		{
+		    b_i = 0.5402965;
+		    a_i = 0.22985175;
+		    //FrequencySpeedFilter = 11;
+		    break;
+		}
+		else
+		{
+			FrequencyCase = 12;
+		}
+
+
+	  case 12:
+	  		if (FrequencySpeedFilter >= 96)
+	  		{
+	  		    b_i = 0.50390953;
+	  		    a_i = 0.24804523;
+	  		    //FrequencySpeedFilter = 10;
+	  		    break;
+	  		}
+	  		else
+	  		{
+	  			FrequencyCase = 1;
+	  		}
+
+}
+}
+//----------------------------END SELECT FILTER--------------------------
