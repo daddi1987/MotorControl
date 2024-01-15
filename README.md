@@ -93,7 +93,7 @@ https://www.youtube.com/watch?v=KeQ6vH1Kgrs FreeRTOS Italian Language
 https://www.youtube.com/watch?v=hArOFZlov9c Used this link for develop 
 
 
-### Serial Output
+## Serial Output
 For external monitoring with graph use the serial terminal, which samples every 10ms.
 Used Prefix and Suffix for check (Px-Sx)
 
@@ -106,8 +106,12 @@ Output date: (to be defined)
 4.	RPM
 5.	ActualSpeed
 
+## Test Serial Output
+![Alt text](https://github.com/daddi1987/MotorControl/blob/0d373664d804365a2920195ba480782d85ed727a/SWV_export/Output%20Seriale.png?raw=true "**PlotOutput**")
 
-## Features 
+This result in output.
+
+### Features 
 - [x] Filter Speed in Hz for eliminate noise implemented, missing convert from Hz to coefficent.
 - [x] Inset FreeRTOS for multiTask.
 
