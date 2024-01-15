@@ -1,0 +1,6 @@
+../Core/Src/motion.c:13:6:Motion	0	static
+../Core/Src/motion.c:21:6:DiagnosticMotor	0	static
+../Core/Src/main.c:365:6:HAL_TIM_PeriodElapsedCallback	0	static
+../Core/Src/main.c:390:6:Error_Handler	8	static,ignoring_inline_asm
+../Core/Src/main.c:132:6:SystemClock_Config	88	static
+../Core/Src/main.c:81:5:main	48	static

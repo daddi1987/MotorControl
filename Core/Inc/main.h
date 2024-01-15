@@ -32,6 +32,65 @@ extern "C" {
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
+//extern TIM_HandleTypeDef htim2;
+
+
+#include <stdbool.h>
+extern uint8_t HEADER2[14];
+extern uint8_t HEADER3[16];
+extern bool TickMotion;
+extern bool TickSerial;
+extern bool TickDiag;
+extern uint32_t SerialTX;
+extern uint32_t Counter;
+extern uint32_t CouterSerial;
+extern uint32_t CouterSerialOld;
+extern uint32_t CounterDiag;
+extern int32_t EncoderCount;
+extern uint32_t TM2_Currentvalue;
+extern uint8_t rot_old_state;
+extern uint16_t EncoderPulse;
+extern float RevoluctionFactor;
+extern float KinematicPositionUnit;
+extern float EncoderSpeedRPS;
+extern float EncoderSpeedRPSFloat;
+extern float RevoluctionFactorSet;
+extern int16_t EncoderRevCount;
+extern float EncoderSpeedRPM;
+extern float EncoderSpeedRPSold;
+extern float EncoderSpeedUnit;
+extern float DiffTickClockMotion;
+extern uint32_t TM1_OldValue;
+extern int32_t EncoderPosition;
+extern float EncoderPositionFloat;
+extern float PositionMotor;
+extern uint8_t FilterSpeedEnable;
+extern float RPSSpeedFilter;
+extern float RPSSpeedFilterPrev;
+extern float EncoderSpeedRPSToFiler;
+extern uint8_t FrequencySpeedFilter;
+extern uint8_t FrequencyCase;
+extern float b_i;
+extern float a_i;
+extern float TickClockMotion;
+extern float ActualPosition;
+extern float ActualSpeedRPM;
+extern float ActualSpeed;
+extern uint32_t CounterSpeed;
+extern uint32_t OldEncoderPosition;
+extern uint32_t OldCounterSerial;
+extern uint32_t NewCounterSerial;
+extern uint8_t ValueWhatchdog;
+
+typedef struct
+{
+	int16_t speed;
+	int32_t position;  // Old int64_t type variable
+	uint32_t LastCounterValue;
+
+}encoder_instance;
+
+
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -60,40 +119,24 @@ void Error_Handler(void);
 #define B1_Pin GPIO_PIN_13
 #define B1_GPIO_Port GPIOC
 #define B1_EXTI_IRQn EXTI15_10_IRQn
-#define Encoder1_Count_Pin GPIO_PIN_0
-#define Encoder1_Count_GPIO_Port GPIOA
-#define Encoder1_Count_EXTI_IRQn EXTI0_IRQn
-#define Encoder1_Direct_Pin GPIO_PIN_1
-#define Encoder1_Direct_GPIO_Port GPIOA
-#define Encoder1_Direct_EXTI_IRQn EXTI1_IRQn
 #define USART_TX_Pin GPIO_PIN_2
 #define USART_TX_GPIO_Port GPIOA
 #define USART_RX_Pin GPIO_PIN_3
 #define USART_RX_GPIO_Port GPIOA
-#define LD2_Pin GPIO_PIN_5
-#define LD2_GPIO_Port GPIOA
-#define IN2_PhaseA_Pin GPIO_PIN_10
-#define IN2_PhaseA_GPIO_Port GPIOB
-#define IN1_PhaseB_Pin GPIO_PIN_7
-#define IN1_PhaseB_GPIO_Port GPIOC
-#define Enable_A_PhaseStepper_Pin GPIO_PIN_8
-#define Enable_A_PhaseStepper_GPIO_Port GPIOA
-#define Enable_B_PhaseStepper_Pin GPIO_PIN_9
-#define Enable_B_PhaseStepper_GPIO_Port GPIOA
-#define Encoder1_Index_Pin GPIO_PIN_10
-#define Encoder1_Index_GPIO_Port GPIOA
+#define LD2_Green_Led_Pin GPIO_PIN_5
+#define LD2_Green_Led_GPIO_Port GPIOA
+#define Encoder_Index_Pin GPIO_PIN_10
+#define Encoder_Index_GPIO_Port GPIOA
 #define TMS_Pin GPIO_PIN_13
 #define TMS_GPIO_Port GPIOA
 #define TCK_Pin GPIO_PIN_14
 #define TCK_GPIO_Port GPIOA
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
-#define IN1_PhaseA_Pin GPIO_PIN_4
-#define IN1_PhaseA_GPIO_Port GPIOB
-#define IN2_PhaseB_Pin GPIO_PIN_6
-#define IN2_PhaseB_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
+
+extern UART_HandleTypeDef huart2;
 
 /* USER CODE END Private defines */
 

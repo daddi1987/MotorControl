@@ -1,5 +1,4 @@
 /* USER CODE BEGIN Header */
-// The Developper for this code is Davide Zuanon contact on d.zuanon87@gmail.com
 /**
   ******************************************************************************
   * @file           : main.c
@@ -18,11 +17,12 @@
   */
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
+#include "app_threadx.h"
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdbool.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -41,59 +41,23 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-TIM_HandleTypeDef htim6;
+TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim7;
+TIM_HandleTypeDef htim10;
+TIM_HandleTypeDef htim11;
+
 UART_HandleTypeDef huart2;
 
-int32_t EncoderCount = 0;
-
-uint8_t MSG[100] = {'\0'};
-uint8_t CR[2] = {'\0'};
-uint8_t Prefix[3] = {'\0'};
-uint8_t Sufix[3] = {'\0'};
-uint8_t HEADER1[35] = {'\0'};
-uint8_t HEADER2[35] = {'\0'};
-uint8_t HEADER3[35] = {'\0'};
-uint8_t HEADER4[35] = {'\0'};
-uint8_t HEADER5[35] = {'\0'};
-uint16_t PositionSend[7];
-uint16_t KinematicPositionSend[7];
-uint16_t SpeedSend[7];
-uint16_t SpeedUnitSend[7];
-
-//---------------Decleare variables for filter Speed----------------
-uint8_t FilterSpeedEnable = 0;
-float RPSSpeedFilter = 0;
-float RPSSpeedFilterPrev = 0;
-float KinematicSpeedRPSToFiler = 0.0;
-uint8_t FrequencySpeedFilter = 45;
-uint8_t FrequencyCase = 1;
-float b_i;
-float a_i;
-
-
-uint8_t rot_new_state = 0;
-uint8_t rot_old_state = 0;
-
-//Declare variables for Calculate Position Encoder
-float PositionMotor;
-int32_t EncoderPosition = 0;
-float EncoderPositionFloat = 0.0;
-uint16_t EncoderPulse = 2048;
-uint16_t RevoluctionFactor = 1;
-float KinematicPositionUnit = 0.0;
-float KinematicSpeedRPS = 0.0;
-float KinematicSpeedRPM = 0.0;
-float KinematicSpeedRPSold = 0.0;
-float KinematicSpeedUnit = 0.0;
-uint32_t TM6_DiffCaunter;
-uint32_t TM6_OldValue;
-uint8_t IncrementSpeedCheckDouble = 0;
-
-char uart_buf[50];
-int uart_buf_len;
-int16_t TM6_Currentvalue;
-
 /* USER CODE BEGIN PV */
+uint8_t HEADER1[35] = {'\0'};
+uint8_t HEADER4[16] = {'\0'};
+bool TickMotion = false;
+bool TickSerial = false;
+bool TickDiag = false;
+uint32_t CounterDiagSerialOld = 0;
+uint32_t CounterSpeed = 0;
+uint32_t TM2_Currentvalue;
+
 
 /* USER CODE END PV */
 
@@ -101,7 +65,11 @@ int16_t TM6_Currentvalue;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
-static void MX_TIM6_Init(void);
+static void MX_TIM7_Init(void);
+static void MX_TIM10_Init(void);
+static void MX_TIM11_Init(void);
+static void MX_TIM2_Init(void);
+static void MX_NVIC_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -140,65 +108,27 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
-  MX_TIM6_Init();
+  MX_TIM7_Init();
+  MX_TIM10_Init();
+  MX_TIM11_Init();
+  MX_TIM2_Init();
+
+  /* Initialize interrupts */
+  MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
-
-  sprintf(Prefix, "Px;");
-  HAL_UART_Transmit(&huart2, Prefix, sizeof(Prefix), 100);
-  sprintf(HEADER1, "PulseEncoder;");
+  sprintf(HEADER1, "Initialized Serial Comunication \n");
   HAL_UART_Transmit(&huart2, HEADER1, sizeof(HEADER1), 100);
-  sprintf(HEADER2, "PositionMotor;");
-  HAL_UART_Transmit(&huart2, HEADER2, sizeof(HEADER2), 100);
-  sprintf(HEADER3, "RevolutionMotor;");
-  HAL_UART_Transmit(&huart2, HEADER3, sizeof(HEADER3), 100);
-  sprintf(HEADER4, "KinematicPositionUnit;");
-  HAL_UART_Transmit(&huart2, HEADER4, sizeof(HEADER4), 100);
-  sprintf(HEADER5, "KinematicSpeed[Rpm];");
-  HAL_UART_Transmit(&huart2, HEADER5, sizeof(HEADER5), 100);
-  sprintf(Sufix, "Sx;\n");
-  HAL_UART_Transmit(&huart2, Sufix, sizeof(Sufix), 100);
-  HAL_Delay(1000);
-
-  GetConstantFilter();
-
-
   /* USER CODE END 2 */
 
+  MX_ThreadX_Init();
+
+  /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
-	    /* USER CODE END WHILE */
 
-	  	 if((KinematicSpeedRPSold == KinematicSpeedRPS) && (IncrementSpeedCheckDouble >=10))
-	  	 {
-	  		KinematicSpeedRPS = 0.0;
-	  		KinematicSpeedRPM = 0.0;
-	  		KinematicSpeedUnit = 0.0;
-	  		KinematicSpeedRPSold = KinematicSpeedRPS;
-	  	 }
-	  	 else
-	  	 {
-	  		KinematicSpeedRPSold = KinematicSpeedRPS;
-	  		IncrementSpeedCheckDouble++;
-	  	 }
-
-	     //TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6);
-
-	     sprintf(MSG, "Px;%d;%d;%.3f;%.3f;%.3f;%.3f;%.3f;Sx\r",
-				 EncoderCount,
-				 EncoderPosition,
-				 PositionMotor,
-				 KinematicPositionUnit,
-				 KinematicSpeedRPS,
-				 KinematicSpeedRPM,
-				 KinematicSpeedUnit);
-	 		 HAL_UART_Transmit(&huart2, MSG, sizeof(MSG), 0xFFFF);
-	 	 sprintf(CR,"\n");   											//Indispensable for Send Value without error to row empty
-	 		 HAL_UART_Transmit(&huart2, CR, sizeof(CR), 0xFFFF);        //Indispensable for Send Value without error to row empty
-
-		 HAL_Delay(1);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -242,7 +172,7 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
@@ -252,40 +182,171 @@ void SystemClock_Config(void)
 }
 
 /**
-  * @brief TIM6 Initialization Function
+  * @brief NVIC Configuration.
+  * @retval None
+  */
+static void MX_NVIC_Init(void)
+{
+  /* TIM1_UP_TIM10_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(TIM1_UP_TIM10_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
+  /* TIM1_TRG_COM_TIM11_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(TIM1_TRG_COM_TIM11_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(TIM1_TRG_COM_TIM11_IRQn);
+  /* EXTI15_10_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+  /* TIM7_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(TIM7_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(TIM7_IRQn);
+}
+
+/**
+  * @brief TIM2 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_TIM6_Init(void)
+static void MX_TIM2_Init(void)
 {
 
-  /* USER CODE BEGIN TIM6_Init 0 */
+  /* USER CODE BEGIN TIM2_Init 0 */
 
-  /* USER CODE END TIM6_Init 0 */
+  /* USER CODE END TIM2_Init 0 */
 
+  TIM_Encoder_InitTypeDef sConfig = {0};
   TIM_MasterConfigTypeDef sMasterConfig = {0};
 
-  /* USER CODE BEGIN TIM6_Init 1 */
+  /* USER CODE BEGIN TIM2_Init 1 */
 
-  /* USER CODE END TIM6_Init 1 */
-  htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 41;
-  htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 1000;
-  htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-  if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 0;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 8191;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  sConfig.EncoderMode = TIM_ENCODERMODE_TI12;
+  sConfig.IC1Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC1Selection = TIM_ICSELECTION_DIRECTTI;
+  sConfig.IC1Prescaler = TIM_ICPSC_DIV1;
+  sConfig.IC1Filter = 0;
+  sConfig.IC2Polarity = TIM_ICPOLARITY_RISING;
+  sConfig.IC2Selection = TIM_ICSELECTION_DIRECTTI;
+  sConfig.IC2Prescaler = TIM_ICPSC_DIV1;
+  sConfig.IC2Filter = 0;
+  if (HAL_TIM_Encoder_Init(&htim2, &sConfig) != HAL_OK)
   {
     Error_Handler();
   }
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-  if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN TIM6_Init 2 */
-  HAL_TIM_Base_Start_IT(&htim6); // Start Timer
-  /* USER CODE END TIM6_Init 2 */
+  /* USER CODE BEGIN TIM2_Init 2 */
+  HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
+  /* USER CODE END TIM2_Init 2 */
+
+}
+
+/**
+  * @brief TIM7 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM7_Init(void)
+{
+
+  /* USER CODE BEGIN TIM7_Init 0 */
+
+  /* USER CODE END TIM7_Init 0 */
+
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM7_Init 1 */
+
+  /* USER CODE END TIM7_Init 1 */
+  htim7.Instance = TIM7;
+  htim7.Init.Prescaler = 1;
+  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim7.Init.Period = 2099;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM7_Init 2 */
+  HAL_TIM_Base_Start_IT(&htim7); // Start Timer
+  /* USER CODE END TIM7_Init 2 */
+
+}
+
+/**
+  * @brief TIM10 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM10_Init(void)
+{
+
+  /* USER CODE BEGIN TIM10_Init 0 */
+
+  /* USER CODE END TIM10_Init 0 */
+
+  /* USER CODE BEGIN TIM10_Init 1 */
+
+  /* USER CODE END TIM10_Init 1 */
+  htim10.Instance = TIM10;
+  htim10.Init.Prescaler = 500;
+  htim10.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim10.Init.Period = 839;
+  htim10.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim10.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim10) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM10_Init 2 */
+  HAL_TIM_Base_Start_IT(&htim10); // Start Timer
+  /* USER CODE END TIM10_Init 2 */
+
+}
+
+/**
+  * @brief TIM11 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM11_Init(void)
+{
+
+  /* USER CODE BEGIN TIM11_Init 0 */
+
+  /* USER CODE END TIM11_Init 0 */
+
+  /* USER CODE BEGIN TIM11_Init 1 */
+
+  /* USER CODE END TIM11_Init 1 */
+  htim11.Instance = TIM11;
+  htim11.Init.Prescaler = 1000;
+  htim11.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim11.Init.Period = 83;
+  htim11.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim11.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim11) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM11_Init 2 */
+  HAL_TIM_Base_Start_IT(&htim11); // Start Timer
+  /* USER CODE END TIM11_Init 2 */
 
 }
 
@@ -305,7 +366,7 @@ static void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200; //115200 Baudrate
+  huart2.Init.BaudRate = 115200;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;
@@ -340,13 +401,7 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LD2_Pin|Enable_A_PhaseStepper_Pin|Enable_B_PhaseStepper_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, IN2_PhaseA_Pin|IN1_PhaseA_Pin|IN2_PhaseB_Pin, GPIO_PIN_RESET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(IN1_PhaseB_GPIO_Port, IN1_PhaseB_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LD2_Green_Led_GPIO_Port, LD2_Green_Led_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
@@ -354,48 +409,18 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : Encoder1_Count_Pin Encoder1_Direct_Pin */
-  GPIO_InitStruct.Pin = Encoder1_Count_Pin|Encoder1_Direct_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : LD2_Pin Enable_A_PhaseStepper_Pin Enable_B_PhaseStepper_Pin */
-  GPIO_InitStruct.Pin = LD2_Pin|Enable_A_PhaseStepper_Pin|Enable_B_PhaseStepper_Pin;
+  /*Configure GPIO pin : LD2_Green_Led_Pin */
+  GPIO_InitStruct.Pin = LD2_Green_Led_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(LD2_Green_Led_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : IN2_PhaseA_Pin IN1_PhaseA_Pin IN2_PhaseB_Pin */
-  GPIO_InitStruct.Pin = IN2_PhaseA_Pin|IN1_PhaseA_Pin|IN2_PhaseB_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : IN1_PhaseB_Pin */
-  GPIO_InitStruct.Pin = IN1_PhaseB_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(IN1_PhaseB_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : Encoder1_Index_Pin */
-  GPIO_InitStruct.Pin = Encoder1_Index_Pin;
+  /*Configure GPIO pin : Encoder_Index_Pin */
+  GPIO_InitStruct.Pin = Encoder_Index_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(Encoder1_Index_GPIO_Port, &GPIO_InitStruct);
-
-  /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI0_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(EXTI0_IRQn);
-
-  HAL_NVIC_SetPriority(EXTI1_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(EXTI1_IRQn);
-
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+  HAL_GPIO_Init(Encoder_Index_GPIO_Port, &GPIO_InitStruct);
 
 /* USER CODE BEGIN MX_GPIO_Init_2 */
 /* USER CODE END MX_GPIO_Init_2 */
@@ -403,296 +428,29 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-uint8_t rot_get_state() {
-	return (uint8_t)((HAL_GPIO_ReadPin(GPIOA, Encoder1_Direct_Pin) << 1)
-                | (HAL_GPIO_ReadPin(GPIOA, Encoder1_Count_Pin)));
-}
-
-// ---------------------------------EXTERNAL INTERRUPT FOR ENCODER MOTOR--------------------------------------
-/* Use Interrupt callback for determinate the count encoder and direction
- * The Encoder Have a 2048 pulse/rot, in this implementation do it increment counter POSITION four time at impulse
- * Example 1rev/8192 pulse
- * PIN ENCODER A0 COUNT AND A1 DIRECTION
- */
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-	if (GPIO_Pin == Encoder1_Count_Pin || GPIO_Pin == Encoder1_Direct_Pin) {
-
-		rot_new_state = rot_get_state();
-
-		//DBG("%d:%d", rot_old_state, rot_new_state);
-
-		// Check transition
-		if (rot_old_state == 3 && rot_new_state == 2) {        // 3 -> 2 transition
-			EncoderCount++;
-		} else if (rot_old_state == 2 && rot_new_state == 0) { // 2 -> 0 transition
-			EncoderCount++;
-		} else if (rot_old_state == 0 && rot_new_state == 1) { // 0 -> 1 transition
-			EncoderCount++;
-		} else if (rot_old_state == 1 && rot_new_state == 3) { // 1 -> 3 transition
-			EncoderCount++;
-		} else if (rot_old_state == 3 && rot_new_state == 1) { // 3 -> 1 transition
-			EncoderCount--;
-		} else if (rot_old_state == 1 && rot_new_state == 0) { // 1 -> 0 transition
-			EncoderCount--;
-		} else if (rot_old_state == 0 && rot_new_state == 2) { // 0 -> 2 transition
-			EncoderCount--;
-		} else if (rot_old_state == 2 && rot_new_state == 3) { // 2 -> 3 transition
-			EncoderCount--;
-		}
-
-		rot_old_state = rot_new_state;
-		Calculate_Rotation(EncoderPulse,RevoluctionFactor);
-	}
-}
-// ---------------------------------END EXTERNAL INTERRUPT FOR ENCODER MOTOR--------------------------------------
-/*
- *
- *
- *
- */
-// ----------------------------------------CALCULATE REV TO FACTOR --------------------------------------
-/* Calculate Revolution to Factor
- *
- */
-void Calculate_Rotation(uint16_t EncoderPulseSet,uint16_t RevoluctionFactorSet)
-{
-EncoderPosition = EncoderCount/4.0;   // Single Event Encoder 1*4 in Single Counter
-EncoderPositionFloat = EncoderPosition; // Single Counter Encoder
-PositionMotor = EncoderPositionFloat/EncoderPulseSet;
-KinematicPositionUnit = RevoluctionFactorSet * PositionMotor;
-
-TM6_Currentvalue = __HAL_TIM_GET_COUNTER(&htim6); // Get current time (microseconds)
-
-if(TM6_Currentvalue >= TM6_OldValue)
-{
-	TM6_DiffCaunter = (TM6_Currentvalue - TM6_OldValue); // Calculate time from count to count
-	if (FilterSpeedEnable == 1)  // 25Hz CutOff Low-Pass Filter
-	{
-		GetConstantFilter();
-		KinematicSpeedRPSToFiler = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
-		//KinematicSpeedRPS = ((0.854*RPSSpeedFilter) + (0.0728*KinematicSpeedRPSToFiler) + (0.0728*RPSSpeedFilterPrev));
-		KinematicSpeedRPS = ((b_i*RPSSpeedFilter) + (a_i*KinematicSpeedRPSToFiler) + (a_i*RPSSpeedFilterPrev));
-		KinematicSpeedRPM = (KinematicSpeedRPS * 60.0); //Calculate RPM Speed
-		KinematicSpeedUnit = (KinematicSpeedRPM * RevoluctionFactorSet);
-		TM6_OldValue = TM6_Currentvalue; // Save to old value
-		HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
-		RPSSpeedFilterPrev = KinematicSpeedRPSToFiler;
-		RPSSpeedFilter = KinematicSpeedRPS;
-		//HAL_Delay(1);
-	}
-	else
-	{
-		KinematicSpeedRPS = ((1000000.0/TM6_DiffCaunter)/(EncoderPulseSet*4)); //Calculate RPS speed From microsecond to second
-		KinematicSpeedRPM = (KinematicSpeedRPS * 60.0); //Calculate RPM Speed
-		KinematicSpeedUnit = (KinematicSpeedRPM * RevoluctionFactorSet);
-		TM6_OldValue = TM6_Currentvalue; // Save to old value
-		//IncrementSpeedCheckOld = IncrementSpeedCheck;
-		//IncrementSpeedCheck++;
-		//TM6_Currentvalue = 0; //Reset Current Value Counter
-		HAL_GPIO_TogglePin (GPIOA, LD2_Pin);
-	}
-}
-else
-{
-	TM6_OldValue = TM6_Currentvalue;
-}
-
-}
-// -------------------------------------END CALCULATE REV TO FACTOR --------------------------------------
-/* Calculate Revolution to Factor
- *
- */
-//----------------------------DA CONTROLLARE NON FUNZIONANTE--------------------------
-void GetConstantFilter()
-{
-	/*float b0 = 0.0;
-	float b1 = 0.0;
-	float b2 = 0.0;
-	float a1 = 0.0;
-	float a2 = 0.0;
-    const double ita =1.0/ tan(42*0.25);  //Sampling Freq: 10kHz   Cut-off Freq: 1kHz
-    const double q=sqrt(2.0);
-    b0 = 1.0 / (1.0 + q*ita + ita*ita);
-    b1= 2*b0;
-    b2= b0;
-    a1 = 2.0 * (ita*ita - 1.0) * b0;
-    a2 = -(1.0 - q*ita + ita*ita) * b0;
-    */
-
-	switch (FrequencyCase) {
-
-	  case 1:
-		if(FrequencySpeedFilter <= 5)
-		{
-			b_i = 0.96906992;
-			a_i = 0.01546504;
-			//FrequencySpeedFilter = 1;
-			break;
-		}
-		else
-		{
-			FrequencyCase = 2;
-		}
-
-
-	  case 2:
-		if ((FrequencySpeedFilter >= 6)&&(FrequencySpeedFilter <= 10))
-		{
-		    b_i = 0.93908194;
-		    a_i = 0.03045903;
-		    //FrequencySpeedFilter = 2;
-		    break;
-		}
-		else
-		{
-			FrequencyCase = 3;
-		}
-
-
-	  case 3:
-		if ((FrequencySpeedFilter >= 11)&&(FrequencySpeedFilter <= 15))
-		{
-		    b_i = 0.90999367;
-		    a_i = 0.04500317;
-		    //FrequencySpeedFilter = 3;
-		    break;
-		}
-		else
-		{
-			FrequencyCase = 4;
-		}
-
-
-	  case 4:
-		if ((FrequencySpeedFilter >= 16)&&(FrequencySpeedFilter <= 25))
-		{
-		    b_i = 0.85435899;
-		    a_i = 0.07282051;
-		    //FrequencySpeedFilter = 4;
-		    break;
-		}
-		else
-		{
-			FrequencyCase = 5;
-		}
-
-
-	  case 5:
-		if ((FrequencySpeedFilter >= 26)&&(FrequencySpeedFilter <= 35))
-		{
-		    b_i = 0.80187364;
-		    a_i = 0.09906318;
-		    //FrequencySpeedFilter = 5;
-		    break;
-		}
-		else
-		{
-			FrequencyCase = 6;
-		}
-
-
-	  case 6:
-		if ((FrequencySpeedFilter >= 36)&&(FrequencySpeedFilter <= 45))
-		{
-		    b_i = 0.75227759;
-		    a_i = 0.1238612;
-		    //FrequencySpeedFilter = 6;
-		    break;
-		}
-		else
-		{
-			FrequencyCase = 7;
-		}
-
-
-	  case 7:
-		if ((FrequencySpeedFilter >= 46)&&(FrequencySpeedFilter <= 55))
-		{
-		    b_i = 0.70533864;
-		    a_i = 0.14733068;
-		    //FrequencySpeedFilter = 7;
-		    break;
-		}
-		else
-		{
-			FrequencyCase = 8;
-		}
-
-
-	  case 8:
-		if ((FrequencySpeedFilter >= 56)&&(FrequencySpeedFilter <= 65))
-		{
-		    b_i = 0.66084882;
-		    a_i = 0.16957559;
-		    //FrequencySpeedFilter = 8;
-		    break;
-		}
-		else
-		{
-			FrequencyCase = 9;
-		}
-
-
-	  case 9:
-		if ((FrequencySpeedFilter >= 66)&&(FrequencySpeedFilter <= 75))
-		{
-		    b_i = 0.61862133;
-		    a_i = 0.19068933;
-		    //FrequencySpeedFilter = 9;
-		    break;
-		}
-		else
-		{
-			FrequencyCase = 10;
-		}
-
-
-	  case 10:
-		if ((FrequencySpeedFilter >= 76)&&(FrequencySpeedFilter <= 85))
-		{
-		    b_i = 0.57848789;
-		    a_i = 0.21075605;
-		    //FrequencySpeedFilter = 10;
-		    break;
-		}
-		else
-		{
-			FrequencyCase = 11;
-		}
-
-
-	  case 11:
-		if ((FrequencySpeedFilter >= 86)&&(FrequencySpeedFilter <= 95))
-		{
-		    b_i = 0.5402965;
-		    a_i = 0.22985175;
-		    //FrequencySpeedFilter = 11;
-		    break;
-		}
-		else
-		{
-			FrequencyCase = 12;
-		}
-
-
-	  case 12:
-	  		if (FrequencySpeedFilter >= 96)
-	  		{
-	  		    b_i = 0.50390953;
-	  		    a_i = 0.24804523;
-	  		    //FrequencySpeedFilter = 10;
-	  		    break;
-	  		}
-	  		else
-	  		{
-	  			FrequencyCase = 1;
-	  		}
-
-}
-}
-//----------------------------FINE  CONTROLLARE NON FUNZIONANTE--------------------------
 
 /* USER CODE END 4 */
+
+/**
+  * @brief  Period elapsed callback in non blocking mode
+  * @note   This function is called  when TIM6 interrupt took place, inside
+  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+  * a global variable "uwTick" used as application time base.
+  * @param  htim : TIM handle
+  * @retval None
+  */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM6) {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.
@@ -705,6 +463,8 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
+	  sprintf(HEADER4, "Inside TradeMASTER");
+	  HAL_UART_Transmit(&huart2, HEADER4, sizeof(HEADER4), 100);
   }
   /* USER CODE END Error_Handler_Debug */
 }
