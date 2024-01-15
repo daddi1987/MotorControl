@@ -127,7 +127,7 @@ void my_Thread_entry_1(ULONG initial_input)
 	{
 		if(TickSerial == true)
 					{
-					  TickSerial = false;
+					  //TickSerial = false;
 					  if (SerialTX >= ThransholdSerialTX)
 					  {
 						  SerialTX = 0;
@@ -139,7 +139,7 @@ void my_Thread_entry_1(ULONG initial_input)
 					  }
 
 					  msgLength = sprintf(MSG, "Px;%d;%d;%.3f;%.3f;%.3f;",
-					                          SerialTX, Counter, ActualPosition,
+					                          SerialTX, ValueWhatchdog, ActualPosition,
 					                          ActualSpeedRPM, ActualSpeed);
 
 					  msgLength += sprintf(MSG + msgLength, "Sx");

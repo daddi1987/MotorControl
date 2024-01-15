@@ -449,17 +449,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
   }
   /* USER CODE BEGIN Callback 1 */
 
-  else if (htim->Instance == TIM7) {   //20KHz
-	Motion();
-  }
-  else if (htim->Instance == TIM11) {  //1KHz
-	EncoderFeeBack(&htim2);
-    DiagnosticMotor();
-    }
-  else if (htim->Instance == TIM10) {  //0.1KHz
-  	TickSerial = true;
-  }
-
   /* USER CODE END Callback 1 */
 }
 

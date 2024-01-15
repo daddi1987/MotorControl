@@ -61,7 +61,7 @@ extern TIM_HandleTypeDef htim11;
 extern TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN EV */
-
+extern TIM_HandleTypeDef htim2;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -172,7 +172,7 @@ void TIM1_UP_TIM10_IRQHandler(void)
   /* USER CODE END TIM1_UP_TIM10_IRQn 0 */
   HAL_TIM_IRQHandler(&htim10);
   /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 1 */
-
+  TickSerial = true;							//0.5KHz
   /* USER CODE END TIM1_UP_TIM10_IRQn 1 */
 }
 
@@ -186,7 +186,7 @@ void TIM1_TRG_COM_TIM11_IRQHandler(void)
   /* USER CODE END TIM1_TRG_COM_TIM11_IRQn 0 */
   HAL_TIM_IRQHandler(&htim11);
   /* USER CODE BEGIN TIM1_TRG_COM_TIM11_IRQn 1 */
-
+  EncoderFeeBack(&htim2);					    //1KHz
   /* USER CODE END TIM1_TRG_COM_TIM11_IRQn 1 */
 }
 
@@ -200,7 +200,6 @@ void EXTI15_10_IRQHandler(void)
   /* USER CODE END EXTI15_10_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(B1_Pin);
   /* USER CODE BEGIN EXTI15_10_IRQn 1 */
-
   /* USER CODE END EXTI15_10_IRQn 1 */
 }
 
@@ -214,7 +213,6 @@ void TIM6_DAC_IRQHandler(void)
   /* USER CODE END TIM6_DAC_IRQn 0 */
   HAL_TIM_IRQHandler(&htim6);
   /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
-
   /* USER CODE END TIM6_DAC_IRQn 1 */
 }
 
@@ -228,7 +226,7 @@ void TIM7_IRQHandler(void)
   /* USER CODE END TIM7_IRQn 0 */
   HAL_TIM_IRQHandler(&htim7);
   /* USER CODE BEGIN TIM7_IRQn 1 */
-
+  Motion();							//20KHz
   /* USER CODE END TIM7_IRQn 1 */
 }
 

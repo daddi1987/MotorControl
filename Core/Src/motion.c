@@ -50,12 +50,24 @@ float ActualSpeed = 0;
 float OldEncoderSpeedRPM = 0;
 float KinematicSpeedRPSToFiler = 0.0;
 
+uint32_t OldCounterSerial = 0;
+uint32_t NewCounterSerial = 0;
+uint8_t ValueWhatchdog = 0;
+
 void Motion(void)      // THIS VOID RUN AT 20Khz
 {
 	  Counter++;
 	  if(TickSerial == true)
 	  {
-		  CouterSerial = Counter;
+		  CouterSerial = Counter;                 //---------------WATCHDOG TICK 20KHz------------------
+		  OldCounterSerial = NewCounterSerial;
+		  NewCounterSerial = Counter;
+		  ValueWhatchdog = NewCounterSerial - OldCounterSerial;
+		  if ((ValueWhatchdog >= 100)||(ValueWhatchdog <= 110))
+		  {
+			  ValueWhatchdog = ValueWhatchdog; //In Future Insert Value To Check
+		  }
+	   TickSerial = false;
 	  }
 
 	  //--------------------GET SENSOR VALUES------------------------------
@@ -64,8 +76,6 @@ void Motion(void)      // THIS VOID RUN AT 20Khz
 	  ActualSpeedRPM = EncoderSpeedRPM;
 	  ActualSpeed = EncoderSpeedUnit;
 	  //OldEncoderSpeedRPM = EncoderSpeedRPM;
-
-
 }
 void DiagnosticMotor(void)
 {

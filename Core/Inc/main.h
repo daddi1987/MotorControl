@@ -78,6 +78,9 @@ extern float ActualSpeedRPM;
 extern float ActualSpeed;
 extern uint32_t CounterSpeed;
 extern uint32_t OldEncoderPosition;
+extern uint32_t OldCounterSerial;
+extern uint32_t NewCounterSerial;
+extern uint8_t ValueWhatchdog;
 
 typedef struct
 {
