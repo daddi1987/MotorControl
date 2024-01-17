@@ -1,6 +1,12 @@
 motion.c:57:6:Motion	4
 motion.c:80:6:DiagnosticMotor	1
 motion.c:85:6:EncoderFeeBack	1
-motion.c:102:6:Update_Encoder	6
-motion.c:149:6:Calculate_Rotation	2
-motion.c:180:6:GetConstantFilter	35
+motion.c:99:6:Update_Encoder	6
+motion.c:146:6:Calculate_Rotation	2
+motion.c:177:6:GetConstantFilter	35
+motion.c:352:6:EnableMotorA	1
+motion.c:356:6:EnableMotorB	1
+motion.c:360:6:DisableMotorA	1
+motion.c:364:6:DisableMotorB	1
+motion.c:369:6:Stepper_FullStep	5
+motion.c:393:6:Stepper_MicroStep	2

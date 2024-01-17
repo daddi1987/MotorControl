@@ -1,6 +1,12 @@
 ../Core/Src/motion.c:57:6:Motion	4	static
 ../Core/Src/motion.c:80:6:DiagnosticMotor	4	static
 ../Core/Src/motion.c:85:6:EncoderFeeBack	32	static
-../Core/Src/motion.c:102:6:Update_Encoder	24	static
-../Core/Src/motion.c:149:6:Calculate_Rotation	24	static
-../Core/Src/motion.c:180:6:GetConstantFilter	4	static
+../Core/Src/motion.c:99:6:Update_Encoder	24	static
+../Core/Src/motion.c:146:6:Calculate_Rotation	24	static
+../Core/Src/motion.c:177:6:GetConstantFilter	4	static
+../Core/Src/motion.c:352:6:EnableMotorA	8	static
+../Core/Src/motion.c:356:6:EnableMotorB	8	static
+../Core/Src/motion.c:360:6:DisableMotorA	8	static
+../Core/Src/motion.c:364:6:DisableMotorB	8	static
+../Core/Src/motion.c:369:6:Stepper_FullStep	16	static
+../Core/Src/motion.c:393:6:Stepper_MicroStep	24	static

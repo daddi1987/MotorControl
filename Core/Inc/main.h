@@ -125,6 +125,14 @@ void Error_Handler(void);
 #define USART_RX_GPIO_Port GPIOA
 #define LD2_Green_Led_Pin GPIO_PIN_5
 #define LD2_Green_Led_GPIO_Port GPIOA
+#define ENA_Pin GPIO_PIN_1
+#define ENA_GPIO_Port GPIOB
+#define ENB_Pin GPIO_PIN_2
+#define ENB_GPIO_Port GPIOB
+#define H_BRIDGE_IN3_Pin GPIO_PIN_10
+#define H_BRIDGE_IN3_GPIO_Port GPIOB
+#define H_BRIDGE_IN1_Pin GPIO_PIN_7
+#define H_BRIDGE_IN1_GPIO_Port GPIOC
 #define Encoder_Index_Pin GPIO_PIN_10
 #define Encoder_Index_GPIO_Port GPIOA
 #define TMS_Pin GPIO_PIN_13
@@ -133,6 +141,10 @@ void Error_Handler(void);
 #define TCK_GPIO_Port GPIOA
 #define SWO_Pin GPIO_PIN_3
 #define SWO_GPIO_Port GPIOB
+#define H_BRIDGE_IN4_Pin GPIO_PIN_4
+#define H_BRIDGE_IN4_GPIO_Port GPIOB
+#define H_BRIDGE_IN2_Pin GPIO_PIN_6
+#define H_BRIDGE_IN2_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

@@ -96,9 +96,6 @@ void EncoderFeeBack(TIM_HandleTypeDef *htim)
 	// ---------------------------------END EXTERNAL INTERRUPT FOR ENCODER MOTOR--------------------------------------
 
 // ----------------------------------------CALCULATE REV TO FACTOR --------------------------------------
-/* Calculate Revolution to Factor
- *
- */
 void Update_Encoder(encoder_instance *encoder_value, TIM_HandleTypeDef *htim)
  {
 uint32_t temp_counter = __HAL_TIM_GET_COUNTER(htim);
@@ -351,3 +348,64 @@ void GetConstantFilter()
 }
 }
 //----------------------------END SELECT FILTER--------------------------
+//----------------------------COMMAND H-BRIDGE----------------------------
+void EnableMotorA()
+{
+	HAL_GPIO_WritePin(GPIOB,ENA_Pin, GPIO_PIN_SET);
+}
+void EnableMotorB()
+{
+	HAL_GPIO_WritePin(GPIOB,ENB_Pin, GPIO_PIN_SET);
+}
+void DisableMotorA()
+{
+	HAL_GPIO_WritePin(GPIOB,ENA_Pin, GPIO_PIN_RESET);
+}
+void DisableMotorB()
+{
+	HAL_GPIO_WritePin(GPIOB,ENB_Pin, GPIO_PIN_RESET);
+}
+
+void Stepper_FullStep(uint8_t step) {
+    switch (step % 4) {
+        case 0:
+            HAL_GPIO_WritePin(GPIOC, H_BRIDGE_IN1_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(GPIOB, H_BRIDGE_IN2_Pin | H_BRIDGE_IN3_Pin | H_BRIDGE_IN4_Pin, GPIO_PIN_RESET);
+            break;
+        case 1:
+            HAL_GPIO_WritePin(GPIOB, H_BRIDGE_IN2_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(GPIOC, H_BRIDGE_IN1_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(GPIOB,H_BRIDGE_IN3_Pin | H_BRIDGE_IN4_Pin, GPIO_PIN_RESET);
+            break;
+        case 2:
+            HAL_GPIO_WritePin(GPIOB, H_BRIDGE_IN3_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(GPIOC, H_BRIDGE_IN1_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(GPIOB,H_BRIDGE_IN2_Pin | H_BRIDGE_IN4_Pin, GPIO_PIN_RESET);
+            break;
+        case 3:
+            HAL_GPIO_WritePin(GPIOB, H_BRIDGE_IN4_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(GPIOC, H_BRIDGE_IN1_Pin, GPIO_PIN_RESET);
+            HAL_GPIO_WritePin(GPIOB,H_BRIDGE_IN3_Pin | H_BRIDGE_IN2_Pin, GPIO_PIN_RESET);
+            break;
+    }
+}
+
+void Stepper_MicroStep(uint8_t step, uint8_t microstep_mode) {
+    // Sequenza di microstep in base alla modalità selezionata
+    static const uint8_t microstep_sequences[8][256] = {
+        // Sequenza di microstep per 256 MicroStep
+        // ...
+    };
+
+    // Usa la sequenza di microstep in base alla modalità selezionata
+    for (uint8_t i = 0; i < 4; ++i) {
+        // Bancata GPIOB per i pin L298N_IN2_PIN, L298N_IN3_PIN, L298N_IN4_PIN
+        HAL_GPIO_WritePin(GPIOB, H_BRIDGE_IN2_Pin, (microstep_sequences[microstep_mode][step % 256] & 0b0001) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(GPIOB, H_BRIDGE_IN3_Pin, (microstep_sequences[microstep_mode][step % 256] & 0b00010) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(GPIOB, H_BRIDGE_IN4_Pin, (microstep_sequences[microstep_mode][step % 256] & 0b00100) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+
+        // Bancata GPIOC per il pin L298N_IN1_PIN
+        HAL_GPIO_WritePin(GPIOC, H_BRIDGE_IN1_Pin, (microstep_sequences[microstep_mode][step % 256] & 0b01000) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    }
+}
+
