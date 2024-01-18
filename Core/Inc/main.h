@@ -81,6 +81,9 @@ extern uint32_t OldEncoderPosition;
 extern uint32_t OldCounterSerial;
 extern uint32_t NewCounterSerial;
 extern uint8_t ValueWhatchdog;
+extern uint32_t TickTIM3;
+extern bool TimeT3ON;
+extern uint16_t TimeSampleT3;
 
 typedef struct
 {
